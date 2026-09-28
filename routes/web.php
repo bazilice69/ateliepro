@@ -8,30 +8,52 @@ use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LocacaoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedidaController;
-use App\Http\Controllers\FinanceiroController; // <-- Adicionado o Controlador Financeiro
+use App\Http\Controllers\FinanceiroController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\FuncionarioController;
+use App\Http\Controllers\LojaBloqueioController;
+use App\Http\Controllers\PagamentoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () { return view('welcome'); });
 
+// --- Legado: tela de licença por máquina (mantida, mas fora do fluxo SaaS) ---
 Route::get('/licenca-expirada', [LicenseController::class, 'index'])->name('licenca.tela');
 Route::post('/licenca-ativar', [LicenseController::class, 'ativar'])->name('licenca.ativar');
 
-Route::middleware(['auth', 'license'])->group(function () {
-    
+// Tela de aviso quando a LOJA está inadimplente/bloqueada (modelo SaaS).
+Route::middleware('auth')->get('/loja-bloqueada', [LojaBloqueioController::class, 'index'])->name('loja.bloqueada');
+
+// ==========================================================================
+// PAINEL DO SUPER ADMIN (dono do SaaS) — só super_admin
+// ==========================================================================
+Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/acessos', [AdminController::class, 'acessos'])->name('acessos');
+    Route::get('/lojas/{loja}', [AdminController::class, 'show'])->name('lojas.show');
+    Route::put('/lojas/{loja}/plano', [AdminController::class, 'updatePlano'])->name('lojas.plano');
+    Route::put('/lojas/{loja}/status', [AdminController::class, 'updateStatus'])->name('lojas.status');
+});
+
+// ==========================================================================
+// ÁREA DA LOJA — exige login + loja ativa (verificação por loja, não por máquina)
+// ==========================================================================
+Route::middleware(['auth', 'lojaativa'])->group(function () {
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Módulo de Clientes (AteliêPro)
+    // Módulo de Clientes
     Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
     Route::get('/clientes/novo', [ClienteController::class, 'create'])->name('clientes.create');
     Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
     Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('clientes.show');
     Route::get('/clientes/{id}/editar', [ClienteController::class, 'edit'])->name('clientes.edit');
     Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');
-    
+
     // Salvar Medidas
     Route::post('/clientes/{id}/medidas', [MedidaController::class, 'store'])->name('medidas.store');
 
@@ -41,20 +63,27 @@ Route::middleware(['auth', 'license'])->group(function () {
     Route::post('/acervo', [ProdutoController::class, 'store'])->name('produto.store');
 
     Route::get('/agenda', [AgendamentoController::class, 'index'])->name('agenda.index');
-    
+
     Route::get('/locacoes/nova', [LocacaoController::class, 'create'])->name('locacao.create');
     Route::post('/locacoes/salvar', [LocacaoController::class, 'store'])->name('locacao.store');
-    
-    // ==========================================
-    // MÓDULO FINANCEIRO (Onde o patrão manda)
-    // ==========================================
+
+    // Módulo Financeiro
     Route::get('/financeiro', [FinanceiroController::class, 'index'])->name('financeiro.index');
     Route::post('/financeiro/lancamento', [FinanceiroController::class, 'store'])->name('financeiro.store');
-    
+
+    // Gestão de Funcionários (apenas admin_loja / super_admin)
+    Route::middleware('adminloja')->group(function () {
+        Route::get('/funcionarios', [FuncionarioController::class, 'index'])->name('funcionarios.index');
+        Route::get('/funcionarios/novo', [FuncionarioController::class, 'create'])->name('funcionarios.create');
+        Route::post('/funcionarios', [FuncionarioController::class, 'store'])->name('funcionarios.store');
+        Route::get('/funcionarios/{user}/editar', [FuncionarioController::class, 'edit'])->name('funcionarios.edit');
+        Route::put('/funcionarios/{user}', [FuncionarioController::class, 'update'])->name('funcionarios.update');
+        Route::delete('/funcionarios/{user}', [FuncionarioController::class, 'destroy'])->name('funcionarios.destroy');
+    });
+
 });
 
 require __DIR__.'/auth.php';
 
-use App\Http\Controllers\PagamentoController;
-
-Route::get('/assinar/pix', [PagamentoController::class, 'gerarPix'])->name('assinar.pix');
+// Checkout PIX (temporário — será reescrito na Fase 3 de pagamentos/webhook)
+Route::middleware(['auth', 'lojaativa'])->get('/assinar/pix', [PagamentoController::class, 'gerarPix'])->name('assinar.pix');

@@ -42,6 +42,10 @@ class DemoMultiTenantSeeder extends Seeder
             adminNome: 'Maria (Bella)',
             clientes: ['Ana Noiva', 'Carla Madrinha'],
             pecas: [['BELLA-001', 'Vestido Sereia Marfim'], ['BELLA-002', 'Vestido Princesa']],
+            plano: 'Profissional',
+            valorMensal: 149.90,
+            funcionarioEmail: 'funcionaria.bella@ateliepro.com',
+            funcionarioNome: 'Paula (Costureira)',
         );
 
         $this->criarLoja(
@@ -51,6 +55,10 @@ class DemoMultiTenantSeeder extends Seeder
             adminNome: 'João (Elegance)',
             clientes: ['Beatriz Debutante', 'Rafael Noivo'],
             pecas: [['ELEG-001', 'Terno Slim Preto'], ['ELEG-002', 'Vestido Debutante Rosa']],
+            plano: 'Essencial',
+            valorMensal: 89.90,
+            funcionarioEmail: null,
+            funcionarioNome: null,
         );
     }
 
@@ -65,6 +73,10 @@ class DemoMultiTenantSeeder extends Seeder
         string $adminNome,
         array $clientes,
         array $pecas,
+        string $plano = 'Essencial',
+        float $valorMensal = 89.90,
+        ?string $funcionarioEmail = null,
+        ?string $funcionarioNome = null,
     ): void {
         $loja = Loja::firstOrCreate(
             ['cnpj_cpf' => $cnpj],
@@ -73,6 +85,9 @@ class DemoMultiTenantSeeder extends Seeder
                 'nome_fantasia' => $nomeFantasia,
                 'email_responsavel' => $adminEmail,
                 'status' => Loja::STATUS_ATIVO,
+                'plano' => $plano,
+                'valor_mensal' => $valorMensal,
+                'data_vencimento' => now()->addMonth(),
             ]
         );
 
@@ -85,6 +100,19 @@ class DemoMultiTenantSeeder extends Seeder
                 'loja_id' => $loja->id,
             ]
         );
+
+        // Funcionário de exemplo (acesso restrito) — se informado.
+        if ($funcionarioEmail) {
+            User::firstOrCreate(
+                ['email' => $funcionarioEmail],
+                [
+                    'name' => $funcionarioNome,
+                    'password' => Hash::make('password'),
+                    'role' => User::ROLE_FUNCIONARIO,
+                    'loja_id' => $loja->id,
+                ]
+            );
+        }
 
         // Categorias financeiras próprias da loja (opção B).
         CategoriaFinanceiraSeeder::popularParaLoja($loja->id);

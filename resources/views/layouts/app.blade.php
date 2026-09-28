@@ -46,6 +46,13 @@
                 <a href="{{ route('financeiro.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('financeiro.index') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
                     <i class="fas fa-dollar-sign mr-3 w-5"></i> Financeiro
                 </a>
+
+                <!-- Equipe (apenas admin da loja) -->
+                @if(auth()->user()?->isAdminLoja() || auth()->user()?->isSuperAdmin())
+                    <a href="{{ route('funcionarios.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('funcionarios.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                        <i class="fas fa-user-tie mr-3 w-5"></i> Equipe
+                    </a>
+                @endif
             </nav>
 
             <!-- Rodapé do Menu com Loja + Usuário -->
@@ -91,6 +98,12 @@
                     </a>
                 </div>
             </header>
+
+            @isset($header)
+                <div class="bg-white border-b px-8 py-4">
+                    {{ $header }}
+                </div>
+            @endisset
 
             <!-- Área da Tela -->
             <main class="flex-1 overflow-y-auto p-8 bg-slate-50">

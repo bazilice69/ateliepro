@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'loja_id', 'role'])]
+#[Fillable(['name', 'email', 'password', 'loja_id', 'role', 'last_login_at', 'last_login_ip', 'total_acessos'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -35,6 +35,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -44,6 +45,14 @@ class User extends Authenticatable
     public function loja(): BelongsTo
     {
         return $this->belongsTo(Loja::class);
+    }
+
+    /**
+     * É funcionário da loja (acesso restrito)?
+     */
+    public function isFuncionario(): bool
+    {
+        return $this->role === self::ROLE_FUNCIONARIO;
     }
 
     /**
