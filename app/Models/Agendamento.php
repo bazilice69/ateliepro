@@ -42,8 +42,20 @@ class Agendamento extends Model
         return $this->belongsTo(Evento::class);
     }
 
+    /**
+     * Peça vinculada ao agendamento. O estoque foi unificado em `acervos`,
+     * então a coluna `produto_id` referencia agora a tabela `acervos`.
+     */
     public function produto(): BelongsTo
     {
-        return $this->belongsTo(Produto::class);
+        return $this->belongsTo(Acervo::class, 'produto_id');
+    }
+
+    /**
+     * Alias semântico para a peça do acervo.
+     */
+    public function acervo(): BelongsTo
+    {
+        return $this->belongsTo(Acervo::class, 'produto_id');
     }
 }
