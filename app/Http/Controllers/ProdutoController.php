@@ -7,6 +7,13 @@ use App\Models\Acervo;
 
 class ProdutoController extends Controller
 {
+    // Lista as peças do acervo
+    public function index()
+    {
+        $pecas = Acervo::orderBy('codigo')->get();
+        return view('acervo.index', compact('pecas'));
+    }
+
     // Abre a tela de cadastro
     public function create()
     {
