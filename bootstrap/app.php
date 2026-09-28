@@ -19,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'superadmin' => \App\Http\Middleware\EnsureSuperAdmin::class,
             'adminloja' => \App\Http\Middleware\EnsureAdminLoja::class,
         ]);
+
+        // O webhook do Mercado Pago vem de fora (sem sessão/CSRF).
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/mercadopago',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

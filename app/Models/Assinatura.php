@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToLoja;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Assinatura extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToLoja;
 
     protected $table = 'assinaturas';
 
@@ -36,11 +36,5 @@ class Assinatura extends Model
     public const STATUS_PAGA = 'paga';
     public const STATUS_CANCELADA = 'cancelada';
 
-    /**
-     * A assinatura pertence a uma loja.
-     */
-    public function loja(): BelongsTo
-    {
-        return $this->belongsTo(Loja::class);
-    }
+    // A relação loja() e o isolamento por loja vêm da trait BelongsToLoja.
 }

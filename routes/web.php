@@ -10,12 +10,18 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedidaController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminPlanoController;
+use App\Http\Controllers\AdminConfigController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LojaBloqueioController;
-use App\Http\Controllers\PagamentoController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () { return view('welcome'); });
+Route::get('/', function () {
+    $planos = \App\Models\Plano::ativos()->get();
+    return view('welcome', compact('planos'));
+})->name('home');
 
 // --- Legado: tela de licença por máquina (mantida, mas fora do fluxo SaaS) ---
 Route::get('/licenca-expirada', [LicenseController::class, 'index'])->name('licenca.tela');
@@ -33,6 +39,20 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     Route::get('/lojas/{loja}', [AdminController::class, 'show'])->name('lojas.show');
     Route::put('/lojas/{loja}/plano', [AdminController::class, 'updatePlano'])->name('lojas.plano');
     Route::put('/lojas/{loja}/status', [AdminController::class, 'updateStatus'])->name('lojas.status');
+    Route::post('/lojas/{loja}/estender', [AdminController::class, 'estenderVencimento'])->name('lojas.estender');
+    Route::get('/lojas/{loja}/entrar', [AdminController::class, 'entrarComo'])->name('lojas.entrar');
+
+    // Gestão de Planos do SaaS
+    Route::get('/planos', [AdminPlanoController::class, 'index'])->name('planos.index');
+    Route::get('/planos/novo', [AdminPlanoController::class, 'create'])->name('planos.create');
+    Route::post('/planos', [AdminPlanoController::class, 'store'])->name('planos.store');
+    Route::get('/planos/{plano}/editar', [AdminPlanoController::class, 'edit'])->name('planos.edit');
+    Route::put('/planos/{plano}', [AdminPlanoController::class, 'update'])->name('planos.update');
+    Route::delete('/planos/{plano}', [AdminPlanoController::class, 'destroy'])->name('planos.destroy');
+
+    // Configurações globais do SaaS
+    Route::get('/config', [AdminConfigController::class, 'edit'])->name('config.edit');
+    Route::put('/config', [AdminConfigController::class, 'update'])->name('config.update');
 });
 
 // ==========================================================================
@@ -85,5 +105,25 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Checkout PIX (temporário — será reescrito na Fase 3 de pagamentos/webhook)
-Route::middleware(['auth', 'lojaativa'])->get('/assinar/pix', [PagamentoController::class, 'gerarPix'])->name('assinar.pix');
+// ==========================================================================
+// CHECKOUT / ASSINATURA (Mercado Pago)
+// ==========================================================================
+// Escolha de plano -> gera PIX. Exige login (mas NÃO exige loja ativa, pois é
+// justamente aqui que uma loja inadimplente vem renovar).
+Route::middleware('auth')->group(function () {
+    Route::get('/assinar/{slug}', [CheckoutController::class, 'plano'])->name('checkout.plano');
+    Route::get('/assinatura/{assinatura}/status', [CheckoutController::class, 'status'])->name('checkout.status');
+});
+
+// Webhook do Mercado Pago — público e isento de CSRF (ver bootstrap/app.php).
+Route::post('/webhooks/mercadopago', [WebhookController::class, 'mercadopago'])->name('webhook.mercadopago');
+
+// Voltar da personificação ("Entrar como") para o super_admin original.
+Route::middleware('auth')->post('/admin/voltar-personificacao', function () {
+    if ($originalId = session('impersonator_id')) {
+        auth()->loginUsingId($originalId);
+        session()->forget('impersonator_id');
+        return redirect()->route('admin.dashboard')->with('success', 'Você voltou ao painel Master.');
+    }
+    return redirect()->route('dashboard');
+})->name('admin.voltar');

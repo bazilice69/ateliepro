@@ -84,6 +84,15 @@
 
         <!-- Conteúdo Principal -->
         <div class="flex-1 flex flex-col overflow-hidden">
+            @if(session('impersonator_id'))
+                <div class="bg-amber-400 text-slate-900 px-6 py-2 flex justify-between items-center text-sm font-bold">
+                    <span><i class="fas fa-user-secret mr-2"></i> Você está navegando como esta loja (modo suporte).</span>
+                    <form method="POST" action="{{ route('admin.voltar') }}">
+                        @csrf
+                        <button class="underline uppercase text-xs tracking-widest">Voltar ao Painel Master</button>
+                    </form>
+                </div>
+            @endif
             <!-- Header Superior -->
             <header class="bg-white shadow-sm border-b p-4 flex justify-between items-center">
                 <div>

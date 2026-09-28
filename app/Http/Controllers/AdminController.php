@@ -44,8 +44,11 @@ class AdminController extends Controller
             'ativas' => $lojas->where('status', Loja::STATUS_ATIVO)->count(),
             'inadimplentes' => $lojas->where('status', Loja::STATUS_INADIMPLENTE)->count(),
             'bloqueadas' => $lojas->where('status', Loja::STATUS_BLOQUEADO)->count(),
+            // MRR = receita recorrente mensal (soma do valor efetivo /mês das lojas ativas)
             'faturamento_mensal' => $lojas->where('status', Loja::STATUS_ATIVO)
                 ->sum(fn (Loja $l) => $l->valorEfetivo()),
+            'novas_no_mes' => $lojas->where('created_at', '>=', now()->startOfMonth())->count(),
+            'vencendo' => $lojas->filter(fn (Loja $l) => $l->venceEmBreve())->count(),
         ];
 
         return view('admin.dashboard', compact('lojas', 'resumo', 'clientesPorLoja', 'pecasPorLoja', 'locacoesPorLoja'));
@@ -102,6 +105,46 @@ class AdminController extends Controller
         $loja->update($dados);
 
         return back()->with('success', 'Status da loja atualizado para: ' . $dados['status']);
+    }
+
+    /**
+     * Estende o vencimento da loja em N meses (ação rápida do super_admin).
+     */
+    public function estenderVencimento(Request $request, Loja $loja)
+    {
+        $meses = (int) $request->input('meses', 1);
+        $meses = max(1, min(24, $meses));
+
+        $base = ($loja->data_vencimento && $loja->data_vencimento->isFuture())
+            ? $loja->data_vencimento->copy()
+            : now();
+
+        $loja->update([
+            'data_vencimento' => $base->addMonths($meses),
+            'status' => Loja::STATUS_ATIVO,
+        ]);
+
+        return back()->with('success', "Vencimento estendido em {$meses} mês(es).");
+    }
+
+    /**
+     * "Entrar como" a loja — o super_admin passa a navegar como o admin dela,
+     * para dar suporte. Guarda o id original para poder voltar.
+     */
+    public function entrarComo(Loja $loja)
+    {
+        $adminDaLoja = User::where('loja_id', $loja->id)
+            ->where('role', User::ROLE_ADMIN_LOJA)
+            ->first();
+
+        if (!$adminDaLoja) {
+            return back()->withErrors(['erro' => 'Esta loja não possui um administrador para personificar.']);
+        }
+
+        session(['impersonator_id' => auth()->id()]);
+        auth()->login($adminDaLoja);
+
+        return redirect()->route('dashboard')->with('success', 'Você está navegando como ' . $loja->nome_fantasia);
     }
 
     /**

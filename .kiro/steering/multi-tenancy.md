@@ -46,3 +46,13 @@ Logins de teste (senha: `password`):
 
 Teste: logue como `bella@` e tente abrir um cliente/peça da Elegance pela URL
 (ex.: `/clientes/ID_DA_ELEGANCE`). Deve retornar **404** — nunca os dados.
+
+
+## Models tenant-scoped (usam BelongsToLoja)
+
+Cliente, Acervo, Locacao, Agendamento, Evento, Medida, CategoriaFinanceira,
+LancamentoFinanceiro e **Assinatura**.
+
+NÃO são tenant-scoped (globais do SaaS): User, Loja, Plano, Setting, AccessLog.
+No webhook do Mercado Pago (sem usuário logado) usa-se
+`Assinatura::withoutGlobalScope('loja')` para localizar a assinatura paga.

@@ -3,7 +3,19 @@
 @section('titulo', $loja->nome_fantasia)
 
 @section('conteudo')
-    <a href="{{ route('admin.dashboard') }}" class="text-xs font-bold text-slate-400 hover:text-slate-700 uppercase tracking-widest">← Voltar para as lojas</a>
+    <div class="flex justify-between items-center">
+        <a href="{{ route('admin.dashboard') }}" class="text-xs font-bold text-slate-400 hover:text-slate-700 uppercase tracking-widest">← Voltar para as lojas</a>
+        <div class="flex gap-2">
+            <a href="{{ route('admin.lojas.entrar', $loja) }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wide">
+                <i class="fas fa-right-to-bracket mr-1"></i> Entrar como
+            </a>
+            <form method="POST" action="{{ route('admin.lojas.estender', $loja) }}" class="flex items-center gap-1">
+                @csrf
+                <input type="number" name="meses" value="1" min="1" max="24" class="w-16 p-2 bg-slate-50 border-none rounded-lg text-sm font-semibold text-center">
+                <button class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wide">+ Meses</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Indicadores -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 mb-8">

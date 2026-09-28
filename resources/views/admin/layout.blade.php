@@ -18,8 +18,14 @@
             <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.dashboard') || request()->routeIs('admin.lojas.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
                 <i class="fas fa-store mr-3 w-5"></i> Lojas
             </a>
+            <a href="{{ route('admin.planos.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.planos.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
+                <i class="fas fa-tags mr-3 w-5"></i> Planos & Preços
+            </a>
             <a href="{{ route('admin.acessos') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.acessos') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
                 <i class="fas fa-right-to-bracket mr-3 w-5"></i> Atividade / Acessos
+            </a>
+            <a href="{{ route('admin.config.edit') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.config.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
+                <i class="fas fa-gear mr-3 w-5"></i> Configurações
             </a>
         </nav>
         <div class="p-4 border-t border-gray-800 bg-[#070b16]">
