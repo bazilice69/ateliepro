@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AteliêPro - Gestão Inteligente</title>
+    <!-- Tailwind CSS para um visual moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar (Menu Lateral) - Azul Marinho Premium -->
+        <div class="w-64 bg-[#0f172a] text-white flex flex-col">
+            <div class="p-6 text-2xl font-bold border-b border-gray-700 flex items-center">
+                <i class="fas fa-cut mr-3 text-[#fbbf24]"></i> AteliêPro
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto py-4">
+                <!-- Link Início (Dashboard) -->
+                <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('dashboard') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-home mr-3 w-5"></i> Início
+                </a>
+
+                <!-- Link Agenda Master -->
+                <a href="{{ route('agenda.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('agenda.index') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-calendar-alt mr-3 w-5"></i> Agenda
+                </a>
+
+                <!-- Link Acervo Conectado -->
+                <a href="{{ route('acervo.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('acervo.index') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-tshirt mr-3 w-5"></i> Acervo/Estoque
+                </a>
+
+                <!-- Link Clientes Conectado -->
+                <a href="{{ route('clientes.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('clientes.index') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-users mr-3 w-5"></i> Clientes
+                </a>
+
+                <!-- Link Locações Conectado -->
+                <a href="{{ route('locacao.create') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('locacao.create') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-file-contract mr-3 w-5"></i> Locações
+                </a>
+
+                <!-- Link Financeiro Conectado (Agora funcionando perfeitamente!) -->
+                <a href="{{ route('financeiro.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('financeiro.index') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-dollar-sign mr-3 w-5"></i> Financeiro
+                </a>
+            </nav>
+
+            <!-- Rodapé do Menu com Usuário -->
+            <div class="p-4 border-t border-gray-700 bg-[#0a0f1d]">
+                <div class="text-sm font-medium">{{ Auth::user()->name ?? 'Usuário' }}</div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-xs text-orange-400 hover:text-orange-300 mt-1 uppercase tracking-wider font-bold">
+                        Sair do Sistema
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header Superior -->
+            <header class="bg-white shadow-sm border-b p-4 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-800">Painel de Controle</h2>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('locacao.create') }}" class="bg-[#fbbf24] hover:bg-yellow-500 text-gray-900 px-4 py-2 rounded-lg font-bold text-sm transition shadow-md flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Nova Locação
+                    </a>
+                </div>
+            </header>
+
+            <!-- Área da Tela -->
+            <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
+                {{ $slot }}
+            </main>
+        </div>
+    </div>
+</body>
+</html>
