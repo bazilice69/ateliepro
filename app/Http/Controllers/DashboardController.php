@@ -2,20 +2,70 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Acervo;
+use App\Models\Agendamento;
 use App\Models\Cliente;
+use App\Models\Evento;
+use App\Models\LancamentoFinanceiro;
+use App\Models\Locacao;
+use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Conta quantos clientes reais existem no banco de dados hoje
-        $totalClientes = Cliente::count();
+        $inicioMes = Carbon::now()->startOfMonth();
+        $fimMes = Carbon::now()->endOfMonth();
 
-        // Variável provisória para a tela não quebrar (depois vamos puxar da tabela de locações)
-        $locacoesAtivas = 12; 
+        // Todos os totais já são escopados pela loja (trait BelongsToLoja).
+        $recebidoMes = (float) LancamentoFinanceiro::where('tipo', 'Receita')
+            ->where('status', 'Pago')
+            ->whereBetween('data_vencimento', [$inicioMes, $fimMes])
+            ->sum('valor_final');
 
-        // Manda os dados para a sua tela visual maravilhosa do Dashboard
-        return view('dashboard', compact('totalClientes', 'locacoesAtivas'));
+        $aReceber = (float) LancamentoFinanceiro::where('tipo', 'Receita')
+            ->where('status', 'Pendente')
+            ->sum('valor_final');
+
+        $emAtraso = (float) LancamentoFinanceiro::where('tipo', 'Receita')
+            ->where('status', 'Vencido')
+            ->sum('valor_final');
+
+        $despesasMes = (float) LancamentoFinanceiro::where('tipo', 'Despesa')
+            ->where('status', 'Pago')
+            ->whereBetween('data_vencimento', [$inicioMes, $fimMes])
+            ->sum('valor_final');
+
+        $saldoPrevisto = $recebidoMes + $aReceber - $despesasMes;
+
+        $totais = [
+            'clientes' => Cliente::count(),
+            'pecas' => Acervo::count(),
+            'locacoes_ativas' => Locacao::where('status', '!=', 'cancelada')->count(),
+        ];
+
+        // Movimentações recentes reais
+        $movimentacoes = LancamentoFinanceiro::with(['categoria', 'cliente'])
+            ->orderByDesc('data_vencimento')
+            ->limit(8)
+            ->get();
+
+        // Próximos eventos (com contagem regressiva)
+        $proximosEventos = Evento::where('status', 'Ativo')
+            ->whereDate('data_evento', '>=', now())
+            ->orderBy('data_evento')
+            ->limit(5)
+            ->get();
+
+        // Agenda de hoje
+        $agendaHoje = Agendamento::with(['cliente'])
+            ->whereDate('data_hora', today())
+            ->orderBy('data_hora')
+            ->get();
+
+        return view('dashboard', compact(
+            'recebidoMes', 'aReceber', 'emAtraso', 'despesasMes', 'saldoPrevisto',
+            'totais', 'movimentacoes', 'proximosEventos', 'agendaHoje'
+        ));
     }
 }

@@ -7,6 +7,8 @@
     <!-- Tailwind CSS para um visual moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Alpine.js (interatividade: calculadora, dropdowns, etc.) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="flex h-screen overflow-hidden">
@@ -52,6 +54,9 @@
                     <a href="{{ route('funcionarios.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('funcionarios.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
                         <i class="fas fa-user-tie mr-3 w-5"></i> Equipe
                     </a>
+                    <a href="{{ route('assinar.escolher') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('assinar.*') || request()->routeIs('checkout.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                        <i class="fas fa-crown mr-3 w-5"></i> Assinatura
+                    </a>
                 @endif
             </nav>
 
@@ -91,6 +96,14 @@
                         @csrf
                         <button class="underline uppercase text-xs tracking-widest">Voltar ao Painel Master</button>
                     </form>
+                </div>
+            @endif
+
+            @php $lojaBanner = Auth::user()?->loja; @endphp
+            @if($lojaBanner && $lojaBanner->emTrial())
+                <div class="bg-emerald-500 text-white px-6 py-2 flex justify-between items-center text-sm font-bold">
+                    <span><i class="fas fa-gift mr-2"></i> Você está no teste grátis — restam <strong>{{ $lojaBanner->diasDeTrial() }} dia(s)</strong>.</span>
+                    <a href="{{ route('assinar.escolher') }}" class="bg-white text-emerald-600 px-4 py-1 rounded-lg uppercase text-xs tracking-widest hover:bg-emerald-50">Assinar agora</a>
                 </div>
             @endif
             <!-- Header Superior -->

@@ -111,6 +111,7 @@ require __DIR__.'/auth.php';
 // Escolha de plano -> gera PIX. Exige login (mas NÃO exige loja ativa, pois é
 // justamente aqui que uma loja inadimplente vem renovar).
 Route::middleware('auth')->group(function () {
+    Route::get('/assinar', [CheckoutController::class, 'escolher'])->name('assinar.escolher');
     Route::get('/assinar/{slug}', [CheckoutController::class, 'plano'])->name('checkout.plano');
     Route::get('/assinatura/{assinatura}/status', [CheckoutController::class, 'status'])->name('checkout.status');
 });

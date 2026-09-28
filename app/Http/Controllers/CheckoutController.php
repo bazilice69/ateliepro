@@ -24,6 +24,18 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Tela de escolha de plano para a loja logada (usada no fim do trial ou
+     * quando o admin quer assinar/renovar).
+     */
+    public function escolher(Request $request)
+    {
+        $planos = Plano::ativos()->get();
+        $loja = $request->user()?->loja;
+
+        return view('checkout.escolher', compact('planos', 'loja'));
+    }
+
+    /**
      * Inicia o checkout de um plano (identificado pelo slug).
      */
     public function plano(Request $request, string $slug)

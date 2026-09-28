@@ -52,6 +52,69 @@
                 </div>
             </div>
 
+            <!-- CALCULADORA DE PRECIFICAÇÃO (interativa, Alpine.js) -->
+            <div x-data="calculadoraPreco()" class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-11 h-11 rounded-2xl bg-slate-900 text-[#fbbf24] flex items-center justify-center"><i class="fas fa-calculator"></i></div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-800 tracking-tighter">Calculadora de Preço</h3>
+                        <p class="text-sm font-medium text-slate-500">Descubra o preço ideal considerando custos, despesas e a margem que você quer ganhar.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Entradas -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Custo de Material (R$)</label>
+                            <input type="number" step="0.01" min="0" x-model.number="material" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Tecido, aviamentos...">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Horas de Trabalho</label>
+                                <input type="number" step="0.5" min="0" x-model.number="horas" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 10">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Valor da Hora (R$)</label>
+                                <input type="number" step="0.01" min="0" x-model.number="valorHora" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 30">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Rateio de Despesas Fixas (R$)</label>
+                            <input type="number" step="0.01" min="0" x-model.number="despesasFixas" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Luz, água, internet, aluguel rateados">
+                            <p class="text-[11px] text-slate-400 mt-1">Quanto das contas do mês (luz, água, internet, aluguel...) esta peça deve "pagar".</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Margem de Lucro (%)</label>
+                                <input type="number" step="1" min="0" x-model.number="margem" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 40">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Taxa de Cartão (%)</label>
+                                <input type="number" step="0.1" min="0" x-model.number="taxaCartao" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 3.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultado -->
+                    <div class="bg-slate-900 rounded-[2rem] p-8 flex flex-col justify-center">
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between text-slate-400"><span>Material</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(material)"></span></span></div>
+                            <div class="flex justify-between text-slate-400"><span>Mão de obra (<span x-text="horas||0"></span>h)</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(maoDeObra)"></span></span></div>
+                            <div class="flex justify-between text-slate-400"><span>Despesas fixas</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(despesasFixas)"></span></span></div>
+                            <div class="flex justify-between text-slate-300 border-t border-slate-700 pt-3"><span class="font-bold">Custo total</span><span class="font-black">R$ <span x-text="fmt(custoTotal)"></span></span></div>
+                            <div class="flex justify-between text-slate-400"><span>+ Margem (<span x-text="margem||0"></span>%)</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(valorMargem)"></span></span></div>
+                            <div class="flex justify-between text-slate-400"><span>+ Taxa de cartão</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(valorTaxa)"></span></span></div>
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-slate-700 text-center">
+                            <p class="text-[10px] font-black text-[#fbbf24] uppercase tracking-widest">Preço Sugerido</p>
+                            <p class="text-4xl font-black text-white mt-1">R$ <span x-text="fmt(precoFinal)"></span></p>
+                            <p class="text-xs text-emerald-400 font-bold mt-2">Lucro estimado: R$ <span x-text="fmt(valorMargem)"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- TABELA REAL DE LANÇAMENTOS -->
             <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
                 <h3 class="text-xl font-black text-slate-800 tracking-tighter mb-6">Todos os Lançamentos</h3>
@@ -214,6 +277,24 @@
 
         function fecharModal() {
             document.getElementById('modalLancamento').classList.add('hidden');
+        }
+
+        // Calculadora de precificação (Alpine.js)
+        function calculadoraPreco() {
+            return {
+                material: 0, horas: 0, valorHora: 0, despesasFixas: 0, margem: 40, taxaCartao: 0,
+                get maoDeObra() { return (this.horas || 0) * (this.valorHora || 0); },
+                get custoTotal() { return (this.material || 0) + this.maoDeObra + (this.despesasFixas || 0); },
+                get valorMargem() { return this.custoTotal * ((this.margem || 0) / 100); },
+                // Preço antes da taxa (custo + margem), depois embute a taxa de cartão.
+                get precoAntesTaxa() { return this.custoTotal + this.valorMargem; },
+                get precoFinal() {
+                    const t = (this.taxaCartao || 0) / 100;
+                    return t > 0 && t < 1 ? this.precoAntesTaxa / (1 - t) : this.precoAntesTaxa;
+                },
+                get valorTaxa() { return this.precoFinal - this.precoAntesTaxa; },
+                fmt(v) { return (Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
+            };
         }
     </script>
 </x-app-layout>
