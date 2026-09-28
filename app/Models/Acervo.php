@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToLoja;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Acervo extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToLoja;
 
     protected $table = 'acervos';
 
     // Estoque unificado: campos originais + campos migrados de `produtos`.
     protected $fillable = [
+        'loja_id',
         'codigo',
         'nome',
         'categoria',

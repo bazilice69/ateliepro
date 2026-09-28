@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\LancamentoFinanceiro;
 use App\Models\CategoriaFinanceira;
 use App\Models\Cliente;
@@ -34,10 +36,13 @@ class FinanceiroController extends Controller
 
     public function store(Request $request)
     {
+        $lojaId = Auth::user()->loja_id;
+
         // Validação dos campos essenciais
         $request->validate([
             'tipo' => 'required|in:Receita,Despesa',
-            'categoria_financeira_id' => 'required|exists:categoria_financeiras,id',
+            // categoria precisa pertencer à mesma loja
+            'categoria_financeira_id' => ['required', Rule::exists('categoria_financeiras', 'id')->where('loja_id', $lojaId)],
             'descricao' => 'required|string|max:255',
             'valor_original' => 'required|numeric|min:0.01',
             'data_vencimento' => 'required|date',

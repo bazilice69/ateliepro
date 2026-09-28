@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\Locacao;
 use App\Models\Cliente;
 use App\Models\Acervo;
@@ -23,9 +25,12 @@ class LocacaoController extends Controller
     // 2. Recebe os dados, verifica a regra de ouro e salva
     public function store(Request $request)
     {
+        $lojaId = Auth::user()->loja_id;
+
         $request->validate([
-            'cliente_id' => 'required|exists:clientes,id',
-            'acervo_id' => 'required|exists:acervos,id',
+            // exists escopado por loja: impede referenciar cliente/peça de OUTRA loja.
+            'cliente_id' => ['required', Rule::exists('clientes', 'id')->where('loja_id', $lojaId)],
+            'acervo_id' => ['required', Rule::exists('acervos', 'id')->where('loja_id', $lojaId)],
             'data_retirada' => 'required|date',
             'data_evento' => 'required|date|after_or_equal:data_retirada',
             'data_devolucao' => 'required|date|after_or_equal:data_evento',

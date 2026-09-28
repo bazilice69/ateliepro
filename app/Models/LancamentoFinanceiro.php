@@ -1,11 +1,12 @@
 <?php
 namespace App\Models;
+use App\Models\Concerns\BelongsToLoja;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LancamentoFinanceiro extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToLoja;
     protected $guarded = [];
 
     public function categoria()
