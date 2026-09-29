@@ -148,6 +148,50 @@ class AdminController extends Controller
     }
 
     /**
+     * Painel de novos cadastros de loja (para o super_admin acompanhar).
+     */
+    public function cadastros()
+    {
+        $cadastros = AccessLog::with('loja')
+            ->where('evento', 'nova_loja')
+            ->latest()
+            ->paginate(30);
+
+        return view('admin.cadastros', compact('cadastros'));
+    }
+
+    /**
+     * Página "Minha Conta" do super_admin (nome, e-mail e senha).
+     */
+    public function conta()
+    {
+        return view('admin.conta', ['user' => auth()->user()]);
+    }
+
+    /**
+     * Atualiza dados/senha do super_admin.
+     */
+    public function contaUpdate(\Illuminate\Http\Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => ['nullable', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        if ($request->filled('password')) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+        $user->save();
+
+        return back()->with('success', 'Sua conta foi atualizada!');
+    }
+
+    /**
      * Volta da personificação ("Entrar como") para o super_admin original.
      */
     public function voltarPersonificacao()

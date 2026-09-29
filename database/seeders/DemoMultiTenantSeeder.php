@@ -24,6 +24,11 @@ class DemoMultiTenantSeeder extends Seeder
 {
     public function run(): void
     {
+        // Contato de suporte padrão (configurável depois em /admin/config).
+        \App\Models\Setting::set('saas_nome', 'AteliêPro');
+        \App\Models\Setting::set('saas_email_suporte', 'thg.bazilice@gmail.com');
+        \App\Models\Setting::set('saas_whatsapp_suporte', '5511957866836');
+
         // Super Admin (dono do AteliêPro) — sem loja, enxerga tudo.
         User::firstOrCreate(
             ['email' => 'admin@ateliepro.com'],

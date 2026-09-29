@@ -29,6 +29,9 @@
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.dashboard') || request()->routeIs('admin.lojas.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
                     <i class="fas fa-store mr-3 w-5"></i> Lojas
                 </a>
+                <a href="{{ route('admin.cadastros') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.cadastros') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
+                    <i class="fas fa-bell mr-3 w-5"></i> Novos Cadastros
+                </a>
                 <a href="{{ route('admin.planos.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.planos.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
                     <i class="fas fa-tags mr-3 w-5"></i> Planos & Preços
                 </a>
@@ -45,9 +48,12 @@
             <div class="p-4 border-t border-gray-800 bg-[#070b16]">
                 <div class="text-[10px] uppercase tracking-widest text-[#fbbf24] font-black">Super Admin</div>
                 <div class="text-sm font-medium">{{ auth()->user()->name }}</div>
-                <form method="POST" action="{{ route('logout') }}">
+                <a href="{{ route('admin.conta') }}" class="inline-block text-xs text-gray-300 hover:text-white font-bold mt-2">
+                    <i class="fas fa-user-gear mr-1"></i> Minha Conta
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="mt-2">
                     @csrf
-                    <button type="submit" class="text-xs text-orange-400 hover:text-orange-300 mt-1 uppercase tracking-wider font-bold">Sair</button>
+                    <button type="submit" class="text-xs text-orange-400 hover:text-orange-300 uppercase tracking-wider font-bold">Sair</button>
                 </form>
             </div>
         </aside>

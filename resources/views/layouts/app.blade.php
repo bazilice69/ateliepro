@@ -91,9 +91,20 @@
                 @if($papel)
                     <div class="text-[11px] text-gray-400">{{ $papel }}</div>
                 @endif
-                <form method="POST" action="{{ route('logout') }}">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+                    <a href="{{ route('profile.edit') }}" class="text-xs text-gray-300 hover:text-white font-bold">
+                        <i class="fas fa-user-gear mr-1"></i> Minha Conta
+                    </a>
+                    @php
+                        $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+                    @endphp
+                    <a href="https://wa.me/{{ $waSuporte }}?text={{ urlencode('Olá! Preciso de ajuda com o AteliêPro.') }}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 font-bold">
+                        <i class="fab fa-whatsapp mr-1"></i> Suporte
+                    </a>
+                </div>
+                <form method="POST" action="{{ route('logout') }}" class="mt-2">
                     @csrf
-                    <button type="submit" class="text-xs text-orange-400 hover:text-orange-300 mt-1 uppercase tracking-wider font-bold">Sair do Sistema</button>
+                    <button type="submit" class="text-xs text-orange-400 hover:text-orange-300 uppercase tracking-wider font-bold">Sair do Sistema</button>
                 </form>
             </div>
         </aside>
