@@ -60,6 +60,13 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     // Configurações globais do SaaS
     Route::get('/config', [AdminConfigController::class, 'edit'])->name('config.edit');
     Route::put('/config', [AdminConfigController::class, 'update'])->name('config.update');
+
+    // Minha Conta do super admin (nome/email/senha)
+    Route::get('/conta', [AdminController::class, 'conta'])->name('conta');
+    Route::put('/conta', [AdminController::class, 'contaUpdate'])->name('conta.update');
+
+    // Cadastros recentes de lojas
+    Route::get('/cadastros', [AdminController::class, 'cadastros'])->name('cadastros');
 });
 
 // ==========================================================================

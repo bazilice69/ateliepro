@@ -39,12 +39,13 @@ class RegisteredUserController extends Controller
         $request->validate([
             'nome_fantasia' => ['required', 'string', 'max:255'],
             'cnpj_cpf' => ['required', 'string', 'max:20', 'unique:lojas,cnpj_cpf'],
+            'telefone' => ['nullable', 'string', 'max:30'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = DB::transaction(function () use ($request) {
+        [$user, $loja] = DB::transaction(function () use ($request) {
             $loja = Loja::create([
                 'chave_licenca' => (string) Str::uuid(),
                 'nome_fantasia' => $request->nome_fantasia,
@@ -57,14 +58,30 @@ class RegisteredUserController extends Controller
                 'plano' => 'Trial',
             ]);
 
-            return User::create([
+            $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'loja_id' => $loja->id,
                 'role' => User::ROLE_ADMIN_LOJA,
             ]);
+
+            return [$user, $loja];
         });
+
+        // Registra o novo cadastro para o super_admin ver no painel.
+        \App\Models\AccessLog::create([
+            'user_id' => $user->id,
+            'loja_id' => $loja->id,
+            'user_nome' => $user->name,
+            'loja_nome' => $loja->nome_fantasia,
+            'evento' => 'nova_loja',
+            'ip' => $request->ip(),
+            'user_agent' => substr((string) $request->userAgent(), 0, 255),
+        ]);
+
+        // Notifica o super_admin (só envia de fato se o e-mail estiver configurado).
+        \App\Support\Notificador::novaLoja($loja);
 
         event(new Registered($user));
 

@@ -36,9 +36,13 @@
             </p>
         @endif
 
+        @php
+            $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+            $msgSuporte = urlencode('Olá! Sou da loja ' . ($loja?->nome_fantasia ?? '') . ' e preciso de ajuda com o acesso ao AteliêPro.');
+        @endphp
         <div class="mt-8 space-y-3">
-            <a href="https://wa.me/" class="block w-full bg-[#fbbf24] hover:bg-yellow-500 text-slate-900 font-black py-3 rounded-xl text-sm uppercase tracking-wide transition">
-                Falar com o Suporte
+            <a href="https://wa.me/{{ $waSuporte }}?text={{ $msgSuporte }}" target="_blank" class="block w-full bg-[#fbbf24] hover:bg-yellow-500 text-slate-900 font-black py-3 rounded-xl text-sm uppercase tracking-wide transition">
+                <i class="fab fa-whatsapp mr-1"></i> Falar com o Suporte
             </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
