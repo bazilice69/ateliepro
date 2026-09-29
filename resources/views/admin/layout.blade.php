@@ -21,6 +21,9 @@
             <a href="{{ route('admin.planos.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.planos.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
                 <i class="fas fa-tags mr-3 w-5"></i> Planos & Preços
             </a>
+            <a href="{{ route('admin.relatorios') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.relatorios*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
+                <i class="fas fa-chart-pie mr-3 w-5"></i> Relatórios
+            </a>
             <a href="{{ route('admin.acessos') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.acessos') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
                 <i class="fas fa-right-to-bracket mr-3 w-5"></i> Atividade / Acessos
             </a>

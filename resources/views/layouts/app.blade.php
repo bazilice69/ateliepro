@@ -49,6 +49,16 @@
                     <i class="fas fa-dollar-sign mr-3 w-5"></i> Financeiro
                 </a>
 
+                <!-- Despesas Fixas -->
+                <a href="{{ route('recorrentes.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('recorrentes.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-repeat mr-3 w-5"></i> Despesas Fixas
+                </a>
+
+                <!-- Relatórios -->
+                <a href="{{ route('relatorios.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('relatorios.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-chart-pie mr-3 w-5"></i> Relatórios
+                </a>
+
                 <!-- Equipe (apenas admin da loja) -->
                 @if(auth()->user()?->isAdminLoja() || auth()->user()?->isSuperAdmin())
                     <a href="{{ route('funcionarios.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('funcionarios.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">

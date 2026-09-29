@@ -16,6 +16,8 @@ use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LojaBloqueioController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\DespesaRecorrenteController;
+use App\Http\Controllers\RelatorioController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -36,6 +38,9 @@ Route::middleware('auth')->get('/loja-bloqueada', [LojaBloqueioController::class
 Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/acessos', [AdminController::class, 'acessos'])->name('acessos');
+    Route::get('/relatorios', [AdminController::class, 'relatorios'])->name('relatorios');
+    Route::get('/relatorios/imprimir', [AdminController::class, 'relatoriosImprimir'])->name('relatorios.imprimir');
+    Route::get('/relatorios/exportar', [AdminController::class, 'relatoriosExportar'])->name('relatorios.exportar');
     Route::get('/lojas/{loja}', [AdminController::class, 'show'])->name('lojas.show');
     Route::put('/lojas/{loja}/plano', [AdminController::class, 'updatePlano'])->name('lojas.plano');
     Route::put('/lojas/{loja}/status', [AdminController::class, 'updateStatus'])->name('lojas.status');
@@ -90,6 +95,18 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     // Módulo Financeiro
     Route::get('/financeiro', [FinanceiroController::class, 'index'])->name('financeiro.index');
     Route::post('/financeiro/lancamento', [FinanceiroController::class, 'store'])->name('financeiro.store');
+
+    // Despesas recorrentes / fixas
+    Route::get('/financeiro/recorrentes', [DespesaRecorrenteController::class, 'index'])->name('recorrentes.index');
+    Route::post('/financeiro/recorrentes', [DespesaRecorrenteController::class, 'store'])->name('recorrentes.store');
+    Route::put('/financeiro/recorrentes/{recorrente}', [DespesaRecorrenteController::class, 'update'])->name('recorrentes.update');
+    Route::delete('/financeiro/recorrentes/{recorrente}', [DespesaRecorrenteController::class, 'destroy'])->name('recorrentes.destroy');
+    Route::post('/financeiro/recorrentes/gerar', [DespesaRecorrenteController::class, 'gerarAgora'])->name('recorrentes.gerar');
+
+    // Relatórios da loja
+    Route::get('/relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
+    Route::get('/relatorios/exportar', [RelatorioController::class, 'exportar'])->name('relatorios.exportar');
+    Route::get('/relatorios/imprimir', [RelatorioController::class, 'imprimir'])->name('relatorios.imprimir');
 
     // Gestão de Funcionários (apenas admin_loja / super_admin)
     Route::middleware('adminloja')->group(function () {

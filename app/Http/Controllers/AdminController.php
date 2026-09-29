@@ -158,4 +158,82 @@ class AdminController extends Controller
 
         return view('admin.acessos', compact('logs'));
     }
+
+    /**
+     * Relatórios globais do SaaS (super_admin): faturamento, status, planos.
+     */
+    public function relatorios()
+    {
+        $dados = $this->dadosRelatorio();
+        return view('admin.relatorios', $dados);
+    }
+
+    /**
+     * Versão de impressão (PDF pelo navegador) do relatório global.
+     */
+    public function relatoriosImprimir()
+    {
+        $dados = $this->dadosRelatorio();
+        return view('admin.relatorios-imprimir', $dados);
+    }
+
+    /**
+     * Export CSV (Excel) das lojas.
+     */
+    public function relatoriosExportar()
+    {
+        $lojas = Loja::withCount('users')->orderBy('nome_fantasia')->get();
+
+        return response()->streamDownload(function () use ($lojas) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Loja', 'CNPJ/CPF', 'Responsável', 'Plano', 'Valor', 'Status', 'Vencimento', 'Usuários'], ';');
+            foreach ($lojas as $l) {
+                fputcsv($out, [
+                    $l->nome_fantasia,
+                    $l->cnpj_cpf,
+                    $l->email_responsavel,
+                    $l->plano,
+                    number_format($l->valorEfetivo(), 2, ',', '.'),
+                    $l->status,
+                    optional($l->data_vencimento)->format('d/m/Y'),
+                    $l->users_count,
+                ], ';');
+            }
+            fclose($out);
+        }, 'lojas_' . now()->format('Y-m-d') . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Dados agregados para os relatórios do super_admin.
+     */
+    private function dadosRelatorio(): array
+    {
+        $lojas = Loja::withCount('users')->orderBy('nome_fantasia')->get();
+
+        $porStatus = [
+            'ativo' => $lojas->where('status', Loja::STATUS_ATIVO)->count(),
+            'inadimplente' => $lojas->where('status', Loja::STATUS_INADIMPLENTE)->count(),
+            'bloqueado' => $lojas->where('status', Loja::STATUS_BLOQUEADO)->count(),
+        ];
+
+        // Receita recorrente (MRR) e receita por plano.
+        $porPlano = $lojas->where('status', Loja::STATUS_ATIVO)
+            ->groupBy('plano')
+            ->map(fn ($grupo) => [
+                'lojas' => $grupo->count(),
+                'receita' => (float) $grupo->sum(fn (Loja $l) => $l->valorEfetivo()),
+            ]);
+
+        $mrr = (float) $lojas->where('status', Loja::STATUS_ATIVO)->sum(fn (Loja $l) => $l->valorEfetivo());
+
+        return [
+            'lojas' => $lojas,
+            'porStatus' => $porStatus,
+            'porPlano' => $porPlano,
+            'mrr' => $mrr,
+            'novasNoMes' => $lojas->where('created_at', '>=', now()->startOfMonth())->count(),
+        ];
+    }
 }
+
