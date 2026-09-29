@@ -88,6 +88,25 @@ class Encomenda extends Model
         return $this->belongsTo(Medida::class);
     }
 
+    /**
+     * Histórico de medições desta encomenda (uma por prova), da mais recente
+     * para a mais antiga. Cada prova gera uma nova medição — nunca sobrescreve.
+     */
+    public function medidas()
+    {
+        return $this->hasMany(Medida::class)->orderByDesc('data_medicao')->orderByDesc('id');
+    }
+
+    /**
+     * A medição mais recente do histórico (a "atual" da peça).
+     */
+    public function medidaAtual(): ?Medida
+    {
+        return $this->relationLoaded('medidas')
+            ? $this->medidas->first()
+            : $this->medidas()->first();
+    }
+
     // --- Helpers de negócio -------------------------------------------------
 
     /**

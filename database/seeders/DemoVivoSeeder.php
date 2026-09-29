@@ -124,24 +124,35 @@ class DemoVivoSeeder extends Seeder
              'prazo' => Carbon::now()->addDays(10), 'custo' => 0, 'status' => 'em_andamento']
         );
 
-        // --- Ficha de medidas da Ana (para a encomenda sob medida) ---
-        $medidaAna = \App\Models\Medida::withoutGlobalScope('loja')->firstOrCreate(
-            ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'data_medicao' => Carbon::now()->subDays(15)],
-            ['responsavel_medicao' => 'Andreia', 'busto_torax' => '88', 'cintura' => '68', 'quadril' => '96',
-             'alto_busto' => '82', 'ombro_a_ombro' => '38', 'comp_saia' => '105', 'comp_cauda' => '150',
-             'altura_corpo' => '162', 'braco' => '58', 'manga' => '60']
-        );
-
         // --- Encomenda / Sob Medida (peça criada do zero, em produção) ---
-        \App\Models\Encomenda::withoutGlobalScope('loja')->firstOrCreate(
+        $encomendaAna = \App\Models\Encomenda::withoutGlobalScope('loja')->firstOrCreate(
             ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'titulo' => 'Vestido de noiva sereia sob medida'],
-            ['medida_id' => $medidaAna->id, 'tipo' => 'compra',
+            ['tipo' => 'compra',
              'descricao' => 'Modelo sereia com renda francesa e cauda longa. Decote coração.',
              'tecidos' => 'Cetim de seda, renda francesa, forro em musseline',
              'data_pedido' => Carbon::now()->subDays(15), 'data_prova' => Carbon::now()->addDays(5),
              'data_entrega' => Carbon::now()->addDays(30), 'valor' => 4500, 'sinal' => 1500,
              'etapa' => 'costura', 'observacoes' => 'Cliente pediu botões forrados nas costas.']
         );
+
+        // --- Histórico de medidas da encomenda (2 provas p/ demonstrar comparação) ---
+        $medida1 = \App\Models\Medida::withoutGlobalScope('loja')->firstOrCreate(
+            ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'encomenda_id' => $encomendaAna->id, 'rotulo' => 'Prova 1'],
+            ['data_medicao' => Carbon::now()->subDays(15), 'responsavel_medicao' => 'Andreia',
+             'busto_torax' => '88', 'cintura' => '68', 'quadril' => '96', 'alto_busto' => '82',
+             'ombro_a_ombro' => '38', 'comp_saia' => '105', 'comp_cauda' => '150',
+             'altura_corpo' => '162', 'braco' => '58', 'manga' => '60']
+        );
+        $medida2 = \App\Models\Medida::withoutGlobalScope('loja')->firstOrCreate(
+            ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'encomenda_id' => $encomendaAna->id, 'rotulo' => 'Prova 2'],
+            ['data_medicao' => Carbon::now()->subDays(3), 'responsavel_medicao' => 'Andreia',
+             'busto_torax' => '88', 'cintura' => '66', 'quadril' => '95', 'alto_busto' => '82',
+             'ombro_a_ombro' => '38', 'comp_saia' => '104', 'comp_cauda' => '150',
+             'altura_corpo' => '162', 'braco' => '57', 'manga' => '60',
+             'observacoes' => 'Cintura e quadril reduzidos após ajuste.']
+        );
+        // Encomenda aponta para a medição mais recente.
+        $encomendaAna->update(['medida_id' => $medida2->id]);
 
         // --- Financeiro (receitas e despesas do mês) ---
         $catReceita = CategoriaFinanceira::withoutGlobalScope('loja')->where('loja_id', $loja->id)->where('tipo', 'Receita')->first();
