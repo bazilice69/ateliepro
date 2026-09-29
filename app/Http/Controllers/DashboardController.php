@@ -8,6 +8,8 @@ use App\Models\Cliente;
 use App\Models\Evento;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Locacao;
+use App\Models\Prova;
+use App\Models\Servico;
 use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
@@ -63,9 +65,23 @@ class DashboardController extends Controller
             ->orderBy('data_hora')
             ->get();
 
+        // Provas de hoje (do módulo operacional)
+        $provasHoje = Prova::with(['cliente', 'acervo'])
+            ->whereDate('data_prova', today())
+            ->orderBy('data_prova')
+            ->get();
+
+        // Ajustes/serviços pendentes na oficina
+        $ajustesPendentes = Servico::with(['acervo'])
+            ->whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])
+            ->orderBy('prazo')
+            ->limit(5)
+            ->get();
+
         return view('dashboard', compact(
             'recebidoMes', 'aReceber', 'emAtraso', 'despesasMes', 'saldoPrevisto',
-            'totais', 'movimentacoes', 'proximosEventos', 'agendaHoje'
+            'totais', 'movimentacoes', 'proximosEventos', 'agendaHoje',
+            'provasHoje', 'ajustesPendentes'
         ));
     }
 }

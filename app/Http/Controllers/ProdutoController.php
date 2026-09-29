@@ -39,6 +39,18 @@ class ProdutoController extends Controller
 
         Acervo::create($request->except('loja_id'));
 
-        return redirect()->route('dashboard')->with('success', 'Peça cadastrada no acervo com sucesso!');
+        return redirect()->route('acervo.index')->with('success', 'Peça cadastrada no acervo com sucesso!');
+    }
+
+    // Histórico / "vida" da peça: locações, provas e serviços.
+    public function show(Acervo $peca)
+    {
+        $peca->load([
+            'locacoes.cliente',
+            'provas.cliente',
+            'servicos',
+        ]);
+
+        return view('acervo.show', compact('peca'));
     }
 }
