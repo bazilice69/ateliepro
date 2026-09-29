@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    'mercadopago' => [
+        // Fallback via .env; em produção o super_admin configura pelo painel
+        // (tabela settings) — ver App\Support\MercadoPago.
+        'access_token' => env('MERCADOPAGO_ACCESS_TOKEN'),
+        'public_key' => env('MERCADOPAGO_PUBLIC_KEY'),
+        'webhook_secret' => env('MERCADOPAGO_WEBHOOK_SECRET'),
+    ],
+
+    'ia' => [
+        // Provedor: openai | anthropic | gemini. Chave configurável pelo painel
+        // (tabela settings) ou aqui via .env — ver App\Support\IA.
+        'provedor' => env('IA_PROVEDOR', 'openai'),
+        'api_key' => env('IA_API_KEY'),
+        'modelo' => env('IA_MODELO'),
+    ],
+
 ];

@@ -27,15 +27,33 @@
                                 <label class="block text-sm font-bold text-slate-700 mb-2">CPF</label>
                                 <input type="text" name="cpf" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="000.000.000-00">
                             </div>
-                            <div class="md:col-span-2">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">RG</label>
+                                <input type="text" name="rg" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="00.000.000-0">
+                            </div>
+                            <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Telefone / WhatsApp *</label>
-                                <div class="flex">
-                                    <input type="text" name="telefone" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="(00) 00000-0000">
-                                </div>
+                                <input type="text" name="telefone" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="(00) 00000-0000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">E-mail</label>
+                                <input type="email" name="email" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="cliente@email.com">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Data de Nascimento</label>
                                 <input type="date" name="data_nascimento" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Estado Civil</label>
+                                <input type="text" name="estado_civil" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="Solteiro(a), Casado(a)...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Profissão</label>
+                                <input type="text" name="profissao" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Nacionalidade</label>
+                                <input type="text" name="nacionalidade" value="Brasileira" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
                             </div>
                         </div>
                     </div>

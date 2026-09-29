@@ -44,8 +44,11 @@ class AdminController extends Controller
             'ativas' => $lojas->where('status', Loja::STATUS_ATIVO)->count(),
             'inadimplentes' => $lojas->where('status', Loja::STATUS_INADIMPLENTE)->count(),
             'bloqueadas' => $lojas->where('status', Loja::STATUS_BLOQUEADO)->count(),
+            // MRR = receita recorrente mensal (soma do valor efetivo /mês das lojas ativas)
             'faturamento_mensal' => $lojas->where('status', Loja::STATUS_ATIVO)
                 ->sum(fn (Loja $l) => $l->valorEfetivo()),
+            'novas_no_mes' => $lojas->where('created_at', '>=', now()->startOfMonth())->count(),
+            'vencendo' => $lojas->filter(fn (Loja $l) => $l->venceEmBreve())->count(),
         ];
 
         return view('admin.dashboard', compact('lojas', 'resumo', 'clientesPorLoja', 'pecasPorLoja', 'locacoesPorLoja'));
@@ -105,6 +108,59 @@ class AdminController extends Controller
     }
 
     /**
+     * Estende o vencimento da loja em N meses (ação rápida do super_admin).
+     */
+    public function estenderVencimento(Request $request, Loja $loja)
+    {
+        $meses = (int) $request->input('meses', 1);
+        $meses = max(1, min(24, $meses));
+
+        $base = ($loja->data_vencimento && $loja->data_vencimento->isFuture())
+            ? $loja->data_vencimento->copy()
+            : now();
+
+        $loja->update([
+            'data_vencimento' => $base->addMonths($meses),
+            'status' => Loja::STATUS_ATIVO,
+        ]);
+
+        return back()->with('success', "Vencimento estendido em {$meses} mês(es).");
+    }
+
+    /**
+     * "Entrar como" a loja — o super_admin passa a navegar como o admin dela,
+     * para dar suporte. Guarda o id original para poder voltar.
+     */
+    public function entrarComo(Loja $loja)
+    {
+        $adminDaLoja = User::where('loja_id', $loja->id)
+            ->where('role', User::ROLE_ADMIN_LOJA)
+            ->first();
+
+        if (!$adminDaLoja) {
+            return back()->withErrors(['erro' => 'Esta loja não possui um administrador para personificar.']);
+        }
+
+        session(['impersonator_id' => auth()->id()]);
+        auth()->login($adminDaLoja);
+
+        return redirect()->route('dashboard')->with('success', 'Você está navegando como ' . $loja->nome_fantasia);
+    }
+
+    /**
+     * Volta da personificação ("Entrar como") para o super_admin original.
+     */
+    public function voltarPersonificacao()
+    {
+        if ($originalId = session('impersonator_id')) {
+            auth()->loginUsingId($originalId);
+            session()->forget('impersonator_id');
+            return redirect()->route('admin.dashboard')->with('success', 'Você voltou ao painel Master.');
+        }
+        return redirect()->route('dashboard');
+    }
+
+    /**
      * Área de Atividade / Acessos — quem entrou e em qual loja.
      */
     public function acessos()
@@ -115,4 +171,82 @@ class AdminController extends Controller
 
         return view('admin.acessos', compact('logs'));
     }
+
+    /**
+     * Relatórios globais do SaaS (super_admin): faturamento, status, planos.
+     */
+    public function relatorios()
+    {
+        $dados = $this->dadosRelatorio();
+        return view('admin.relatorios', $dados);
+    }
+
+    /**
+     * Versão de impressão (PDF pelo navegador) do relatório global.
+     */
+    public function relatoriosImprimir()
+    {
+        $dados = $this->dadosRelatorio();
+        return view('admin.relatorios-imprimir', $dados);
+    }
+
+    /**
+     * Export CSV (Excel) das lojas.
+     */
+    public function relatoriosExportar()
+    {
+        $lojas = Loja::withCount('users')->orderBy('nome_fantasia')->get();
+
+        return response()->streamDownload(function () use ($lojas) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Loja', 'CNPJ/CPF', 'Responsável', 'Plano', 'Valor', 'Status', 'Vencimento', 'Usuários'], ';');
+            foreach ($lojas as $l) {
+                fputcsv($out, [
+                    $l->nome_fantasia,
+                    $l->cnpj_cpf,
+                    $l->email_responsavel,
+                    $l->plano,
+                    number_format($l->valorEfetivo(), 2, ',', '.'),
+                    $l->status,
+                    optional($l->data_vencimento)->format('d/m/Y'),
+                    $l->users_count,
+                ], ';');
+            }
+            fclose($out);
+        }, 'lojas_' . now()->format('Y-m-d') . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Dados agregados para os relatórios do super_admin.
+     */
+    private function dadosRelatorio(): array
+    {
+        $lojas = Loja::withCount('users')->orderBy('nome_fantasia')->get();
+
+        $porStatus = [
+            'ativo' => $lojas->where('status', Loja::STATUS_ATIVO)->count(),
+            'inadimplente' => $lojas->where('status', Loja::STATUS_INADIMPLENTE)->count(),
+            'bloqueado' => $lojas->where('status', Loja::STATUS_BLOQUEADO)->count(),
+        ];
+
+        // Receita recorrente (MRR) e receita por plano.
+        $porPlano = $lojas->where('status', Loja::STATUS_ATIVO)
+            ->groupBy('plano')
+            ->map(fn ($grupo) => [
+                'lojas' => $grupo->count(),
+                'receita' => (float) $grupo->sum(fn (Loja $l) => $l->valorEfetivo()),
+            ]);
+
+        $mrr = (float) $lojas->where('status', Loja::STATUS_ATIVO)->sum(fn (Loja $l) => $l->valorEfetivo());
+
+        return [
+            'lojas' => $lojas,
+            'porStatus' => $porStatus,
+            'porPlano' => $porPlano,
+            'mrr' => $mrr,
+            'novasNoMes' => $lojas->where('created_at', '>=', now()->startOfMonth())->count(),
+        ];
+    }
 }
+

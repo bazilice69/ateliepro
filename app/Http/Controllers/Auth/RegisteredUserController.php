@@ -52,6 +52,9 @@ class RegisteredUserController extends Controller
                 'email_responsavel' => $request->email,
                 'telefone' => $request->telefone,
                 'status' => Loja::STATUS_ATIVO,
+                // Teste grátis de 7 dias — sem cobrança na entrada.
+                'trial_termina_em' => now()->addDays(Loja::DIAS_TRIAL),
+                'plano' => 'Trial',
             ]);
 
             return User::create([

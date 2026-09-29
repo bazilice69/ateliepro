@@ -15,7 +15,7 @@
 
 @section('conteudo')
     <!-- Resumo -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
             <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Total de Lojas</p>
             <p class="text-3xl font-black text-slate-800 mt-1">{{ $resumo['total_lojas'] }}</p>
@@ -29,17 +29,21 @@
             <p class="text-3xl font-black text-amber-600 mt-1">{{ $resumo['inadimplentes'] }}</p>
         </div>
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-            <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">🔴 Bloqueadas</p>
-            <p class="text-3xl font-black text-rose-600 mt-1">{{ $resumo['bloqueadas'] }}</p>
+            <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">⏰ Vencendo (7d)</p>
+            <p class="text-3xl font-black text-orange-500 mt-1">{{ $resumo['vencendo'] }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+            <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">✨ Novas no mês</p>
+            <p class="text-3xl font-black text-slate-800 mt-1">{{ $resumo['novas_no_mes'] }}</p>
         </div>
         <div class="bg-slate-900 rounded-2xl p-5 shadow-sm">
-            <p class="text-[10px] font-black uppercase text-[#fbbf24] tracking-widest">Faturamento/mês</p>
+            <p class="text-[10px] font-black uppercase text-[#fbbf24] tracking-widest">MRR (recorrente/mês)</p>
             <p class="text-2xl font-black text-white mt-1">R$ {{ number_format($resumo['faturamento_mensal'], 2, ',', '.') }}</p>
         </div>
     </div>
 
     <!-- Lista de lojas -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-x-auto">
         <table class="w-full text-left">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">

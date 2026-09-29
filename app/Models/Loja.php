@@ -23,7 +23,15 @@ class Loja extends Model
         'valor_mensal',
         'desconto',
         'data_vencimento',
+        'trial_termina_em',
         'observacoes_admin',
+        'logo',
+        'razao_social',
+        'inscricao_estadual',
+        'endereco',
+        'cidade',
+        'estado',
+        'cep',
     ];
 
     protected function casts(): array
@@ -32,8 +40,11 @@ class Loja extends Model
             'valor_mensal' => 'decimal:2',
             'desconto' => 'decimal:2',
             'data_vencimento' => 'date',
+            'trial_termina_em' => 'date',
         ];
     }
+
+    public const DIAS_TRIAL = 7;
 
     /**
      * Valores possíveis para a coluna status (enum da migration).
@@ -85,10 +96,55 @@ class Loja extends Model
     }
 
     /**
-     * Helper: a loja está com acesso liberado?
+     * Helper: a loja está com status ativo?
      */
     public function estaAtiva(): bool
     {
         return $this->status === self::STATUS_ATIVO;
+    }
+
+    /**
+     * A loja está no período de teste grátis (trial ainda vigente)?
+     */
+    public function emTrial(): bool
+    {
+        return $this->trial_termina_em !== null
+            && $this->trial_termina_em->endOfDay()->isFuture();
+    }
+
+    /**
+     * Dias restantes de trial (0 se já expirou / não há trial).
+     */
+    public function diasDeTrial(): int
+    {
+        if (!$this->trial_termina_em) {
+            return 0;
+        }
+        return max(0, (int) now()->startOfDay()->diffInDays($this->trial_termina_em->endOfDay(), false));
+    }
+
+    /**
+     * A loja tem acesso liberado ao sistema?
+     * Regra SaaS: status ativo E (dentro do trial OU com vencimento vigente).
+     */
+    public function temAcesso(): bool
+    {
+        if ($this->status !== self::STATUS_ATIVO) {
+            return false;
+        }
+
+        // Em trial válido → acesso liberado.
+        if ($this->emTrial()) {
+            return true;
+        }
+
+        // Assinatura paga com vencimento no futuro → liberado.
+        if ($this->data_vencimento && $this->data_vencimento->endOfDay()->isFuture()) {
+            return true;
+        }
+
+        // Sem trial e sem vencimento definido ainda → considera liberado só se
+        // nunca teve trial (retrocompat com dados antigos que já eram 'ativo').
+        return $this->trial_termina_em === null && $this->data_vencimento === null;
     }
 }

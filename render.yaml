@@ -1,0 +1,67 @@
+# Configuração de deploy do AteliêPro no Render (plano gratuito).
+# Cria: 1 serviço web (Laravel/PHP) + 1 banco PostgreSQL gratuito.
+#
+# Como usar:
+#   1. No Render: New > Blueprint > conecte o repositório bazilice69/ateliepro
+#   2. O Render lê este arquivo e cria tudo automaticamente.
+#   3. Após o primeiro deploy, gere a APP_KEY (ver README-DEPLOY.md).
+
+databases:
+  - name: ateliepro-db
+    databaseName: ateliepro
+    plan: free
+
+services:
+  - type: web
+    name: ateliepro
+    runtime: php
+    plan: free
+    buildCommand: ./build.sh
+    # Servimos a pasta public/ do Laravel. O roteador embutido do PHP usa o
+    # index.php do framework para todas as rotas.
+    startCommand: php -S 0.0.0.0:$PORT -t public public/index.php
+    envVars:
+      - key: APP_NAME
+        value: AteliePro
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false            # você define depois (php artisan key:generate --show)
+      - key: APP_URL
+        sync: false            # ex: https://ateliepro.onrender.com
+      - key: LOG_CHANNEL
+        value: stderr          # logs aparecem no painel do Render
+      # Banco: puxa as credenciais do PostgreSQL criado acima
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: ateliepro-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ateliepro-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: ateliepro-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: ateliepro-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ateliepro-db
+          property: password
+      # Sessão/cache/fila no banco (evita depender de Redis)
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: FILESYSTEM_DISK
+        value: public

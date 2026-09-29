@@ -22,9 +22,14 @@ class EnsureLojaAtiva
     {
         $user = $request->user();
 
-        // super_admin não depende de loja.
+        // Super admin: seu lugar é o Painel Master. Se ele cair numa rota de
+        // loja SEM estar em modo "Entrar como" (personificação), redireciona
+        // para /admin. Durante a personificação, deixa navegar como a loja.
         if ($user && $user->isSuperAdmin()) {
-            return $next($request);
+            if (session()->has('impersonator_id')) {
+                return $next($request);
+            }
+            return redirect()->route('admin.dashboard');
         }
 
         $loja = $user?->loja;
@@ -34,9 +39,16 @@ class EnsureLojaAtiva
             return redirect()->route('loja.bloqueada');
         }
 
-        // Loja não-ativa (inadimplente/bloqueada): bloqueia o acesso ao sistema.
+        // Inadimplente/bloqueada → tela de aviso.
         if ($loja->status !== Loja::STATUS_ATIVO) {
             return redirect()->route('loja.bloqueada');
+        }
+
+        // Ativa porém sem acesso (trial expirado e sem assinatura vigente):
+        // direciona para a escolha de plano/checkout.
+        if (!$loja->temAcesso()) {
+            return redirect()->route('assinar.escolher')
+                ->with('status', 'Seu período de teste terminou. Escolha um plano para continuar.');
         }
 
         return $next($request);

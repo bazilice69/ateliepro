@@ -10,12 +10,22 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedidaController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminPlanoController;
+use App\Http\Controllers\AdminConfigController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LojaBloqueioController;
-use App\Http\Controllers\PagamentoController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\DespesaRecorrenteController;
+use App\Http\Controllers\RelatorioController;
+use App\Http\Controllers\ContratoController;
+use App\Http\Controllers\ModeloContratoController;
+use App\Http\Controllers\AssistenteController;
+use App\Http\Controllers\LojaConfigController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () { return view('welcome'); });
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // --- Legado: tela de licença por máquina (mantida, mas fora do fluxo SaaS) ---
 Route::get('/licenca-expirada', [LicenseController::class, 'index'])->name('licenca.tela');
@@ -30,9 +40,26 @@ Route::middleware('auth')->get('/loja-bloqueada', [LojaBloqueioController::class
 Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/acessos', [AdminController::class, 'acessos'])->name('acessos');
+    Route::get('/relatorios', [AdminController::class, 'relatorios'])->name('relatorios');
+    Route::get('/relatorios/imprimir', [AdminController::class, 'relatoriosImprimir'])->name('relatorios.imprimir');
+    Route::get('/relatorios/exportar', [AdminController::class, 'relatoriosExportar'])->name('relatorios.exportar');
     Route::get('/lojas/{loja}', [AdminController::class, 'show'])->name('lojas.show');
     Route::put('/lojas/{loja}/plano', [AdminController::class, 'updatePlano'])->name('lojas.plano');
     Route::put('/lojas/{loja}/status', [AdminController::class, 'updateStatus'])->name('lojas.status');
+    Route::post('/lojas/{loja}/estender', [AdminController::class, 'estenderVencimento'])->name('lojas.estender');
+    Route::get('/lojas/{loja}/entrar', [AdminController::class, 'entrarComo'])->name('lojas.entrar');
+
+    // Gestão de Planos do SaaS
+    Route::get('/planos', [AdminPlanoController::class, 'index'])->name('planos.index');
+    Route::get('/planos/novo', [AdminPlanoController::class, 'create'])->name('planos.create');
+    Route::post('/planos', [AdminPlanoController::class, 'store'])->name('planos.store');
+    Route::get('/planos/{plano}/editar', [AdminPlanoController::class, 'edit'])->name('planos.edit');
+    Route::put('/planos/{plano}', [AdminPlanoController::class, 'update'])->name('planos.update');
+    Route::delete('/planos/{plano}', [AdminPlanoController::class, 'destroy'])->name('planos.destroy');
+
+    // Configurações globais do SaaS
+    Route::get('/config', [AdminConfigController::class, 'edit'])->name('config.edit');
+    Route::put('/config', [AdminConfigController::class, 'update'])->name('config.update');
 });
 
 // ==========================================================================
@@ -71,8 +98,49 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/financeiro', [FinanceiroController::class, 'index'])->name('financeiro.index');
     Route::post('/financeiro/lancamento', [FinanceiroController::class, 'store'])->name('financeiro.store');
 
+    // Despesas recorrentes / fixas
+    Route::get('/financeiro/recorrentes', [DespesaRecorrenteController::class, 'index'])->name('recorrentes.index');
+    Route::post('/financeiro/recorrentes', [DespesaRecorrenteController::class, 'store'])->name('recorrentes.store');
+    Route::put('/financeiro/recorrentes/{recorrente}', [DespesaRecorrenteController::class, 'update'])->name('recorrentes.update');
+    Route::delete('/financeiro/recorrentes/{recorrente}', [DespesaRecorrenteController::class, 'destroy'])->name('recorrentes.destroy');
+    Route::post('/financeiro/recorrentes/gerar', [DespesaRecorrenteController::class, 'gerarAgora'])->name('recorrentes.gerar');
+
+    // Relatórios da loja
+    Route::get('/relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
+    Route::get('/relatorios/exportar', [RelatorioController::class, 'exportar'])->name('relatorios.exportar');
+    Route::get('/relatorios/imprimir', [RelatorioController::class, 'imprimir'])->name('relatorios.imprimir');
+
+    // Assistente de IA
+    Route::get('/assistente', [AssistenteController::class, 'index'])->name('assistente.index');
+    Route::post('/assistente/enviar', [AssistenteController::class, 'enviar'])->name('assistente.enviar');
+    Route::post('/assistente/limpar', [AssistenteController::class, 'limpar'])->name('assistente.limpar');
+    Route::post('/assistente/conversar', [AssistenteController::class, 'conversar'])->name('assistente.conversar');
+    Route::post('/assistente/whatsapp', [AssistenteController::class, 'gerarWhatsapp'])->name('assistente.whatsapp');
+
+    // Contratos (gerar, listar, visualizar) — disponível para a equipe da loja
+    Route::get('/contratos', [ContratoController::class, 'index'])->name('contratos.index');
+    Route::get('/contratos/novo', [ContratoController::class, 'create'])->name('contratos.create');
+    Route::post('/contratos/preview', [ContratoController::class, 'preview'])->name('contratos.preview');
+    Route::post('/contratos', [ContratoController::class, 'store'])->name('contratos.store');
+    Route::get('/contratos/{contrato}', [ContratoController::class, 'show'])->name('contratos.show');
+    Route::get('/contratos/{contrato}/imprimir', [ContratoController::class, 'imprimir'])->name('contratos.imprimir');
+    Route::delete('/contratos/{contrato}', [ContratoController::class, 'destroy'])->name('contratos.destroy');
+
     // Gestão de Funcionários (apenas admin_loja / super_admin)
     Route::middleware('adminloja')->group(function () {
+        // Configurações da própria loja (dados + logo)
+        Route::get('/config-loja', [LojaConfigController::class, 'edit'])->name('loja.config.edit');
+        Route::put('/config-loja', [LojaConfigController::class, 'update'])->name('loja.config.update');
+        Route::delete('/config-loja/logo', [LojaConfigController::class, 'removerLogo'])->name('loja.config.logo.remover');
+
+        // Modelos de contrato (só o admin da loja gerencia os modelos)
+        Route::get('/contratos-modelos', [ModeloContratoController::class, 'index'])->name('contratos.modelos.index');
+        Route::get('/contratos-modelos/novo', [ModeloContratoController::class, 'create'])->name('contratos.modelos.create');
+        Route::post('/contratos-modelos', [ModeloContratoController::class, 'store'])->name('contratos.modelos.store');
+        Route::get('/contratos-modelos/{modelo}/editar', [ModeloContratoController::class, 'edit'])->name('contratos.modelos.edit');
+        Route::put('/contratos-modelos/{modelo}', [ModeloContratoController::class, 'update'])->name('contratos.modelos.update');
+        Route::delete('/contratos-modelos/{modelo}', [ModeloContratoController::class, 'destroy'])->name('contratos.modelos.destroy');
+
         Route::get('/funcionarios', [FuncionarioController::class, 'index'])->name('funcionarios.index');
         Route::get('/funcionarios/novo', [FuncionarioController::class, 'create'])->name('funcionarios.create');
         Route::post('/funcionarios', [FuncionarioController::class, 'store'])->name('funcionarios.store');
@@ -85,5 +153,19 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Checkout PIX (temporário — será reescrito na Fase 3 de pagamentos/webhook)
-Route::middleware(['auth', 'lojaativa'])->get('/assinar/pix', [PagamentoController::class, 'gerarPix'])->name('assinar.pix');
+// ==========================================================================
+// CHECKOUT / ASSINATURA (Mercado Pago)
+// ==========================================================================
+// Escolha de plano -> gera PIX. Exige login (mas NÃO exige loja ativa, pois é
+// justamente aqui que uma loja inadimplente vem renovar).
+Route::middleware('auth')->group(function () {
+    Route::get('/assinar', [CheckoutController::class, 'escolher'])->name('assinar.escolher');
+    Route::get('/assinar/{slug}', [CheckoutController::class, 'plano'])->name('checkout.plano');
+    Route::get('/assinatura/{assinatura}/status', [CheckoutController::class, 'status'])->name('checkout.status');
+});
+
+// Webhook do Mercado Pago — público e isento de CSRF (ver bootstrap/app.php).
+Route::post('/webhooks/mercadopago', [WebhookController::class, 'mercadopago'])->name('webhook.mercadopago');
+
+// Voltar da personificação ("Entrar como") para o super_admin original.
+Route::middleware('auth')->post('/admin/voltar-personificacao', [AdminController::class, 'voltarPersonificacao'])->name('admin.voltar');
