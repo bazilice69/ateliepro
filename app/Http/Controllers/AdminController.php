@@ -148,6 +148,19 @@ class AdminController extends Controller
     }
 
     /**
+     * Volta da personificação ("Entrar como") para o super_admin original.
+     */
+    public function voltarPersonificacao()
+    {
+        if ($originalId = session('impersonator_id')) {
+            auth()->loginUsingId($originalId);
+            session()->forget('impersonator_id');
+            return redirect()->route('admin.dashboard')->with('success', 'Você voltou ao painel Master.');
+        }
+        return redirect()->route('dashboard');
+    }
+
+    /**
      * Área de Atividade / Acessos — quem entrou e em qual loja.
      */
     public function acessos()

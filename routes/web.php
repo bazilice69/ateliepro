@@ -22,12 +22,10 @@ use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\ModeloContratoController;
 use App\Http\Controllers\AssistenteController;
 use App\Http\Controllers\LojaConfigController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    $planos = \App\Models\Plano::ativos()->get();
-    return view('welcome', compact('planos'));
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // --- Legado: tela de licença por máquina (mantida, mas fora do fluxo SaaS) ---
 Route::get('/licenca-expirada', [LicenseController::class, 'index'])->name('licenca.tela');
@@ -170,11 +168,4 @@ Route::middleware('auth')->group(function () {
 Route::post('/webhooks/mercadopago', [WebhookController::class, 'mercadopago'])->name('webhook.mercadopago');
 
 // Voltar da personificação ("Entrar como") para o super_admin original.
-Route::middleware('auth')->post('/admin/voltar-personificacao', function () {
-    if ($originalId = session('impersonator_id')) {
-        auth()->loginUsingId($originalId);
-        session()->forget('impersonator_id');
-        return redirect()->route('admin.dashboard')->with('success', 'Você voltou ao painel Master.');
-    }
-    return redirect()->route('dashboard');
-})->name('admin.voltar');
+Route::middleware('auth')->post('/admin/voltar-personificacao', [AdminController::class, 'voltarPersonificacao'])->name('admin.voltar');

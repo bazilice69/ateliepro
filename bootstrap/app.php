@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Em produção o app roda atrás de um proxy (Render/hospedagem) com HTTPS.
+        // Confiar no proxy garante que URLs/assets sejam gerados com https://.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             // Legado (licença por máquina) — mantido, mas fora do fluxo padrão.
             'license' => \App\Http\Middleware\CheckLicense::class,
