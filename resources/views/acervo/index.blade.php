@@ -20,7 +20,7 @@
             @endif
 
             <!-- TABELA DE PEÇAS -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-[2rem] border border-slate-100">
+            <div class="bg-white overflow-x-auto shadow-sm sm:rounded-[2rem] border border-slate-100">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">

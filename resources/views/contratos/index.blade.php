@@ -17,7 +17,7 @@
                 <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-2xl font-medium text-sm">{{ session('success') }}</div>
             @endif
 
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">

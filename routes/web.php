@@ -21,6 +21,7 @@ use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\ModeloContratoController;
 use App\Http\Controllers\AssistenteController;
+use App\Http\Controllers\LojaConfigController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -129,6 +130,11 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
 
     // Gestão de Funcionários (apenas admin_loja / super_admin)
     Route::middleware('adminloja')->group(function () {
+        // Configurações da própria loja (dados + logo)
+        Route::get('/config-loja', [LojaConfigController::class, 'edit'])->name('loja.config.edit');
+        Route::put('/config-loja', [LojaConfigController::class, 'update'])->name('loja.config.update');
+        Route::delete('/config-loja/logo', [LojaConfigController::class, 'removerLogo'])->name('loja.config.logo.remover');
+
         // Modelos de contrato (só o admin da loja gerencia os modelos)
         Route::get('/contratos-modelos', [ModeloContratoController::class, 'index'])->name('contratos.modelos.index');
         Route::get('/contratos-modelos/novo', [ModeloContratoController::class, 'create'])->name('contratos.modelos.create');

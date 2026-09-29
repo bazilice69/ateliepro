@@ -16,5 +16,8 @@ class DatabaseSeeder extends Seeder
 
         // Dados de demonstração multi-tenant (super_admin + 2 lojas + funcionário).
         $this->call(DemoMultiTenantSeeder::class);
+
+        // Demonstração "viva" na Bella Noivas (noivas, provas, casamento, financeiro).
+        $this->call(DemoVivoSeeder::class);
     }
 }

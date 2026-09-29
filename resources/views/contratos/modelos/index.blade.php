@@ -14,7 +14,7 @@
 
             <p class="text-sm text-slate-500">Crie aqui os textos padrão dos seus contratos (locação, confecção...). Depois, ao gerar um contrato, o sistema preenche os dados do cliente automaticamente.</p>
 
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">

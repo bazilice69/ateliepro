@@ -25,6 +25,13 @@ class Loja extends Model
         'data_vencimento',
         'trial_termina_em',
         'observacoes_admin',
+        'logo',
+        'razao_social',
+        'inscricao_estadual',
+        'endereco',
+        'cidade',
+        'estado',
+        'cep',
     ];
 
     protected function casts(): array

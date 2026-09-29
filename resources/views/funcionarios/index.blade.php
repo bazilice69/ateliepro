@@ -19,7 +19,7 @@
                 <div class="bg-rose-50 border border-rose-200 text-rose-700 px-6 py-4 rounded-2xl font-medium text-sm">{{ $errors->first() }}</div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-[2rem] border border-slate-100">
+            <div class="bg-white overflow-x-auto shadow-sm sm:rounded-[2rem] border border-slate-100">
                 <table class="w-full text-left">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">
