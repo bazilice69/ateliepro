@@ -13,8 +13,8 @@
         <!-- Ícones -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        <!-- Vite Padrão -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <!-- Alpine.js (interatividade). CSS/JS via CDN acima; não usamos Vite em produção. -->
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="font-sans text-slate-900 antialiased bg-slate-900">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative">
