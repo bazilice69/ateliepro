@@ -37,8 +37,9 @@
                     <p class="text-xs text-slate-400 mb-4">Copie e cole no texto. Elas serão trocadas pelos dados reais ao gerar o contrato.</p>
                     <div class="space-y-1.5 max-h-[28rem] overflow-y-auto pr-1">
                         @foreach($variaveis as $chave => $desc)
+                            @php $tag = '{'.'{'.$chave.'}'.'}'; @endphp
                             <div class="flex items-center justify-between gap-2 text-xs">
-                                <code class="bg-slate-100 text-slate-700 px-2 py-1 rounded font-mono">{{ '{{'.$chave.'}}' }}</code>
+                                <code class="bg-slate-100 text-slate-700 px-2 py-1 rounded font-mono cursor-pointer hover:bg-amber-100" onclick="navigator.clipboard.writeText('{{ $tag }}')" title="Clique para copiar">{{ $tag }}</code>
                                 <span class="text-slate-400 text-right flex-1">{{ $desc }}</span>
                             </div>
                         @endforeach
