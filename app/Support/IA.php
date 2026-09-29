@@ -134,20 +134,38 @@ class IA
 
         $ultimoErro = '';
         foreach ($modelos as $modelo) {
-            $resp = Http::timeout(30)->post(
-                "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . self::apiKey(),
-                $payload
-            );
+            // Tenta cada modelo até 3 vezes — o Gemini gratuito às vezes retorna
+            // 503 "high demand" momentâneo; uma nova tentativa costuma resolver.
+            for ($tentativa = 1; $tentativa <= 3; $tentativa++) {
+                $resp = Http::timeout(30)->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . self::apiKey(),
+                    $payload
+                );
 
-            if ($resp->successful()) {
-                return trim($resp->json('candidates.0.content.parts.0.text') ?? '');
+                if ($resp->successful()) {
+                    return trim($resp->json('candidates.0.content.parts.0.text') ?? '');
+                }
+
+                $ultimoErro = (string) $resp->json('error.message', 'erro desconhecido');
+
+                // 503 = sobrecarregado: espera um pouco e tenta de novo o mesmo modelo.
+                if ($resp->status() === 503 && $tentativa < 3) {
+                    usleep(800000); // 0,8s
+                    continue;
+                }
+
+                break; // outros erros: sai do loop de tentativas
             }
 
-            $ultimoErro = (string) $resp->json('error.message', 'erro desconhecido');
-            // Se não for "modelo não encontrado", não adianta tentar outros.
-            if ($resp->status() !== 404) {
+            // 404 = modelo inexistente: tenta o próximo modelo da lista.
+            if (!isset($resp) || $resp->status() !== 404) {
                 break;
             }
+        }
+
+        // Mensagem amigável para sobrecarga.
+        if (str_contains(strtolower($ultimoErro), 'demand') || str_contains($ultimoErro, '503')) {
+            throw new \RuntimeException('A IA está com muita procura agora. Tente de novo em instantes. 💛');
         }
 
         throw new \RuntimeException('Gemini: ' . $ultimoErro);
