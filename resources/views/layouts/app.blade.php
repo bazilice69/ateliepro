@@ -56,6 +56,7 @@
                         ['clientes.index', 'clientes.index', 'fa-users', 'Clientes'],
                         ['locacao.index', 'locacao.*', 'fa-file-contract', 'Locações'],
                         ['provas.index', 'provas.*', 'fa-ruler-combined', 'Provas'],
+                        ['encomendas.index', 'encomendas.*', 'fa-pen-ruler', 'Sob Medida'],
                         ['servicos.index', 'servicos.*', 'fa-scissors', 'Oficina'],
                         ['contratos.index', 'contratos.*', 'fa-file-signature', 'Contratos'],
                         ['financeiro.index', 'financeiro.index', 'fa-dollar-sign', 'Financeiro'],

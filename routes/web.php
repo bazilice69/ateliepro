@@ -6,6 +6,7 @@ use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\AgendamentoController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LocacaoController;
+use App\Http\Controllers\EncomendaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedidaController;
 use App\Http\Controllers\FinanceiroController;
@@ -123,6 +124,14 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::post('/oficina', [ServicoController::class, 'store'])->name('servicos.store');
     Route::put('/oficina/{servico}/status', [ServicoController::class, 'updateStatus'])->name('servicos.status');
     Route::delete('/oficina/{servico}', [ServicoController::class, 'destroy'])->name('servicos.destroy');
+
+    // Encomendas / Sob Medida (peças criadas do zero)
+    Route::get('/encomendas', [EncomendaController::class, 'index'])->name('encomendas.index');
+    Route::get('/encomendas/nova', [EncomendaController::class, 'create'])->name('encomendas.create');
+    Route::post('/encomendas', [EncomendaController::class, 'store'])->name('encomendas.store');
+    Route::get('/encomendas/{encomenda}', [EncomendaController::class, 'show'])->name('encomendas.show');
+    Route::put('/encomendas/{encomenda}', [EncomendaController::class, 'update'])->name('encomendas.update');
+    Route::put('/encomendas/{encomenda}/etapa', [EncomendaController::class, 'updateEtapa'])->name('encomendas.etapa');
 
     // Módulo Financeiro
     Route::get('/financeiro', [FinanceiroController::class, 'index'])->name('financeiro.index');

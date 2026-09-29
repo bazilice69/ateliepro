@@ -7,6 +7,7 @@ use App\Models\Agendamento;
 use App\Models\Cliente;
 use App\Models\Evento;
 use App\Models\LancamentoFinanceiro;
+use App\Models\Encomenda;
 use App\Models\Locacao;
 use App\Models\Prova;
 use App\Models\Servico;
@@ -78,10 +79,18 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Encomendas (sob medida) em produção, priorizando entregas mais próximas
+        $encomendasProducao = Encomenda::with(['cliente'])
+            ->whereNotIn('etapa', [Encomenda::ETAPA_ENTREGUE, Encomenda::ETAPA_CANCELADA])
+            ->orderByRaw('data_entrega IS NULL')
+            ->orderBy('data_entrega')
+            ->limit(5)
+            ->get();
+
         return view('dashboard', compact(
             'recebidoMes', 'aReceber', 'emAtraso', 'despesasMes', 'saldoPrevisto',
             'totais', 'movimentacoes', 'proximosEventos', 'agendaHoje',
-            'provasHoje', 'ajustesPendentes'
+            'provasHoje', 'ajustesPendentes', 'encomendasProducao'
         ));
     }
 }
