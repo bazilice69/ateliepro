@@ -7,19 +7,8 @@
     </x-slot>
 
     @php
-        // Mapa: rótulo da ficha da Andreia => coluna no banco (tabela medidas)
-        $camposMedida = [
-            'Alto Busto' => 'alto_busto', 'Busto' => 'busto_torax', 'Tórax' => 'torax_medida',
-            'Cintura' => 'cintura', 'Altura Corpo' => 'altura_corpo', 'Centro Frente' => 'centro_frente',
-            'Centro Costas' => 'centro_costas', 'Altura do Busto' => 'altura_busto', 'Distância de Busto' => 'distancia_busto',
-            'Cava a Cava' => 'cava_a_cava', 'Ombro a Ombro' => 'ombro_a_ombro', 'Ombro' => 'ombro',
-            'Lateral' => 'lateral', 'Diagonais' => 'diagonais', 'Circ. Cava' => 'circ_cava',
-            'Quadril' => 'quadril', 'Altura do Quadril' => 'altura_quadril', 'Quadril Alto' => 'quadril_alto',
-            'Quadril Baixo' => 'quadril_baixo', 'Altura Q. Alto' => 'altura_q_alto', 'Altura Q. Baixo' => 'altura_q_baixo',
-            'Comp. Saia' => 'comp_saia', 'Comp. Cauda' => 'comp_cauda', 'Decotes' => 'decotes',
-            'Braço' => 'braco', 'Comp. Manga' => 'manga', 'Cotovelo Dobrado' => 'cotovelo_dobrado',
-            'Altura do Cotovelo' => 'altura_cotovelo', 'Punho' => 'punho', 'Mão' => 'mao', 'Cabeça da Manga' => 'cabeca_manga',
-        ];
+        // Rótulo => coluna das 33 medidas da ficha (fonte única no Model).
+        $camposMedida = \App\Models\Medida::CAMPOS_FICHA;
     @endphp
 
     <div class="py-8">
@@ -110,51 +99,112 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- MEDIDAS DA CLIENTE -->
-                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
+                <!-- MEDIDAS: HISTÓRICO VIVO (uma medição por prova) -->
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8" x-data="{ novaMedida: false }">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-black text-slate-800 tracking-tighter"><i class="fas fa-ruler-combined text-slate-300 mr-2"></i>Medidas</h3>
-                        @if($encomenda->cliente)
-                            <a href="{{ route('clientes.show', $encomenda->cliente->id) }}" class="text-[11px] font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest">Ver ficha &rarr;</a>
-                        @endif
+                        <div>
+                            <h3 class="text-lg font-black text-slate-800 tracking-tighter"><i class="fas fa-ruler-combined text-slate-300 mr-2"></i>Medidas por Prova</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">A cada prova, registre uma nova medição — o histórico mostra o que mudou.</p>
+                        </div>
+                        <button type="button" @click="novaMedida = !novaMedida" class="bg-slate-900 text-[#fbbf24] px-4 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-800 transition whitespace-nowrap">
+                            <i class="fas fa-plus mr-1"></i> Nova medição
+                        </button>
                     </div>
 
-                    <!-- Escolher/atualizar qual ficha de medidas usar -->
-                    <form action="{{ route('encomendas.update', $encomenda) }}" method="POST" class="mb-6">
-                        @csrf @method('PUT')
-                        <input type="hidden" name="titulo" value="{{ $encomenda->titulo }}">
-                        <input type="hidden" name="tipo" value="{{ $encomenda->tipo }}">
-                        <div class="flex gap-3 items-end">
-                            <div class="flex-1">
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ficha de medidas usada</label>
-                                <select name="medida_id" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
-                                    <option value="">Nenhuma vinculada</option>
-                                    @foreach($medidas as $m)
-                                        <option value="{{ $m->id }}" @selected($encomenda->medida_id == $m->id)>{{ \Carbon\Carbon::parse($m->data_medicao)->format('d/m/Y') }} — {{ $m->responsavel_medicao ?? 'Ateliê' }}</option>
-                                    @endforeach
-                                </select>
+                    @php $ultima = $historico->first(); @endphp
+                    <!-- FORM: nova medição (as 33 medidas da ficha) -->
+                    <form x-show="novaMedida" x-cloak action="{{ route('encomendas.medida', $encomenda) }}" method="POST" class="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-6 space-y-4">
+                        @csrf
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Data *</label>
+                                <input type="date" name="data_medicao" value="{{ date('Y-m-d') }}" required class="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
                             </div>
-                            <button type="submit" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">Vincular</button>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Etapa/Prova</label>
+                                <input type="text" name="rotulo" placeholder="Ex: Prova 1" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Responsável</label>
+                                <input type="text" name="responsavel_medicao" placeholder="Quem mediu" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            @foreach($camposMedida as $rotulo => $coluna)
+                                <div>
+                                    <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">{{ $rotulo }}</label>
+                                    <input type="text" name="{{ $coluna }}" value="{{ optional($ultima)->{$coluna} }}" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                                </div>
+                            @endforeach
+                        </div>
+                        <p class="text-[11px] text-slate-400">Dica: os campos já vêm preenchidos com a última medição — altere só o que mudou nesta prova.</p>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Observações desta prova</label>
+                            <textarea name="observacoes" rows="2" class="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#fbbf24] focus:outline-none"></textarea>
+                        </div>
+
+                        <div class="flex justify-end gap-3">
+                            <button type="button" @click="novaMedida = false" class="px-4 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl text-sm transition">Cancelar</button>
+                            <button type="submit" class="bg-slate-900 text-[#fbbf24] px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-800 transition">Salvar medição</button>
                         </div>
                     </form>
 
-                    @if($encomenda->medida)
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3">
-                            @foreach($camposMedida as $rotulo => $coluna)
-                                @if(!empty($encomenda->medida->{$coluna}))
-                                    <div class="bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
-                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide leading-tight">{{ $rotulo }}</p>
-                                        <p class="font-black text-slate-800 text-sm">{{ $encomenda->medida->{$coluna} }}</p>
+                    <!-- HISTÓRICO com comparação -->
+                    @forelse($historico as $medicao)
+                        @php $linhas = $comparacoes[$medicao->id] ?? []; @endphp
+                        <div class="border border-slate-100 rounded-2xl p-5 mb-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-slate-900 text-[#fbbf24] text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md">
+                                        {{ $medicao->rotulo ?: 'Medição' }}
+                                    </span>
+                                    <div>
+                                        <p class="font-black text-slate-800 text-sm">{{ \Carbon\Carbon::parse($medicao->data_medicao)->format('d/m/Y') }}</p>
+                                        <p class="text-[10px] text-slate-400 uppercase tracking-widest">{{ $medicao->responsavel_medicao ?? 'Ateliê' }}</p>
                                     </div>
+                                </div>
+                                @if($loop->first)
+                                    <span class="bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md">Atual</span>
                                 @endif
-                            @endforeach
+                            </div>
+
+                            @if(count($linhas))
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                                    @foreach($linhas as $l)
+                                        <div class="bg-slate-50 rounded-lg px-3 py-2 border {{ $l['mudou'] ? 'border-amber-200' : 'border-slate-100' }}">
+                                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide leading-tight">{{ $l['rotulo'] }}</p>
+                                            <p class="font-black text-slate-800 text-sm">
+                                                {{ $l['atual'] ?: '—' }}
+                                                @if($l['mudou'] && $l['anterior'] !== null)
+                                                    <span class="text-[10px] font-bold {{ ($l['delta'] ?? 0) < 0 ? 'text-rose-500' : (($l['delta'] ?? 0) > 0 ? 'text-emerald-600' : 'text-slate-400') }}">
+                                                        @if($l['delta'] !== null)
+                                                            ({{ $l['delta'] > 0 ? '+' : '' }}{{ rtrim(rtrim(number_format($l['delta'], 2, ',', ''), '0'), ',') }})
+                                                        @else
+                                                            (era {{ $l['anterior'] }})
+                                                        @endif
+                                                    </span>
+                                                @endif
+                                            </p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <p class="text-slate-400 text-sm italic">Sem medidas preenchidas nesta medição.</p>
+                            @endif
+
+                            @if($medicao->observacoes)
+                                <p class="text-xs text-slate-500 mt-3 bg-slate-50 rounded-lg px-3 py-2"><i class="fas fa-comment-dots text-slate-300 mr-1"></i> {{ $medicao->observacoes }}</p>
+                            @endif
                         </div>
-                        @if(collect($camposMedida)->every(fn($col) => empty($encomenda->medida->{$col})))
-                            <p class="text-slate-400 text-sm italic">A ficha vinculada não tem medidas preenchidas.</p>
-                        @endif
-                    @else
-                        <p class="text-slate-400 text-sm italic">Nenhuma ficha de medidas vinculada. Selecione uma acima ou cadastre na ficha da cliente.</p>
-                    @endif
+                    @empty
+                        <div class="text-center py-8">
+                            <i class="fas fa-ruler-combined text-4xl text-slate-200 mb-3"></i>
+                            <p class="text-slate-500 text-sm font-medium">Nenhuma medição registrada ainda.</p>
+                            <p class="text-slate-400 text-xs">Clique em "Nova medição" para registrar a primeira prova.</p>
+                        </div>
+                    @endforelse
                 </div>
 
                 <!-- TECIDOS / CROQUI / DESCRIÇÃO -->

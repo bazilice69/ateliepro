@@ -97,18 +97,58 @@ class EncomendaController extends Controller
 
     public function show(Encomenda $encomenda)
     {
-        $encomenda->load(['cliente', 'medida']);
+        // Histórico de medições DESTA encomenda (uma por prova), recente -> antiga.
+        $encomenda->load(['cliente', 'medidas']);
 
-        // Medidas da cliente para permitir vincular/trocar a ficha usada.
-        $medidas = $encomenda->cliente
-            ? $encomenda->cliente->medidas()->get()
-            : collect();
+        $historico = $encomenda->medidas; // já ordenado desc pela relação
+
+        // Monta a comparação de cada medição com a imediatamente anterior
+        // (cronologicamente), para destacar o que mudou entre as provas.
+        $comparacoes = [];
+        $ordenadoAsc = $historico->reverse()->values(); // mais antiga -> mais nova
+        foreach ($ordenadoAsc as $i => $medicao) {
+            $anterior = $i > 0 ? $ordenadoAsc[$i - 1] : null;
+            $comparacoes[$medicao->id] = $medicao->compararCom($anterior);
+        }
 
         return view('encomendas.show', [
-            'encomenda' => $encomenda,
-            'medidas'   => $medidas,
-            'etapas'    => Encomenda::ETAPAS,
+            'encomenda'   => $encomenda,
+            'historico'   => $historico,
+            'comparacoes' => $comparacoes,
+            'etapas'      => Encomenda::ETAPAS,
         ]);
+    }
+
+    /**
+     * Registra uma NOVA medição para a encomenda (normalmente após uma prova).
+     * Nunca sobrescreve: cada registro entra no histórico para comparação.
+     */
+    public function registrarMedida(Request $request, Encomenda $encomenda)
+    {
+        $colunas = array_values(Medida::CAMPOS_FICHA);
+
+        $regras = [
+            'data_medicao'        => ['required', 'date'],
+            'responsavel_medicao' => ['nullable', 'string', 'max:100'],
+            'rotulo'              => ['nullable', 'string', 'max:60'],
+            'observacoes'         => ['nullable', 'string'],
+        ];
+        foreach ($colunas as $col) {
+            $regras[$col] = ['nullable', 'string', 'max:20'];
+        }
+
+        $dados = $request->validate($regras);
+
+        // Amarra a medição à cliente e à encomenda; loja_id vem da trait.
+        $dados['cliente_id']   = $encomenda->cliente_id;
+        $dados['encomenda_id'] = $encomenda->id;
+
+        $medida = Medida::create($dados);
+
+        // A encomenda passa a apontar para a medição mais recente.
+        $encomenda->update(['medida_id' => $medida->id]);
+
+        return back()->with('success', 'Medição registrada no histórico da encomenda.');
     }
 
     /**

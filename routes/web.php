@@ -132,6 +132,7 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/encomendas/{encomenda}', [EncomendaController::class, 'show'])->name('encomendas.show');
     Route::put('/encomendas/{encomenda}', [EncomendaController::class, 'update'])->name('encomendas.update');
     Route::put('/encomendas/{encomenda}/etapa', [EncomendaController::class, 'updateEtapa'])->name('encomendas.etapa');
+    Route::post('/encomendas/{encomenda}/medida', [EncomendaController::class, 'registrarMedida'])->name('encomendas.medida');
 
     // Módulo Financeiro
     Route::get('/financeiro', [FinanceiroController::class, 'index'])->name('financeiro.index');
