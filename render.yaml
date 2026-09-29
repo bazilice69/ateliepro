@@ -14,12 +14,9 @@ databases:
 services:
   - type: web
     name: ateliepro
-    runtime: php
+    runtime: docker         # PHP via Dockerfile (runtime php nativo foi descontinuado)
+    dockerfilePath: ./Dockerfile
     plan: free
-    buildCommand: ./build.sh
-    # Servimos a pasta public/ do Laravel. O roteador embutido do PHP usa o
-    # index.php do framework para todas as rotas.
-    startCommand: php -S 0.0.0.0:$PORT -t public public/index.php
     envVars:
       - key: APP_NAME
         value: AteliePro
