@@ -49,6 +49,9 @@
                     <a href="https://api.whatsapp.com/send?phone=55{{ preg_replace('/[^0-9]/', '', $cliente->telefone) }}" target="_blank" class="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center cursor-pointer">
                         <i class="fab fa-whatsapp text-lg mr-2"></i> WhatsApp
                     </a>
+                    <a href="{{ route('encomendas.create', ['cliente_id' => $cliente->id]) }}" class="bg-[#fbbf24] hover:bg-amber-300 text-slate-900 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
+                        <i class="fas fa-pen-ruler text-sm mr-2"></i> Sob Medida
+                    </a>
                     <a href="{{ route('clientes.edit', $cliente->id) }}" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
                         <i class="fas fa-pen text-sm mr-2"></i> Editar
                     </a>

@@ -124,6 +124,25 @@ class DemoVivoSeeder extends Seeder
              'prazo' => Carbon::now()->addDays(10), 'custo' => 0, 'status' => 'em_andamento']
         );
 
+        // --- Ficha de medidas da Ana (para a encomenda sob medida) ---
+        $medidaAna = \App\Models\Medida::withoutGlobalScope('loja')->firstOrCreate(
+            ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'data_medicao' => Carbon::now()->subDays(15)],
+            ['responsavel_medicao' => 'Andreia', 'busto_torax' => '88', 'cintura' => '68', 'quadril' => '96',
+             'alto_busto' => '82', 'ombro_a_ombro' => '38', 'comp_saia' => '105', 'comp_cauda' => '150',
+             'altura_corpo' => '162', 'braco' => '58', 'manga' => '60']
+        );
+
+        // --- Encomenda / Sob Medida (peça criada do zero, em produção) ---
+        \App\Models\Encomenda::withoutGlobalScope('loja')->firstOrCreate(
+            ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'titulo' => 'Vestido de noiva sereia sob medida'],
+            ['medida_id' => $medidaAna->id, 'tipo' => 'compra',
+             'descricao' => 'Modelo sereia com renda francesa e cauda longa. Decote coração.',
+             'tecidos' => 'Cetim de seda, renda francesa, forro em musseline',
+             'data_pedido' => Carbon::now()->subDays(15), 'data_prova' => Carbon::now()->addDays(5),
+             'data_entrega' => Carbon::now()->addDays(30), 'valor' => 4500, 'sinal' => 1500,
+             'etapa' => 'costura', 'observacoes' => 'Cliente pediu botões forrados nas costas.']
+        );
+
         // --- Financeiro (receitas e despesas do mês) ---
         $catReceita = CategoriaFinanceira::withoutGlobalScope('loja')->where('loja_id', $loja->id)->where('tipo', 'Receita')->first();
         $catDespesa = CategoriaFinanceira::withoutGlobalScope('loja')->where('loja_id', $loja->id)->where('tipo', 'Despesa')->first();

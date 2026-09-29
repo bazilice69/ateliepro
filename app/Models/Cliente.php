@@ -33,4 +33,10 @@ class Cliente extends Model
     {
         return $this->hasMany(Prova::class)->latest('data_prova');
     }
+
+    // Encomendas (peças criadas do zero / sob medida) desta cliente.
+    public function encomendas()
+    {
+        return $this->hasMany(Encomenda::class)->latest();
+    }
 }

@@ -185,6 +185,31 @@
                 </div>
             </div>
 
+            <!-- ENCOMENDAS SOB MEDIDA EM PRODUÇÃO -->
+            <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-black text-slate-800 tracking-tighter">Sob Medida <span class="text-[#fbbf24]">em produção</span></h3>
+                    <a href="{{ route('encomendas.index') }}" class="text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest">Ver todas &rarr;</a>
+                </div>
+                <div class="space-y-3">
+                    @forelse($encomendasProducao as $enc)
+                        <a href="{{ route('encomendas.show', $enc) }}" class="flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-slate-50 transition">
+                            <div class="w-12 h-12 rounded-2xl bg-slate-900 text-[#fbbf24] flex items-center justify-center"><i class="fas fa-pen-ruler"></i></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-black text-slate-800 text-sm truncate">{{ $enc->titulo }}</p>
+                                <p class="text-xs text-slate-400 truncate">{{ $enc->cliente->nome ?? '—' }} · {{ $enc->etapaLabel() }}</p>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Entrega</p>
+                                <p class="font-bold text-xs {{ $enc->estaAtrasada() ? 'text-rose-600' : 'text-slate-700' }}">{{ $enc->data_entrega ? $enc->data_entrega->format('d/m/y') : '—' }}</p>
+                            </div>
+                        </a>
+                    @empty
+                        <p class="text-sm text-slate-400 text-center py-6"><i class="fas fa-pen-ruler text-4xl text-slate-200 mb-3 block"></i>Nenhuma encomenda em produção.</p>
+                    @endforelse
+                </div>
+            </div>
+
         </div>
     </div>
 </x-app-layout>
