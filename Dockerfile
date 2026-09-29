@@ -1,5 +1,6 @@
 # Imagem para rodar o AteliêPro (Laravel) no Render.
-FROM php:8.3-cli
+# PHP 8.4 (o composer.lock foi gerado com 8.4; algumas libs Symfony exigem >=8.4).
+FROM php:8.4-cli
 
 # Dependências de sistema + extensões PHP necessárias (PostgreSQL, zip, etc.).
 RUN apt-get update && apt-get install -y \
