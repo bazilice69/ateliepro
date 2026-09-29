@@ -130,5 +130,25 @@ class DemoMultiTenantSeeder extends Seeder
                 ['nome' => $nome, 'categoria' => 'Noiva', 'valor_locacao' => 500, 'status' => Acervo::STATUS_DISPONIVEL]
             );
         }
+
+        // Modelo de contrato de exemplo (com variáveis de auto-preenchimento).
+        \App\Models\ModeloContrato::withoutGlobalScope('loja')->firstOrCreate(
+            ['loja_id' => $loja->id, 'titulo' => 'Contrato de Locação de Traje'],
+            ['ativo' => true, 'conteudo' => <<<TXT
+CONTRATO DE LOCAÇÃO DE TRAJE
+
+LOCADORA: {{loja_nome}}, CNPJ/CPF {{loja_cnpj}}.
+LOCATÁRIO(A): {{cliente_nome}}, RG {{cliente_rg}}, CPF {{cliente_cpf}}, residente em {{cliente_endereco}}.
+
+OBJETO: Locação da peça {{locacao_peca}}.
+VALORES: Total {{locacao_valor_total}} (sinal {{locacao_sinal}}, saldo {{locacao_saldo}}).
+DATAS: Retirada {{locacao_data_retirada}}, evento {{locacao_data_evento}}, devolução {{locacao_data_devolucao}}.
+
+{{cidade_hoje}}
+
+______________________________          ______________________________
+       {{loja_nome}}                            {{cliente_nome}}
+TXT]
+        );
     }
 }

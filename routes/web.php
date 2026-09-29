@@ -18,6 +18,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\DespesaRecorrenteController;
 use App\Http\Controllers\RelatorioController;
+use App\Http\Controllers\ContratoController;
+use App\Http\Controllers\ModeloContratoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -108,8 +110,25 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/relatorios/exportar', [RelatorioController::class, 'exportar'])->name('relatorios.exportar');
     Route::get('/relatorios/imprimir', [RelatorioController::class, 'imprimir'])->name('relatorios.imprimir');
 
+    // Contratos (gerar, listar, visualizar) — disponível para a equipe da loja
+    Route::get('/contratos', [ContratoController::class, 'index'])->name('contratos.index');
+    Route::get('/contratos/novo', [ContratoController::class, 'create'])->name('contratos.create');
+    Route::post('/contratos/preview', [ContratoController::class, 'preview'])->name('contratos.preview');
+    Route::post('/contratos', [ContratoController::class, 'store'])->name('contratos.store');
+    Route::get('/contratos/{contrato}', [ContratoController::class, 'show'])->name('contratos.show');
+    Route::get('/contratos/{contrato}/imprimir', [ContratoController::class, 'imprimir'])->name('contratos.imprimir');
+    Route::delete('/contratos/{contrato}', [ContratoController::class, 'destroy'])->name('contratos.destroy');
+
     // Gestão de Funcionários (apenas admin_loja / super_admin)
     Route::middleware('adminloja')->group(function () {
+        // Modelos de contrato (só o admin da loja gerencia os modelos)
+        Route::get('/contratos-modelos', [ModeloContratoController::class, 'index'])->name('contratos.modelos.index');
+        Route::get('/contratos-modelos/novo', [ModeloContratoController::class, 'create'])->name('contratos.modelos.create');
+        Route::post('/contratos-modelos', [ModeloContratoController::class, 'store'])->name('contratos.modelos.store');
+        Route::get('/contratos-modelos/{modelo}/editar', [ModeloContratoController::class, 'edit'])->name('contratos.modelos.edit');
+        Route::put('/contratos-modelos/{modelo}', [ModeloContratoController::class, 'update'])->name('contratos.modelos.update');
+        Route::delete('/contratos-modelos/{modelo}', [ModeloContratoController::class, 'destroy'])->name('contratos.modelos.destroy');
+
         Route::get('/funcionarios', [FuncionarioController::class, 'index'])->name('funcionarios.index');
         Route::get('/funcionarios/novo', [FuncionarioController::class, 'create'])->name('funcionarios.create');
         Route::post('/funcionarios', [FuncionarioController::class, 'store'])->name('funcionarios.store');

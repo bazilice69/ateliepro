@@ -44,6 +44,11 @@
                     <i class="fas fa-file-contract mr-3 w-5"></i> Locações
                 </a>
 
+                <!-- Contratos -->
+                <a href="{{ route('contratos.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('contratos.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-file-signature mr-3 w-5"></i> Contratos
+                </a>
+
                 <!-- Link Financeiro Conectado (Agora funcionando perfeitamente!) -->
                 <a href="{{ route('financeiro.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('financeiro.index') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
                     <i class="fas fa-dollar-sign mr-3 w-5"></i> Financeiro
