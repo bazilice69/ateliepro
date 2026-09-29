@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToLoja;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Agendamento extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToLoja;
 
     protected $table = 'agendamentos';
 
     protected $fillable = [
+        'loja_id',
         'cliente_id',
         'evento_id',
         'produto_id',
@@ -42,8 +44,20 @@ class Agendamento extends Model
         return $this->belongsTo(Evento::class);
     }
 
+    /**
+     * Peça vinculada ao agendamento. O estoque foi unificado em `acervos`,
+     * então a coluna `produto_id` referencia agora a tabela `acervos`.
+     */
     public function produto(): BelongsTo
     {
-        return $this->belongsTo(Produto::class);
+        return $this->belongsTo(Acervo::class, 'produto_id');
+    }
+
+    /**
+     * Alias semântico para a peça do acervo.
+     */
+    public function acervo(): BelongsTo
+    {
+        return $this->belongsTo(Acervo::class, 'produto_id');
     }
 }

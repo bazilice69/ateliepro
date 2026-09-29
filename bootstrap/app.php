@@ -12,7 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            // Legado (licença por máquina) — mantido, mas fora do fluxo padrão.
             'license' => \App\Http\Middleware\CheckLicense::class,
+            // Multi-tenancy / SaaS:
+            'lojaativa' => \App\Http\Middleware\EnsureLojaAtiva::class,
+            'superadmin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+            'adminloja' => \App\Http\Middleware\EnsureAdminLoja::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

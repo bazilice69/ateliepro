@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\Acervo;
 
 class ProdutoController extends Controller
@@ -25,14 +27,17 @@ class ProdutoController extends Controller
     // Salva no banco de dados
     public function store(Request $request)
     {
+        $lojaId = Auth::user()->loja_id;
+
         $request->validate([
-            'codigo' => 'required|string|unique:acervos,codigo',
+            // Código único DENTRO da loja (cada loja tem sua própria numeração).
+            'codigo' => ['required', 'string', Rule::unique('acervos', 'codigo')->where('loja_id', $lojaId)],
             'nome' => 'required|string|max:255',
             'categoria' => 'required|string',
             'valor_locacao' => 'required|numeric',
         ]);
 
-        Acervo::create($request->all());
+        Acervo::create($request->except('loja_id'));
 
         return redirect()->route('dashboard')->with('success', 'Peça cadastrada no acervo com sucesso!');
     }

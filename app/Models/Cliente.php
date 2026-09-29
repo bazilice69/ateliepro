@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToLoja;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Cliente extends Model
 {
-    use HasFactory;
-    
+    use HasFactory, BelongsToLoja;
+
     // Libera todos os campos para gravação rápida
     protected $guarded = [];
 

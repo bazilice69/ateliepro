@@ -2,10 +2,40 @@
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
+        <div class="mb-4 pb-2 border-b border-gray-200">
+            <p class="text-sm font-semibold text-gray-700">Dados da Loja</p>
+            <p class="text-xs text-gray-500">Crie a conta da sua loja no AteliêPro.</p>
+        </div>
+
+        <!-- Nome Fantasia da Loja -->
+        <div>
+            <x-input-label for="nome_fantasia" :value="__('Nome da Loja')" />
+            <x-text-input id="nome_fantasia" class="block mt-1 w-full" type="text" name="nome_fantasia" :value="old('nome_fantasia')" required autofocus autocomplete="organization" placeholder="Ex: Bella Noivas" />
+            <x-input-error :messages="$errors->get('nome_fantasia')" class="mt-2" />
+        </div>
+
+        <!-- CNPJ / CPF -->
+        <div class="mt-4">
+            <x-input-label for="cnpj_cpf" :value="__('CNPJ ou CPF')" />
+            <x-text-input id="cnpj_cpf" class="block mt-1 w-full" type="text" name="cnpj_cpf" :value="old('cnpj_cpf')" required autocomplete="off" />
+            <x-input-error :messages="$errors->get('cnpj_cpf')" class="mt-2" />
+        </div>
+
+        <!-- Telefone (opcional) -->
+        <div class="mt-4">
+            <x-input-label for="telefone" :value="__('Telefone / WhatsApp (opcional)')" />
+            <x-text-input id="telefone" class="block mt-1 w-full" type="text" name="telefone" :value="old('telefone')" autocomplete="tel" />
+            <x-input-error :messages="$errors->get('telefone')" class="mt-2" />
+        </div>
+
+        <div class="mt-6 mb-4 pb-2 border-b border-gray-200">
+            <p class="text-sm font-semibold text-gray-700">Seu Acesso (Administrador)</p>
+        </div>
+
         <!-- Name -->
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+            <x-input-label for="name" :value="__('Seu Nome')" />
+            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 

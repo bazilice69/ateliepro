@@ -46,11 +46,33 @@
                 <a href="{{ route('financeiro.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('financeiro.index') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
                     <i class="fas fa-dollar-sign mr-3 w-5"></i> Financeiro
                 </a>
+
+                <!-- Equipe (apenas admin da loja) -->
+                @if(auth()->user()?->isAdminLoja() || auth()->user()?->isSuperAdmin())
+                    <a href="{{ route('funcionarios.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('funcionarios.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                        <i class="fas fa-user-tie mr-3 w-5"></i> Equipe
+                    </a>
+                @endif
             </nav>
 
-            <!-- Rodapé do Menu com Usuário -->
+            <!-- Rodapé do Menu com Loja + Usuário -->
             <div class="p-4 border-t border-gray-700 bg-[#0a0f1d]">
+                @php
+                    $lojaAtual = Auth::user()?->loja;
+                    $papel = match(Auth::user()?->role) {
+                        \App\Models\User::ROLE_SUPER_ADMIN => 'Super Admin',
+                        \App\Models\User::ROLE_ADMIN_LOJA => 'Administrador',
+                        \App\Models\User::ROLE_FUNCIONARIO => 'Funcionário',
+                        default => '',
+                    };
+                @endphp
+                @if($lojaAtual)
+                    <div class="text-[10px] uppercase tracking-widest text-[#fbbf24] font-black">{{ $lojaAtual->nome_fantasia }}</div>
+                @endif
                 <div class="text-sm font-medium">{{ Auth::user()->name ?? 'Usuário' }}</div>
+                @if($papel)
+                    <div class="text-[11px] text-gray-400">{{ $papel }}</div>
+                @endif
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="text-xs text-orange-400 hover:text-orange-300 mt-1 uppercase tracking-wider font-bold">
@@ -64,13 +86,24 @@
         <div class="flex-1 flex flex-col overflow-hidden">
             <!-- Header Superior -->
             <header class="bg-white shadow-sm border-b p-4 flex justify-between items-center">
-                <h2 class="text-xl font-semibold text-gray-800">Painel de Controle</h2>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800">Painel de Controle</h2>
+                    @if(Auth::user()?->loja)
+                        <p class="text-xs text-gray-400 font-medium">{{ Auth::user()->loja->nome_fantasia }}</p>
+                    @endif
+                </div>
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('locacao.create') }}" class="bg-[#fbbf24] hover:bg-yellow-500 text-gray-900 px-4 py-2 rounded-lg font-bold text-sm transition shadow-md flex items-center">
                         <i class="fas fa-plus mr-2"></i> Nova Locação
                     </a>
                 </div>
             </header>
+
+            @isset($header)
+                <div class="bg-white border-b px-8 py-4">
+                    {{ $header }}
+                </div>
+            @endisset
 
             <!-- Área da Tela -->
             <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
