@@ -18,4 +18,19 @@ class Cliente extends Model
     {
         return $this->hasMany(Medida::class)->orderBy('data_medicao', 'desc');
     }
+
+    public function locacoes()
+    {
+        return $this->hasMany(Locacao::class)->latest();
+    }
+
+    public function agendamentos()
+    {
+        return $this->hasMany(Agendamento::class)->latest('data_hora');
+    }
+
+    public function provas()
+    {
+        return $this->hasMany(Prova::class)->latest('data_prova');
+    }
 }

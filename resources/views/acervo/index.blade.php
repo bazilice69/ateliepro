@@ -30,6 +30,7 @@
                             <th class="py-5">Tam / Cor</th>
                             <th class="py-5 text-right">Locação</th>
                             <th class="py-5 text-center">Status</th>
+                            <th class="py-5 text-right pr-8"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
@@ -67,10 +68,13 @@
                                         {{ ucfirst($status) }}
                                     </span>
                                 </td>
+                                <td class="py-5 text-right pr-8">
+                                    <a href="{{ route('acervo.show', $peca) }}" class="text-xs font-bold text-slate-500 hover:text-slate-900 uppercase">Histórico →</a>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-16 text-center">
+                                <td colspan="7" class="py-16 text-center">
                                     <div class="text-slate-200 mb-4"><i class="fas fa-tshirt text-5xl"></i></div>
                                     <h3 class="text-lg font-black text-slate-700 mb-1">Acervo vazio</h3>
                                     <p class="text-slate-500 font-medium text-sm">Cadastre a primeira peça do seu acervo.</p>

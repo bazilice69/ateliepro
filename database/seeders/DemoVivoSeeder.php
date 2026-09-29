@@ -97,11 +97,31 @@ class DemoVivoSeeder extends Seeder
         }
 
         // --- Locação da noiva ---
-        Locacao::withoutGlobalScope('loja')->firstOrCreate(
+        $locacaoAna = Locacao::withoutGlobalScope('loja')->firstOrCreate(
             ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'acervo_id' => $vestidoNoiva->id],
             ['data_retirada' => Carbon::now()->addDays(23), 'data_evento' => Carbon::now()->addDays(25),
              'data_devolucao' => Carbon::now()->addDays(27), 'data_liberacao_prevista' => Carbon::now()->addDays(30),
-             'valor_total' => 1800, 'sinal_pago' => 800, 'status' => 'reservada']
+             'valor_total' => 1800, 'sinal_pago' => 800, 'caucao' => 500, 'status' => 'em_provas']
+        );
+
+        // --- Provas (uma realizada com ajuste, uma agendada para hoje) ---
+        \App\Models\Prova::withoutGlobalScope('loja')->firstOrCreate(
+            ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'data_prova' => Carbon::now()->subDays(3)->setTime(10, 0)],
+            ['acervo_id' => $vestidoNoiva->id, 'locacao_id' => $locacaoAna->id, 'responsavel' => 'Maria',
+             'status' => 'realizada', 'resultado' => 'precisa_ajuste', 'ajustes_necessarios' => 'Ajustar barra e cintura']
+        );
+        \App\Models\Prova::withoutGlobalScope('loja')->firstOrCreate(
+            ['loja_id' => $loja->id, 'cliente_id' => $ana->id, 'data_prova' => Carbon::today()->setTime(15, 0)],
+            ['acervo_id' => $vestidoNoiva->id, 'locacao_id' => $locacaoAna->id, 'responsavel' => 'Maria',
+             'status' => 'agendada']
+        );
+
+        // --- Serviço na oficina (ajuste em andamento) ---
+        \App\Models\Servico::withoutGlobalScope('loja')->firstOrCreate(
+            ['loja_id' => $loja->id, 'acervo_id' => $vestidoNoiva->id, 'descricao' => 'Ajuste de barra e cintura'],
+            ['cliente_id' => $ana->id, 'locacao_id' => $locacaoAna->id, 'tipo' => 'ajuste',
+             'itens' => ['Barra', 'Cintura'], 'responsavel' => 'Costureira Cida',
+             'prazo' => Carbon::now()->addDays(10), 'custo' => 0, 'status' => 'em_andamento']
         );
 
         // --- Financeiro (receitas e despesas do mês) ---

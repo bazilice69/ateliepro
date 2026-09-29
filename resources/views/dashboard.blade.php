@@ -142,6 +142,49 @@
                 </div>
             </div>
 
+            <!-- PROVAS DE HOJE + OFICINA -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-black text-slate-800 tracking-tighter">Provas de Hoje</h3>
+                        <a href="{{ route('provas.index') }}" class="text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest">Ver todas &rarr;</a>
+                    </div>
+                    <div class="space-y-3">
+                        @forelse($provasHoje as $prova)
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xs">{{ optional($prova->data_prova)->format('H:i') }}</div>
+                                <div>
+                                    <p class="font-black text-slate-800 text-sm">{{ $prova->cliente->nome ?? '—' }}</p>
+                                    <p class="text-xs text-slate-400">{{ $prova->acervo->nome ?? 'Prova' }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-sm text-slate-400 text-center py-6"><i class="fas fa-ruler-combined text-4xl text-slate-200 mb-3 block"></i>Nenhuma prova hoje.</p>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-black text-slate-800 tracking-tighter">Oficina (pendentes)</h3>
+                        <a href="{{ route('servicos.index') }}" class="text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest">Ver fila &rarr;</a>
+                    </div>
+                    <div class="space-y-3">
+                        @forelse($ajustesPendentes as $servico)
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fas fa-scissors"></i></div>
+                                <div class="flex-1">
+                                    <p class="font-black text-slate-800 text-sm">{{ $servico->descricao }}</p>
+                                    <p class="text-xs text-slate-400">{{ $servico->acervo->nome ?? '—' }} · prazo {{ optional($servico->prazo)->format('d/m') ?? '—' }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-sm text-slate-400 text-center py-6"><i class="fas fa-scissors text-4xl text-slate-200 mb-3 block"></i>Fila da oficina vazia.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </x-app-layout>

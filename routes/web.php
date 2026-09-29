@@ -23,6 +23,8 @@ use App\Http\Controllers\ModeloContratoController;
 use App\Http\Controllers\AssistenteController;
 use App\Http\Controllers\LojaConfigController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProvaController;
+use App\Http\Controllers\ServicoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -95,11 +97,32 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/acervo', [ProdutoController::class, 'index'])->name('acervo.index');
     Route::get('/acervo/novo', [ProdutoController::class, 'create'])->name('produto.create');
     Route::post('/acervo', [ProdutoController::class, 'store'])->name('produto.store');
+    Route::get('/acervo/{peca}', [ProdutoController::class, 'show'])->name('acervo.show');
 
     Route::get('/agenda', [AgendamentoController::class, 'index'])->name('agenda.index');
 
+    // Módulo de Locações (central de operação)
+    Route::get('/locacoes', [LocacaoController::class, 'index'])->name('locacao.index');
     Route::get('/locacoes/nova', [LocacaoController::class, 'create'])->name('locacao.create');
     Route::post('/locacoes/salvar', [LocacaoController::class, 'store'])->name('locacao.store');
+    Route::get('/locacoes/{locacao}', [LocacaoController::class, 'show'])->name('locacao.show');
+    Route::put('/locacoes/{locacao}/status', [LocacaoController::class, 'updateStatus'])->name('locacao.status');
+    Route::post('/locacoes/{locacao}/retirar', [LocacaoController::class, 'retirar'])->name('locacao.retirar');
+    Route::post('/locacoes/{locacao}/devolver', [LocacaoController::class, 'devolver'])->name('locacao.devolver');
+
+    // Provas
+    Route::get('/provas', [ProvaController::class, 'index'])->name('provas.index');
+    Route::get('/provas/nova', [ProvaController::class, 'create'])->name('provas.create');
+    Route::post('/provas', [ProvaController::class, 'store'])->name('provas.store');
+    Route::put('/provas/{prova}/registrar', [ProvaController::class, 'registrar'])->name('provas.registrar');
+    Route::delete('/provas/{prova}', [ProvaController::class, 'destroy'])->name('provas.destroy');
+
+    // Oficina: ajustes / lavanderia / manutenção
+    Route::get('/oficina', [ServicoController::class, 'index'])->name('servicos.index');
+    Route::get('/oficina/novo', [ServicoController::class, 'create'])->name('servicos.create');
+    Route::post('/oficina', [ServicoController::class, 'store'])->name('servicos.store');
+    Route::put('/oficina/{servico}/status', [ServicoController::class, 'updateStatus'])->name('servicos.status');
+    Route::delete('/oficina/{servico}', [ServicoController::class, 'destroy'])->name('servicos.destroy');
 
     // Módulo Financeiro
     Route::get('/financeiro', [FinanceiroController::class, 'index'])->name('financeiro.index');

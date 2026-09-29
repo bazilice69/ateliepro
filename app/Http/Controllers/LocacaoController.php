@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Locacao;
 use App\Models\Cliente;
@@ -12,56 +13,67 @@ use Carbon\Carbon;
 
 class LocacaoController extends Controller
 {
-    // 1. Abre a tela de nova locação
+    // Lista de locações (escopada por loja pela trait)
+    public function index()
+    {
+        $locacoes = Locacao::with(['cliente', 'acervo'])->latest()->get();
+        return view('locacoes.index', compact('locacoes'));
+    }
+
+    // Ficha da locação = CENTRAL DE OPERAÇÃO (provas, ajustes, retirada, devolução)
+    public function show(Locacao $locacao)
+    {
+        $locacao->load(['cliente', 'acervo', 'provas.acervo', 'servicos']);
+        return view('locacoes.show', compact('locacao'));
+    }
+
+    // Abre a tela de nova locação
     public function create()
     {
-        // Busca os clientes e as peças ativas no banco para preencher as opções
         $clientes = Cliente::orderBy('nome')->get();
-        $acervos = Acervo::where('status', '!=', 'indisponivel')->get();
+        $acervos = Acervo::where('status', '!=', Acervo::STATUS_INDISPONIVEL)->get();
 
         return view('locacoes.create', compact('clientes', 'acervos'));
     }
 
-    // 2. Recebe os dados, verifica a regra de ouro e salva
+    // Recebe os dados, verifica a regra de ouro e salva
     public function store(Request $request)
     {
         $lojaId = Auth::user()->loja_id;
 
         $request->validate([
-            // exists escopado por loja: impede referenciar cliente/peça de OUTRA loja.
             'cliente_id' => ['required', Rule::exists('clientes', 'id')->where('loja_id', $lojaId)],
             'acervo_id' => ['required', Rule::exists('acervos', 'id')->where('loja_id', $lojaId)],
             'data_retirada' => 'required|date',
             'data_evento' => 'required|date|after_or_equal:data_retirada',
             'data_devolucao' => 'required|date|after_or_equal:data_evento',
             'valor_total' => 'required|numeric',
-            'sinal_pago' => 'nullable|numeric'
+            'sinal_pago' => 'nullable|numeric',
+            'caucao' => 'nullable|numeric',
         ]);
 
-        // A REGRA DE OURO: Calculando o Período de Indisponibilidade real
         $dataRetirada = Carbon::parse($request->data_retirada);
         $dataDevolucao = Carbon::parse($request->data_devolucao);
-        
-        // Adicionamos automaticamente 3 dias de lavanderia/inspeção após a devolução
-        $dataLiberacao = $dataDevolucao->copy()->addDays(3);
+        $dataLiberacao = $dataDevolucao->copy()->addDays(3); // +3 dias de lavanderia
 
-        // TRAVA DE SEGURANÇA: Busca se existe locação onde as datas "batem de frente"
+        // Trava de conflito de datas para a mesma peça.
         $conflito = Locacao::where('acervo_id', $request->acervo_id)
-            ->where('status', '!=', 'cancelada') // Ignora as que foram canceladas
-            ->where(function($query) use ($dataRetirada, $dataLiberacao) {
-                // A matemática do bloqueio: (Retirada 1 <= Liberação 2) E (Liberação 1 >= Retirada 2)
+            ->where('status', '!=', 'cancelada')
+            ->where(function ($query) use ($dataRetirada, $dataLiberacao) {
                 $query->where('data_retirada', '<=', $dataLiberacao->format('Y-m-d'))
                       ->where('data_liberacao_prevista', '>=', $dataRetirada->format('Y-m-d'));
             })
             ->exists();
 
-        // Se achou conflito, barra o processo e devolve o erro para a tela
         if ($conflito) {
             return back()->withErrors(['conflito' => '🚨 PEÇA INDISPONÍVEL! Este vestido/traje já possui uma reserva ou período de lavanderia que conflita com estas datas.'])->withInput();
         }
 
-        // Se passou direto, salva a locação no banco!
-        Locacao::create([
+        // Caução: usa a informada, ou o valor sugerido da peça.
+        $peca = Acervo::find($request->acervo_id);
+        $caucao = $request->filled('caucao') ? (float) $request->caucao : (float) ($peca->caucao ?? 0);
+
+        $locacao = Locacao::create([
             'cliente_id' => $request->cliente_id,
             'acervo_id' => $request->acervo_id,
             'data_retirada' => $dataRetirada,
@@ -70,16 +82,98 @@ class LocacaoController extends Controller
             'data_liberacao_prevista' => $dataLiberacao,
             'valor_total' => $request->valor_total,
             'sinal_pago' => $request->sinal_pago ?? 0,
+            'caucao' => $caucao,
             'status' => 'reservada',
-            'observacoes' => $request->observacoes
+            'observacoes' => $request->observacoes,
         ]);
 
-        // Atualiza o status do vestido no estoque
-        $peca = Acervo::find($request->acervo_id);
-        if ($peca->status == 'disponivel') {
-            $peca->update(['status' => 'reservada']);
+        if ($peca && $peca->status === Acervo::STATUS_DISPONIVEL) {
+            $peca->update(['status' => Acervo::STATUS_RESERVADA]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Locação registrada com sucesso! Datas bloqueadas.');
+        return redirect()->route('locacao.show', $locacao)->with('success', 'Locação registrada! Agora acompanhe provas, ajustes e retirada por aqui.');
+    }
+
+    // Atualiza o status da locação (fluxo)
+    public function updateStatus(Request $request, Locacao $locacao)
+    {
+        $request->validate([
+            'status' => ['required', 'string', 'max:40'],
+        ]);
+        $locacao->update(['status' => $request->status]);
+
+        return back()->with('success', 'Status da locação atualizado.');
+    }
+
+    // Registra a RETIRADA (com checklist e fotos)
+    public function retirar(Request $request, Locacao $locacao)
+    {
+        $request->validate([
+            'retirada_checklist' => ['nullable', 'string'],
+            'fotos.*' => ['nullable', 'image', 'max:5120'],
+        ]);
+
+        $fotos = $this->salvarFotos($request, "locacoes/{$locacao->id}/retirada");
+
+        $locacao->update([
+            'retirada_em' => now(),
+            'retirada_checklist' => $request->retirada_checklist,
+            'retirada_fotos' => $fotos ?: $locacao->retirada_fotos,
+            'status' => 'retirada',
+        ]);
+
+        // Peça passa a "alugada".
+        $locacao->acervo?->update(['status' => Acervo::STATUS_ALUGADA]);
+
+        return back()->with('success', 'Retirada registrada com sucesso!');
+    }
+
+    // Registra a DEVOLUÇÃO com vistoria (estado, multa, caução, fotos)
+    public function devolver(Request $request, Locacao $locacao)
+    {
+        $request->validate([
+            'vistoria_estado' => ['required', 'string', 'max:40'],
+            'vistoria_observacoes' => ['nullable', 'string'],
+            'multa' => ['nullable', 'numeric', 'min:0'],
+            'caucao_status' => ['required', Rule::in([Locacao::CAUCAO_DEVOLVIDA, Locacao::CAUCAO_RETIDA])],
+            'fotos.*' => ['nullable', 'image', 'max:5120'],
+        ]);
+
+        $fotos = $this->salvarFotos($request, "locacoes/{$locacao->id}/devolucao");
+
+        // Se a peça tem dano/mancha, vai pra lavanderia/manutenção; senão, disponível.
+        $estado = $request->vistoria_estado;
+        $novoStatusPeca = in_array($estado, ['dano', 'rasgo'], true)
+            ? Acervo::STATUS_MANUTENCAO
+            : ($estado === 'mancha' ? Acervo::STATUS_LAVANDERIA : Acervo::STATUS_DISPONIVEL);
+
+        $locacao->update([
+            'devolucao_em' => now(),
+            'vistoria_estado' => $estado,
+            'vistoria_observacoes' => $request->vistoria_observacoes,
+            'multa' => $request->multa ?? 0,
+            'caucao_status' => $request->caucao_status,
+            'devolucao_fotos' => $fotos ?: $locacao->devolucao_fotos,
+            'status' => 'aguardando_avaliacao',
+        ]);
+
+        $locacao->acervo?->update(['status' => $novoStatusPeca]);
+
+        return back()->with('success', 'Devolução e vistoria registradas!');
+    }
+
+    /**
+     * Salva as fotos enviadas e retorna os caminhos (array) ou null.
+     */
+    private function salvarFotos(Request $request, string $pasta): ?array
+    {
+        if (!$request->hasFile('fotos')) {
+            return null;
+        }
+        $caminhos = [];
+        foreach ($request->file('fotos') as $foto) {
+            $caminhos[] = $foto->store($pasta, 'public');
+        }
+        return $caminhos;
     }
 }

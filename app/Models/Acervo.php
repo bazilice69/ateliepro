@@ -67,7 +67,23 @@ class Acervo extends Model
      */
     public function locacoes(): HasMany
     {
-        return $this->hasMany(Locacao::class);
+        return $this->hasMany(Locacao::class)->latest();
+    }
+
+    /**
+     * Provas em que esta peça foi usada.
+     */
+    public function provas(): HasMany
+    {
+        return $this->hasMany(Prova::class)->latest('data_prova');
+    }
+
+    /**
+     * Serviços (ajuste/lavanderia/manutenção) desta peça.
+     */
+    public function servicos(): HasMany
+    {
+        return $this->hasMany(Servico::class)->latest();
     }
 
     /**
