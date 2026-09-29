@@ -54,6 +54,26 @@ class AssistenteController extends Controller
     }
 
     /**
+     * Endpoint JSON usado pelo widget flutuante (chat sem recarregar a página).
+     */
+    public function conversar(Request $request)
+    {
+        $request->validate(['mensagem' => ['required', 'string', 'max:1000']]);
+
+        $loja = $request->user()->loja;
+        $historico = session('assistente_historico', []);
+        $contextoHistorico = array_slice($historico, -12);
+
+        $resposta = $this->assistente->responder($loja, $request->mensagem, $contextoHistorico);
+
+        $historico[] = ['role' => 'user', 'content' => $request->mensagem];
+        $historico[] = ['role' => 'assistant', 'content' => $resposta];
+        session(['assistente_historico' => $historico]);
+
+        return response()->json(['resposta' => $resposta]);
+    }
+
+    /**
      * Gera uma mensagem de WhatsApp por tipo (confirmação, cobrança, etc.),
      * personalizada com o nome do cliente. Usa IA se configurada; senão, cai
      * num template pronto.

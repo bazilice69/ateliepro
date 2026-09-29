@@ -23,6 +23,7 @@ class AdminConfigController extends Controller
         'ia_provedor',
         'ia_api_key',
         'ia_modelo',
+        'ia_nome_assistente',
     ];
 
     public function edit()
@@ -47,6 +48,7 @@ class AdminConfigController extends Controller
             'ia_provedor' => ['nullable', 'in:openai,anthropic,gemini'],
             'ia_api_key' => ['nullable', 'string', 'max:255'],
             'ia_modelo' => ['nullable', 'string', 'max:100'],
+            'ia_nome_assistente' => ['nullable', 'string', 'max:40'],
         ]);
 
         foreach ($this->chaves as $chave) {

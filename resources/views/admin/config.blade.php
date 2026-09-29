@@ -62,6 +62,11 @@
                 <label class="text-[10px] font-black uppercase text-slate-400">API Key</label>
                 <input type="password" name="ia_api_key" placeholder="{{ $config['ia_api_key'] ? '•••••••• (configurada)' : 'cole a chave do provedor' }}" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-mono text-sm text-slate-700">
             </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-slate-400">Nome da assistente</label>
+                <input type="text" name="ia_nome_assistente" value="{{ old('ia_nome_assistente', $config['ia_nome_assistente']) }}" placeholder="Valentina" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
+                <p class="text-[11px] text-slate-400 mt-1">O nome que aparece no chat flutuante (padrão: Valentina).</p>
+            </div>
         </div>
 
         <button class="bg-slate-900 text-[#fbbf24] px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">Salvar Configurações</button>

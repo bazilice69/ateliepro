@@ -1,8 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-black text-2xl text-slate-800 uppercase tracking-tighter">
-                Assistente <span class="text-[#fbbf24]">IA</span>
+            <h2 class="font-black text-2xl text-slate-800 uppercase tracking-tighter flex items-center gap-3">
+                <span class="w-9 h-9 rounded-full overflow-hidden inline-block align-middle">@include('partials.valentina-avatar')</span>
+                {{ \App\Support\IA::nomeAssistente() }} <span class="text-[#fbbf24]">IA</span>
             </h2>
             @unless($iaAtiva)
                 <span class="text-[10px] font-black uppercase tracking-widest bg-amber-100 text-amber-700 px-3 py-1 rounded-full">Modo Demonstração</span>

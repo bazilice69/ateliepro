@@ -153,5 +153,10 @@
             </main>
         </div>
     </div>
+
+    <!-- Assistente virtual flutuante (Valentina) — em todas as telas da loja -->
+    @includeWhen(!(Auth::user()?->isSuperAdmin()), 'partials.assistente-widget')
+
+    <style>[x-cloak]{display:none!important}</style>
 </body>
 </html>

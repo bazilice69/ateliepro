@@ -115,6 +115,7 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/assistente', [AssistenteController::class, 'index'])->name('assistente.index');
     Route::post('/assistente/enviar', [AssistenteController::class, 'enviar'])->name('assistente.enviar');
     Route::post('/assistente/limpar', [AssistenteController::class, 'limpar'])->name('assistente.limpar');
+    Route::post('/assistente/conversar', [AssistenteController::class, 'conversar'])->name('assistente.conversar');
     Route::post('/assistente/whatsapp', [AssistenteController::class, 'gerarWhatsapp'])->name('assistente.whatsapp');
 
     // Contratos (gerar, listar, visualizar) — disponível para a equipe da loja

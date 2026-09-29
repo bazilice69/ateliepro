@@ -46,6 +46,14 @@ class IA
     }
 
     /**
+     * Nome da assistente virtual (configurável; padrão "Valentina").
+     */
+    public static function nomeAssistente(): string
+    {
+        return Setting::get('ia_nome_assistente') ?: 'Valentina';
+    }
+
+    /**
      * Envia uma conversa (system + mensagens) ao provedor e retorna o texto da
      * resposta. Lança exceção em caso de erro de API.
      *
