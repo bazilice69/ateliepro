@@ -35,7 +35,7 @@ class IA
         // Modelo padrão por provedor.
         return match (self::provedor()) {
             'anthropic' => 'claude-3-5-haiku-latest',
-            'gemini' => 'gemini-1.5-flash',
+            'gemini' => 'gemini-2.5-flash',
             default => 'gpt-4o-mini',
         };
     }
@@ -116,17 +116,40 @@ class IA
             ];
         }
 
-        $modelo = self::modelo();
-        $resp = Http::timeout(30)->post(
-            "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . self::apiKey(),
-            [
-                'system_instruction' => ['parts' => [['text' => $system]]],
-                'contents' => $contents,
-            ]
-        );
+        $payload = [
+            'system_instruction' => ['parts' => [['text' => $system]]],
+            'contents' => $contents,
+        ];
 
-        $resp->throw();
+        // O Google muda os nomes dos modelos com frequência. Tentamos o modelo
+        // configurado e, se der 404 (modelo não encontrado), caímos para
+        // alternativas conhecidas — assim a Valentina não quebra a cada troca.
+        $modelos = array_values(array_unique(array_filter([
+            self::modelo(),
+            'gemini-2.5-flash',
+            'gemini-2.5-flash-lite',
+            'gemini-flash-latest',
+            'gemini-2.0-flash',
+        ])));
 
-        return trim($resp->json('candidates.0.content.parts.0.text') ?? '');
+        $ultimoErro = '';
+        foreach ($modelos as $modelo) {
+            $resp = Http::timeout(30)->post(
+                "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . self::apiKey(),
+                $payload
+            );
+
+            if ($resp->successful()) {
+                return trim($resp->json('candidates.0.content.parts.0.text') ?? '');
+            }
+
+            $ultimoErro = (string) $resp->json('error.message', 'erro desconhecido');
+            // Se não for "modelo não encontrado", não adianta tentar outros.
+            if ($resp->status() !== 404) {
+                break;
+            }
+        }
+
+        throw new \RuntimeException('Gemini: ' . $ultimoErro);
     }
 }
