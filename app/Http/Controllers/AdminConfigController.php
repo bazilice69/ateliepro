@@ -20,6 +20,9 @@ class AdminConfigController extends Controller
         'mercadopago_access_token',
         'mercadopago_public_key',
         'mercadopago_webhook_secret',
+        'ia_provedor',
+        'ia_api_key',
+        'ia_modelo',
     ];
 
     public function edit()
@@ -41,6 +44,9 @@ class AdminConfigController extends Controller
             'mercadopago_access_token' => ['nullable', 'string', 'max:255'],
             'mercadopago_public_key' => ['nullable', 'string', 'max:255'],
             'mercadopago_webhook_secret' => ['nullable', 'string', 'max:255'],
+            'ia_provedor' => ['nullable', 'in:openai,anthropic,gemini'],
+            'ia_api_key' => ['nullable', 'string', 'max:255'],
+            'ia_modelo' => ['nullable', 'string', 'max:100'],
         ]);
 
         foreach ($this->chaves as $chave) {

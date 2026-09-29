@@ -64,6 +64,11 @@
                     <i class="fas fa-chart-pie mr-3 w-5"></i> Relatórios
                 </a>
 
+                <!-- Assistente IA -->
+                <a href="{{ route('assistente.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('assistente.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">
+                    <i class="fas fa-robot mr-3 w-5"></i> Assistente IA
+                </a>
+
                 <!-- Equipe (apenas admin da loja) -->
                 @if(auth()->user()?->isAdminLoja() || auth()->user()?->isSuperAdmin())
                     <a href="{{ route('funcionarios.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('funcionarios.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'hover:bg-[#1e293b] text-gray-400 hover:text-white' }} transition">

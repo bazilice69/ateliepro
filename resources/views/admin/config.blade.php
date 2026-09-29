@@ -41,6 +41,29 @@
             </div>
         </div>
 
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
+            <h3 class="font-black text-slate-800 uppercase text-sm tracking-wider">Assistente de IA</h3>
+            <p class="text-xs text-slate-400">Sem uma chave configurada, o assistente funciona em <strong>modo demonstração</strong> (responde com base nos dados da loja). Com a chave, ele passa a conversar de verdade.</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] font-black uppercase text-slate-400">Provedor</label>
+                    <select name="ia_provedor" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
+                        @foreach(['openai' => 'OpenAI (ChatGPT)', 'anthropic' => 'Anthropic (Claude)', 'gemini' => 'Google (Gemini)'] as $val => $label)
+                            <option value="{{ $val }}" @selected(($config['ia_provedor'] ?? 'openai') === $val)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black uppercase text-slate-400">Modelo (opcional)</label>
+                    <input type="text" name="ia_modelo" value="{{ old('ia_modelo', $config['ia_modelo']) }}" placeholder="ex: gpt-4o-mini" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-mono text-sm text-slate-700">
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-slate-400">API Key</label>
+                <input type="password" name="ia_api_key" placeholder="{{ $config['ia_api_key'] ? '•••••••• (configurada)' : 'cole a chave do provedor' }}" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-mono text-sm text-slate-700">
+            </div>
+        </div>
+
         <button class="bg-slate-900 text-[#fbbf24] px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">Salvar Configurações</button>
     </form>
 @endsection
