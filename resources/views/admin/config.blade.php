@@ -11,6 +11,7 @@
             <div>
                 <label class="text-[10px] font-black uppercase text-slate-400">Nome do sistema</label>
                 <input type="text" name="saas_nome" value="{{ old('saas_nome', $config['saas_nome']) }}" placeholder="AteliêPro" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
+                <p class="text-[11px] text-slate-400 mt-1">Este nome aparece no topo, no login, nos títulos e nos e-mails do sistema. Ex.: <strong>Bonacci Rental</strong>.</p>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>

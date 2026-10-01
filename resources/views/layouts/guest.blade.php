@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>AteliêPro - Acesso</title>
+        <title>{{ \App\Models\Setting::nomeSistema() }} - Acesso</title>
 
         <!-- Atalho mágico do Tailwind para garantir o design -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -44,7 +44,7 @@
             <!-- Rodapé discreto -->
             <div class="relative z-10 mt-8 text-center">
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                    &copy; {{ date('Y') }} AteliêPro.
+                    &copy; {{ date('Y') }} {{ \App\Models\Setting::nomeSistema() }}.
                 </p>
             </div>
             

@@ -3,7 +3,7 @@
 @section('titulo', 'Novos Cadastros')
 
 @section('conteudo')
-    <p class="text-sm text-slate-500 mb-6">Lojas que se cadastraram no AteliêPro (mais recentes primeiro).</p>
+    <p class="text-sm text-slate-500 mb-6">Lojas que se cadastraram no {{ \App\Models\Setting::nomeSistema() }} (mais recentes primeiro).</p>
 
     <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-x-auto">
         <table class="w-full text-left">
