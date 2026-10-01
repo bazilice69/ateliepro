@@ -32,4 +32,15 @@ class Setting extends Model
         static::updateOrCreate(['chave' => $chave], ['valor' => $valor]);
         Cache::forget("setting_{$chave}");
     }
+
+    /**
+     * Nome do sistema/produto (marca). Configurável em /admin/config
+     * ("Nome do sistema"). Use este método em TODAS as telas e e-mails em vez
+     * de escrever o nome fixo — assim trocar a marca (ex.: "Bonacci Rental")
+     * é feito num só lugar.
+     */
+    public static function nomeSistema(): string
+    {
+        return static::get('saas_nome', 'AteliêPro') ?: 'AteliêPro';
+    }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AteliêPro - Gestão Inteligente</title>
+    <title>{{ \App\Models\Setting::nomeSistema() }} - Gestão Inteligente</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -41,7 +41,7 @@
                         <span class="font-bold text-sm truncate">{{ $lojaAtual->nome_fantasia }}</span>
                     @else
                         <i class="fas fa-cut text-[#fbbf24] text-xl"></i>
-                        <span class="text-xl font-bold">AteliêPro</span>
+                        <span class="text-xl font-bold">{{ \App\Models\Setting::nomeSistema() }}</span>
                     @endif
                 </div>
                 <button @click="menuAberto = false" class="lg:hidden text-gray-400 hover:text-white text-xl">&times;</button>
@@ -101,7 +101,7 @@
                     @php
                         $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
                     @endphp
-                    <a href="https://wa.me/{{ $waSuporte }}?text={{ urlencode('Olá! Preciso de ajuda com o AteliêPro.') }}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 font-bold">
+                    <a href="https://wa.me/{{ $waSuporte }}?text={{ urlencode('Olá! Preciso de ajuda com o ' . \App\Models\Setting::nomeSistema() . '.') }}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 font-bold">
                         <i class="fab fa-whatsapp mr-1"></i> Suporte
                     </a>
                 </div>

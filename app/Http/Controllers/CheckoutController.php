@@ -60,7 +60,7 @@ class CheckoutController extends Controller
             ->withHeaders(['X-Idempotency-Key' => (string) Str::uuid()])
             ->post('/v1/payments', [
                 'transaction_amount' => (float) $plano->preco,
-                'description' => "AteliêPro - Plano {$plano->nome} - {$loja->nome_fantasia}",
+                'description' => \App\Models\Setting::nomeSistema() . " - Plano {$plano->nome} - {$loja->nome_fantasia}",
                 'payment_method_id' => 'pix',
                 'notification_url' => route('webhook.mercadopago'),
                 'external_reference' => (string) $assinatura->id, // liga o pagamento à assinatura

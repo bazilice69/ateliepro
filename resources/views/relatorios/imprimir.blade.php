@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <title>Relatório - {{ $loja->nome_fantasia ?? 'AteliêPro' }}</title>
+    <title>Relatório - {{ $loja->nome_fantasia ?? \App\Models\Setting::nomeSistema() }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print { .no-print { display: none !important; } @page { margin: 1.5cm; } }

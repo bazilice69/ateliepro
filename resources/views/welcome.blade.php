@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AteliêPro - Gestão Inteligente para Ateliês</title>
+    <title>{{ \App\Models\Setting::nomeSistema() }} - Gestão Inteligente para Ateliês</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -117,9 +117,9 @@
     <footer class="bg-slate-900 text-slate-400 py-10 px-6">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="text-xl font-black text-white tracking-tighter flex items-center">
-                <i class="fas fa-cut mr-2 text-amber-500"></i> Ateliê<span class="text-emerald-500">Pro</span>
+                <i class="fas fa-cut mr-2 text-amber-500"></i> {{ \App\Models\Setting::nomeSistema() }}
             </div>
-            <p class="text-xs">&copy; {{ date('Y') }} AteliêPro — Gestão para ateliês e lojas de noivas.</p>
+            <p class="text-xs">&copy; {{ date('Y') }} {{ \App\Models\Setting::nomeSistema() }} — Gestão para ateliês e lojas de noivas.</p>
         </div>
     </footer>
 

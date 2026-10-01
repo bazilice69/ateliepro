@@ -23,8 +23,9 @@ class Notificador
      */
     public static function novaLoja(Loja $loja): void
     {
-        $assunto = 'AteliêPro: nova loja cadastrada — ' . $loja->nome_fantasia;
-        $corpo = "Uma nova loja se cadastrou no AteliêPro:\n\n"
+        $nomeSistema = Setting::nomeSistema();
+        $assunto = $nomeSistema . ': nova loja cadastrada — ' . $loja->nome_fantasia;
+        $corpo = "Uma nova loja se cadastrou no {$nomeSistema}:\n\n"
             . "Loja: {$loja->nome_fantasia}\n"
             . "CNPJ/CPF: {$loja->cnpj_cpf}\n"
             . "Responsável/E-mail: {$loja->email_responsavel}\n"

@@ -21,7 +21,7 @@
             @if(session('success'))
                 <div class="bg-emerald-100 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded-xl shadow-sm font-bold text-sm flex items-center justify-between">
                     <div><i class="fas fa-check-circle mr-2"></i> {{ session('success') }}</div>
-                    <span class="text-xs uppercase tracking-widest opacity-75">AteliêPro</span>
+                    <span class="text-xs uppercase tracking-widest opacity-75">{{ \App\Models\Setting::nomeSistema() }}</span>
                 </div>
             @endif
 
