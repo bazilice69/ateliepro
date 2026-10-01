@@ -11,6 +11,7 @@
             <div>
                 <label class="text-[10px] font-black uppercase text-slate-400">Nome do sistema</label>
                 <input type="text" name="saas_nome" value="{{ old('saas_nome', $config['saas_nome']) }}" placeholder="AteliêPro" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
+                <p class="text-[11px] text-slate-400 mt-1">Aparece no topo, no login, nos títulos e e-mails. Ex.: <strong>Bonacci Rental</strong>.</p>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -25,7 +26,18 @@
         </div>
 
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
-            <h3 class="font-black text-slate-800 uppercase text-sm tracking-wider">Mercado Pago</h3>
+            <h3 class="font-black text-slate-800 uppercase text-sm tracking-wider">Pagamentos</h3>
+            <div>
+                <label class="text-[10px] font-black uppercase text-slate-400">Gateway ativo</label>
+                <select name="gateway_ativo" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
+                    @php $gwAtual = $config['gateway_ativo'] ?? 'mercadopago'; @endphp
+                    @foreach(\App\Support\PaymentGateways::CATALOGO as $chave => $gw)
+                        <option value="{{ $chave }}" @selected($gwAtual === $chave)>{{ $gw['nome'] }}{{ $chave === 'mercadopago' ? '' : ' (em breve)' }}</option>
+                    @endforeach
+                </select>
+                <p class="text-[11px] text-slate-400 mt-1">Hoje o <strong>Mercado Pago</strong> processa de verdade. Os outros já aparecem como selos de confiança no checkout e serão ativados conforme as credenciais forem cadastradas.</p>
+            </div>
+            <h4 class="font-black text-slate-700 text-xs uppercase tracking-wider pt-2 border-t border-slate-100">Credenciais do Mercado Pago</h4>
             <p class="text-xs text-slate-400">Deixe em branco para manter o valor atual. As credenciais ficam no servidor.</p>
             <div>
                 <label class="text-[10px] font-black uppercase text-slate-400">Access Token</label>

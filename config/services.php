@@ -43,6 +43,23 @@ return [
         'webhook_secret' => env('MERCADOPAGO_WEBHOOK_SECRET'),
     ],
 
+    // Gateways de pagamento PREPARADOS (ainda não processam; aparecem como
+    // selos de confiança no checkout). Ativar conforme as credenciais chegarem.
+    'pagbank' => [
+        'token' => env('PAGBANK_TOKEN'),
+    ],
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'public_key' => env('STRIPE_PUBLIC_KEY'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+    'asaas' => [
+        'api_key' => env('ASAAS_API_KEY'),
+    ],
+    'pagarme' => [
+        'api_key' => env('PAGARME_API_KEY'),
+    ],
+
     'ia' => [
         // Provedor: openai | anthropic | gemini. Chave configurável pelo painel
         // (tabela settings) ou aqui via .env — ver App\Support\IA.
