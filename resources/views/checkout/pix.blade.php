@@ -12,7 +12,7 @@
     <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 max-w-md w-full text-center">
 
         <div class="text-2xl font-black text-slate-900 tracking-tighter flex items-center justify-center mb-6">
-            <i class="fas fa-cut mr-2 text-amber-500"></i> Ateliê<span class="text-emerald-600">Pro</span>
+            <i class="fas fa-cut mr-2 text-amber-500"></i> {{ \App\Models\Setting::nomeSistema() }}
         </div>
 
         <p class="text-[10px] uppercase tracking-widest text-slate-400 font-black">Plano {{ $plano->nome }} — {{ $loja->nome_fantasia }}</p>
@@ -46,6 +46,9 @@
         </div>
 
         <p class="text-xs text-slate-400 mt-4">Seu acesso é liberado automaticamente após a confirmação.</p>
+
+        {{-- Selos de confiança --}}
+        @include('checkout._selos-confianca')
     </div>
 
     <script>

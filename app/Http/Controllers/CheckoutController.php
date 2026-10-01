@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Assinatura;
 use App\Models\Loja;
 use App\Models\Plano;
+use App\Models\Setting;
 use App\Services\LicenseService;
 use App\Support\MercadoPago;
+use App\Support\PaymentGateways;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -49,7 +51,10 @@ class CheckoutController extends Controller
                 ->with('status', 'Faça login com a conta da sua loja para assinar um plano.');
         }
 
-        if (!MercadoPago::configurado()) {
+        // Preparado para múltiplos gateways: só processa online se o gateway
+        // ativo estiver com credenciais prontas. Senão, mostra a tela de
+        // conclusão assistida (com selos de confiança e opções preparadas).
+        if (!PaymentGateways::processando()) {
             return view('checkout.indisponivel', compact('plano', 'loja'));
         }
 
@@ -60,7 +65,7 @@ class CheckoutController extends Controller
             ->withHeaders(['X-Idempotency-Key' => (string) Str::uuid()])
             ->post('/v1/payments', [
                 'transaction_amount' => (float) $plano->preco,
-                'description' => \App\Models\Setting::nomeSistema() . " - Plano {$plano->nome} - {$loja->nome_fantasia}",
+                'description' => Setting::nomeSistema() . " - Plano {$plano->nome} - {$loja->nome_fantasia}",
                 'payment_method_id' => 'pix',
                 'notification_url' => route('webhook.mercadopago'),
                 'external_reference' => (string) $assinatura->id, // liga o pagamento à assinatura

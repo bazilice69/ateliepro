@@ -11,7 +11,7 @@
     <div class="max-w-6xl mx-auto px-6 py-12">
         <div class="text-center mb-4">
             <div class="text-2xl font-black text-slate-900 tracking-tighter flex items-center justify-center mb-6">
-                <i class="fas fa-cut mr-2 text-amber-500"></i> Ateliê<span class="text-emerald-600">Pro</span>
+                <i class="fas fa-cut mr-2 text-amber-500"></i> {{ \App\Models\Setting::nomeSistema() }}
             </div>
             @if(session('status'))
                 <div class="inline-block bg-amber-100 text-amber-800 px-6 py-3 rounded-2xl font-semibold text-sm mb-4">
@@ -54,6 +54,11 @@
             @empty
                 <p class="col-span-4 text-center text-slate-400">Nenhum plano disponível no momento.</p>
             @endforelse
+        </div>
+
+        {{-- Selos de confiança --}}
+        <div class="max-w-2xl mx-auto">
+            @include('checkout._selos-confianca')
         </div>
 
         <div class="text-center mt-10">
