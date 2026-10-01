@@ -20,7 +20,7 @@
             <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col" style="height: 32rem;">
                 <div class="p-5 border-b border-slate-100 flex justify-between items-center">
                     <div>
-                        <h3 class="font-black text-slate-800">Converse com o AteliêPro</h3>
+                        <h3 class="font-black text-slate-800">Converse com o {{ \App\Models\Setting::nomeSistema() }}</h3>
                         <p class="text-xs text-slate-400">Pergunte sobre agenda, financeiro, peças, clientes...</p>
                     </div>
                     @if(count($historico) > 0)

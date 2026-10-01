@@ -53,8 +53,10 @@ class AssistenteService
      */
     private function systemPrompt(Loja $loja, string $contexto): string
     {
+        $nomeSistema = \App\Models\Setting::nomeSistema();
+
         return <<<TXT
-Você é a assistente virtual do AteliêPro, um sistema de gestão para ateliês e
+Você é a assistente virtual do {$nomeSistema}, um sistema de gestão para ateliês e
 lojas de noivas/festa. Você atende a lojista "{$loja->nome_fantasia}".
 
 Seja objetiva, cordial e prática. Use o contexto de dados abaixo para responder

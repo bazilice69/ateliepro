@@ -78,7 +78,7 @@
                 digitando: false,
                 sugestoes: ['Quantas provas tenho hoje?', 'Quanto recebi esse mês?', 'Peças disponíveis', 'Próximo evento'],
                 mensagens: [
-                    { role: 'assistant', content: 'Oi! Eu sou a {{ $nomeIA }}, sua estilista virtual do AteliêPro. 💛 Como posso te ajudar hoje?' }
+                    { role: 'assistant', content: 'Oi! Eu sou a {{ $nomeIA }}, sua estilista virtual do {{ \App\Models\Setting::nomeSistema() }}. 💛 Como posso te ajudar hoje?' }
                 ],
                 toggle() {
                     this.aberto = !this.aberto;

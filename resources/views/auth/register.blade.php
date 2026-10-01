@@ -4,7 +4,7 @@
 
         <div class="mb-4 pb-2 border-b border-gray-200">
             <p class="text-sm font-semibold text-gray-700">Dados da Loja</p>
-            <p class="text-xs text-gray-500">Crie a conta da sua loja no AteliêPro.</p>
+            <p class="text-xs text-gray-500">Crie a conta da sua loja no {{ \App\Models\Setting::nomeSistema() }}.</p>
         </div>
 
         <!-- Nome Fantasia da Loja -->
