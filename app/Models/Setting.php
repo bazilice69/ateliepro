@@ -41,6 +41,6 @@ class Setting extends Model
      */
     public static function nomeSistema(): string
     {
-        return static::get('saas_nome', 'AteliêPro') ?: 'AteliêPro';
+        return static::get('saas_nome', 'Bonacci Rental') ?: 'Bonacci Rental';
     }
 }

@@ -40,8 +40,8 @@
                         <img src="{{ asset('storage/'.$lojaAtual->logo) }}" alt="Logo" class="w-9 h-9 rounded-lg object-contain bg-white/10 p-1 shrink-0">
                         <span class="font-bold text-sm truncate">{{ $lojaAtual->nome_fantasia }}</span>
                     @else
-                        <i class="fas fa-cut text-[#fbbf24] text-xl"></i>
-                        <span class="text-xl font-bold">{{ \App\Models\Setting::nomeSistema() }}</span>
+                        <span class="w-8 h-8 rounded-full border border-[#c9a24b] flex items-center justify-center text-[#c9a24b] text-sm font-bold shrink-0" style="font-family: Georgia, serif;">B</span>
+                        <span class="text-lg font-bold tracking-wide truncate">{{ \App\Models\Setting::nomeSistema() }}</span>
                     @endif
                 </div>
                 <button @click="menuAberto = false" class="lg:hidden text-gray-400 hover:text-white text-xl">&times;</button>
