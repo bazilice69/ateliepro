@@ -13,11 +13,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
- * Checkout de assinatura do SaaS via Mercado Pago (PIX).
+ * Checkout de assinatura do SaaS via Mercado Pago (Checkout Pro).
  *
- * Fluxo: escolha do plano -> cria assinatura PENDENTE -> gera pagamento PIX
- * (guardando transacao_mp_id) -> exibe QR Code. A confirmação NÃO depende do
- * navegador: é o webhook que ativa a loja quando o pagamento é aprovado.
+ * Fluxo: escolha do plano -> cria assinatura PENDENTE -> cria uma PREFERÊNCIA
+ * de Checkout Pro -> redireciona o cliente para a tela do Mercado Pago, onde
+ * ele ESCOLHE como pagar: cartão de crédito (com PARCELAMENTO), PIX ou boleto.
+ * A confirmação NÃO depende do navegador: é o webhook que ativa a loja quando
+ * o pagamento é aprovado. O retorno (back_urls) apenas mostra o status.
  */
 class CheckoutController extends Controller
 {
@@ -58,46 +60,67 @@ class CheckoutController extends Controller
             return view('checkout.indisponivel', compact('plano', 'loja'));
         }
 
-        // Cria a assinatura pendente e gera o pagamento PIX.
+        // Cria a assinatura pendente e gera a PREFERÊNCIA de Checkout Pro.
         $assinatura = $this->licenseService->criarAssinaturaPendente($loja, $plano);
 
-        $resposta = MercadoPago::client()
-            ->withHeaders(['X-Idempotency-Key' => (string) Str::uuid()])
-            ->post('/v1/payments', [
-                'transaction_amount' => (float) $plano->preco,
-                'description' => Setting::nomeSistema() . " - Plano {$plano->nome} - {$loja->nome_fantasia}",
-                'payment_method_id' => 'pix',
-                'notification_url' => route('webhook.mercadopago'),
-                'external_reference' => (string) $assinatura->id, // liga o pagamento à assinatura
-                'payer' => [
-                    'email' => $loja->email_responsavel,
-                ],
-            ]);
+        $preferencia = MercadoPago::criarPreferencia([
+            'items' => [[
+                'title'       => Setting::nomeSistema() . " - Plano {$plano->nome}",
+                'description' => "Assinatura {$plano->nome} - {$loja->nome_fantasia}",
+                'quantity'    => 1,
+                'currency_id' => 'BRL',
+                'unit_price'  => (float) $plano->preco,
+            ]],
+            'payer' => [
+                'email' => $loja->email_responsavel,
+            ],
+            // Liga o pagamento à assinatura (o webhook usa isto para confirmar).
+            'external_reference' => (string) $assinatura->id,
+            'notification_url'   => route('webhook.mercadopago'),
+            // Para onde o Mercado Pago devolve o cliente após pagar.
+            'back_urls' => [
+                'success' => route('checkout.retorno', $assinatura),
+                'pending' => route('checkout.retorno', $assinatura),
+                'failure' => route('checkout.retorno', $assinatura),
+            ],
+            'auto_return' => 'approved',
+            // Métodos de pagamento: cartão (com parcelamento), PIX e boleto.
+            // Nada é excluído -> o cliente vê todas as opções e pode parcelar.
+            'payment_methods' => [
+                'installments' => 12, // até 12x no cartão de crédito
+            ],
+            'statement_descriptor' => Str::limit(Setting::nomeSistema(), 22, ''),
+        ]);
 
-        $pagamento = $resposta->json();
-
-        if (!$resposta->successful() || !isset($pagamento['point_of_interaction'])) {
+        if (!$preferencia || empty($preferencia['init_point'])) {
             $assinatura->update(['status' => Assinatura::STATUS_CANCELADA]);
-            return view('checkout.erro', ['mensagem' => 'Não foi possível gerar o pagamento. Tente novamente.']);
+            return view('checkout.erro', ['mensagem' => 'Não foi possível iniciar o pagamento. Tente novamente.']);
         }
 
-        // Guarda o ID da transação na assinatura (idempotência/rastreio).
-        $assinatura->update(['transacao_mp_id' => (string) ($pagamento['id'] ?? '')]);
+        // Guarda o id da preferência para rastreio.
+        $assinatura->update(['transacao_mp_id' => (string) ($preferencia['id'] ?? '')]);
 
-        $dados = [
-            'plano' => $plano,
-            'loja' => $loja,
-            'assinatura' => $assinatura,
-            'qrCodeBase64' => $pagamento['point_of_interaction']['transaction_data']['qr_code_base64'] ?? null,
-            'copiaECola' => $pagamento['point_of_interaction']['transaction_data']['qr_code'] ?? null,
-            'idTransacao' => $pagamento['id'] ?? null,
-        ];
-
-        return view('checkout.pix', $dados);
+        // Redireciona o cliente para a tela do Mercado Pago (cartão/PIX/boleto).
+        return redirect()->away($preferencia['init_point']);
     }
 
     /**
-     * Tela consultada pelo cliente para saber se o pagamento já caiu.
+     * Página de retorno do Checkout Pro (back_urls). Apenas informa o status —
+     * a ativação real acontece no webhook. Faz polling para avisar quando o
+     * pagamento for confirmado.
+     */
+    public function retorno(Request $request, Assinatura $assinatura)
+    {
+        return view('checkout.retorno', [
+            'assinatura' => $assinatura,
+            'loja'       => $assinatura->loja,
+            // status informado pelo MP na querystring (collection_status/status).
+            'statusMp'   => $request->query('status') ?? $request->query('collection_status'),
+        ]);
+    }
+
+    /**
+     * Tela consultada pelo cliente (polling) para saber se o pagamento já caiu.
      */
     public function status(Assinatura $assinatura)
     {
