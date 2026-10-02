@@ -22,8 +22,10 @@
     <body class="font-sans text-slate-900 antialiased bg-[#0b0b0d]">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative">
             
-            <!-- Imagem de fundo sutil e elegante -->
-            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-15"></div>
+            <!-- Imagem de fundo sutil e elegante (alta resolução) -->
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=2400&auto=format&fit=crop')] bg-cover bg-center opacity-25"></div>
+            <!-- escurecimento para contraste -->
+            <div class="absolute inset-0 bg-gradient-to-b from-[#0b0b0d]/70 via-[#0b0b0d]/60 to-[#0b0b0d]/80"></div>
             <!-- brilho dourado -->
             <div class="absolute inset-0 pointer-events-none"><div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[150px] opacity-20" style="background:radial-gradient(circle,#c9a24b,transparent 70%);"></div></div>
             

@@ -47,28 +47,44 @@
     </nav>
 
     <!-- SEÇÃO HERO -->
-    <section class="relative pt-40 pb-28 px-6 overflow-hidden">
+    <section class="relative pt-36 pb-24 px-6 overflow-hidden">
         <!-- brilho dourado de fundo -->
         <div class="absolute inset-0 pointer-events-none">
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full blur-[160px] opacity-20" style="background: radial-gradient(circle, #c9a24b, transparent 70%);"></div>
+            <div class="absolute top-0 right-0 w-[700px] h-[700px] rounded-full blur-[160px] opacity-20" style="background: radial-gradient(circle, #c9a24b, transparent 70%);"></div>
         </div>
-        <div class="relative max-w-4xl mx-auto text-center">
-            <p class="text-ouro text-xs font-bold uppercase tracking-[0.3em] mb-6">Alta gestão para ateliês de luxo</p>
-            <h1 class="serif text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-8">
-                A elegância da sua loja<br>merece uma gestão <span class="ouro-gradient">impecável.</span>
-            </h1>
-            <p class="text-lg text-slate-400 font-medium mb-12 max-w-2xl mx-auto">
-                Acervo, agenda de provas, encomendas sob medida, contratos e financeiro — tudo em um só lugar, com a sofisticação que o seu ateliê pede.
-            </p>
-            <div class="flex flex-wrap gap-4 justify-center">
-                @if (Route::has('register'))
-                    <a href="{{ route('register') }}" class="bg-ouro hover:brightness-110 text-black px-9 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition shadow-xl shadow-[#c9a24b]/25">
-                        Começar agora
+        <div class="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+            <!-- Texto -->
+            <div class="text-center lg:text-left">
+                <p class="text-ouro text-xs font-bold uppercase tracking-[0.3em] mb-6">Alta gestão para ateliês de luxo</p>
+                <h1 class="serif text-5xl md:text-6xl font-bold text-white leading-[1.05] mb-8">
+                    A elegância da sua loja merece uma gestão <span class="ouro-gradient">impecável.</span>
+                </h1>
+                <p class="text-lg text-slate-400 font-medium mb-10 max-w-xl mx-auto lg:mx-0">
+                    Acervo, agenda de provas, encomendas sob medida, contratos e financeiro — tudo em um só lugar, com a sofisticação que o seu ateliê pede.
+                </p>
+                <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+                    @if (Route::has('register'))
+                        <a href="{{ route('register') }}" class="bg-ouro hover:brightness-110 text-black px-9 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition shadow-xl shadow-[#c9a24b]/25">
+                            Começar agora
+                        </a>
+                    @endif
+                    <a href="#planos" class="border border-slate-700 hover:border-ouro text-slate-200 px-9 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition">
+                        Ver planos
                     </a>
-                @endif
-                <a href="#planos" class="border border-slate-700 hover:border-ouro text-slate-200 px-9 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition">
-                    Ver planos
-                </a>
+                </div>
+            </div>
+
+            <!-- Imagem elegante (alta resolução) -->
+            <div class="relative">
+                <div class="absolute -inset-4 rounded-[3rem] opacity-30 blur-2xl" style="background: linear-gradient(135deg, #c9a24b, transparent);"></div>
+                <img src="https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=1200&auto=format&fit=crop"
+                     alt="Ateliê de alta-costura"
+                     class="relative w-full h-[480px] object-cover rounded-[2.5rem] border border-ouro/20 shadow-2xl">
+                <!-- selo flutuante -->
+                <div class="absolute -bottom-5 -left-5 bg-[#141418] border border-ouro/30 rounded-2xl px-5 py-3 shadow-xl hidden sm:block">
+                    <p class="text-ouro serif text-2xl font-bold leading-none">+100</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">peças sob controle</p>
+                </div>
             </div>
         </div>
     </section>
