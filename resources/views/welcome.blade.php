@@ -74,16 +74,62 @@
                 </div>
             </div>
 
-            <!-- Imagem elegante (alta resolução) -->
+            <!-- Preview do SISTEMA (somos TI — mostramos o produto, não fotos de ateliê) -->
             <div class="relative">
                 <div class="absolute -inset-4 rounded-[3rem] opacity-30 blur-2xl" style="background: linear-gradient(135deg, #c9a24b, transparent);"></div>
-                <img src="https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=1200&auto=format&fit=crop"
-                     alt="Ateliê de alta-costura"
-                     class="relative w-full h-[480px] object-cover rounded-[2.5rem] border border-ouro/20 shadow-2xl">
+
+                <!-- Mockup de janela do sistema -->
+                <div class="relative bg-[#141418] rounded-[2rem] border border-ouro/20 shadow-2xl overflow-hidden">
+                    <!-- barra da janela -->
+                    <div class="flex items-center gap-2 px-5 py-3 border-b border-slate-800">
+                        <span class="w-3 h-3 rounded-full bg-rose-400/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-400/70"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-400/70"></span>
+                        <span class="ml-3 text-[10px] text-slate-500 font-mono">painel.bonaccirental</span>
+                    </div>
+                    <!-- "tela" do dashboard simulada -->
+                    <div class="p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="h-2.5 w-28 bg-slate-700 rounded-full"></div>
+                                <div class="h-2 w-20 bg-slate-800 rounded-full mt-2"></div>
+                            </div>
+                            <div class="w-8 h-8 rounded-full border border-ouro/40 flex items-center justify-center text-ouro serif text-sm font-bold">B</div>
+                        </div>
+                        <!-- mini cards operacionais -->
+                        <div class="grid grid-cols-3 gap-3">
+                            @foreach([['fa-ruler-combined','5','Provas'],['fa-box-open','3','Retirar'],['fa-pen-ruler','2','Produção']] as [$ic,$n,$l])
+                                <div class="bg-[#0b0b0d] rounded-xl p-3 border border-slate-800">
+                                    <i class="fas {{ $ic }} text-ouro text-xs"></i>
+                                    <p class="text-white font-black text-xl mt-1 leading-none">{{ $n }}</p>
+                                    <p class="text-[8px] text-slate-500 uppercase tracking-wider mt-1">{{ $l }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                        <!-- barra financeira -->
+                        <div class="bg-gradient-to-r from-[#1c1a14] to-[#0b0b0d] rounded-xl p-4 border border-ouro/20">
+                            <p class="text-[9px] text-ouro uppercase tracking-widest">Recebido no mês</p>
+                            <p class="text-white font-black text-2xl mt-1">R$ 12.480</p>
+                            <div class="h-1.5 w-full bg-slate-800 rounded-full mt-3 overflow-hidden">
+                                <div class="h-full w-3/4 bg-ouro rounded-full"></div>
+                            </div>
+                        </div>
+                        <!-- linhas de lista -->
+                        <div class="space-y-2">
+                            @foreach(['w-5/6','w-4/6','w-3/6'] as $w)
+                                <div class="flex items-center gap-3">
+                                    <div class="w-7 h-7 rounded-lg bg-slate-800 shrink-0"></div>
+                                    <div class="h-2 {{ $w }} bg-slate-800 rounded-full"></div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
                 <!-- selo flutuante -->
                 <div class="absolute -bottom-5 -left-5 bg-[#141418] border border-ouro/30 rounded-2xl px-5 py-3 shadow-xl hidden sm:block">
-                    <p class="text-ouro serif text-2xl font-bold leading-none">+100</p>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">peças sob controle</p>
+                    <p class="text-ouro serif text-2xl font-bold leading-none">100%</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">no seu controle</p>
                 </div>
             </div>
         </div>

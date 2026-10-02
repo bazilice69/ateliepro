@@ -22,12 +22,15 @@
     <body class="font-sans text-slate-900 antialiased bg-[#0b0b0d]">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative">
             
-            <!-- Imagem de fundo sutil e elegante (alta resolução) -->
-            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1594552072238-b8a33785b261?q=80&w=2400&auto=format&fit=crop')] bg-cover bg-center opacity-25"></div>
-            <!-- escurecimento para contraste -->
-            <div class="absolute inset-0 bg-gradient-to-b from-[#0b0b0d]/70 via-[#0b0b0d]/60 to-[#0b0b0d]/80"></div>
-            <!-- brilho dourado -->
-            <div class="absolute inset-0 pointer-events-none"><div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[150px] opacity-20" style="background:radial-gradient(circle,#c9a24b,transparent 70%);"></div></div>
+            <!-- Fundo escuro premium (somos TI — sem fotos de atelie) -->
+            <div class="absolute inset-0 bg-[#0b0b0d]"></div>
+            <!-- textura sutil em grade -->
+            <div class="absolute inset-0 opacity-[0.04]" style="background-image:linear-gradient(#c9a24b 1px,transparent 1px),linear-gradient(90deg,#c9a24b 1px,transparent 1px);background-size:40px 40px;"></div>
+            <!-- brilhos dourados -->
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full blur-[150px] opacity-20" style="background:radial-gradient(circle,#c9a24b,transparent 70%);"></div>
+                <div class="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[150px] opacity-10" style="background:radial-gradient(circle,#c9a24b,transparent 70%);"></div>
+            </div>
             
             <!-- Cartão Flutuante onde vai entrar o Formulário -->
             <div class="relative z-10 w-full sm:max-w-md mt-6 px-10 py-12 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden sm:rounded-[2.5rem] border-t-4 border-[#c9a24b]">
