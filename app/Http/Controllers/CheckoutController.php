@@ -63,7 +63,11 @@ class CheckoutController extends Controller
         // Cria a assinatura pendente e gera a PREFERÊNCIA de Checkout Pro.
         $assinatura = $this->licenseService->criarAssinaturaPendente($loja, $plano);
 
-        $preferencia = MercadoPago::criarPreferencia([
+        $urlRetorno = route('checkout.retorno', $assinatura);
+        $urlWebhook = route('webhook.mercadopago');
+        $ehHttps = str_starts_with($urlRetorno, 'https://');
+
+        $payload = [
             'items' => [[
                 'title'       => Setting::nomeSistema() . " - Plano {$plano->nome}",
                 'description' => "Assinatura {$plano->nome} - {$loja->nome_fantasia}",
@@ -76,21 +80,29 @@ class CheckoutController extends Controller
             ],
             // Liga o pagamento à assinatura (o webhook usa isto para confirmar).
             'external_reference' => (string) $assinatura->id,
-            'notification_url'   => route('webhook.mercadopago'),
             // Para onde o Mercado Pago devolve o cliente após pagar.
             'back_urls' => [
-                'success' => route('checkout.retorno', $assinatura),
-                'pending' => route('checkout.retorno', $assinatura),
-                'failure' => route('checkout.retorno', $assinatura),
+                'success' => $urlRetorno,
+                'pending' => $urlRetorno,
+                'failure' => $urlRetorno,
             ],
-            'auto_return' => 'approved',
             // Métodos de pagamento: cartão (com parcelamento), PIX e boleto.
             // Nada é excluído -> o cliente vê todas as opções e pode parcelar.
             'payment_methods' => [
                 'installments' => 12, // até 12x no cartão de crédito
             ],
             'statement_descriptor' => Str::limit(Setting::nomeSistema(), 22, ''),
-        ]);
+        ];
+
+        // O Mercado Pago EXIGE HTTPS para notification_url e auto_return.
+        // Em HTTP (ainda sem SSL), enviá-los faz a preferência ser recusada,
+        // então só os incluímos quando o site já está em HTTPS.
+        if ($ehHttps) {
+            $payload['notification_url'] = $urlWebhook;
+            $payload['auto_return'] = 'approved';
+        }
+
+        $preferencia = MercadoPago::criarPreferencia($payload);
 
         if (!$preferencia || empty($preferencia['init_point'])) {
             $assinatura->update(['status' => Assinatura::STATUS_CANCELADA]);

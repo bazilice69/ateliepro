@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Camada fina de acesso à API do Mercado Pago.
@@ -63,6 +64,15 @@ class MercadoPago
     {
         $resposta = self::client()->post('/checkout/preferences', $payload);
 
-        return $resposta->successful() ? $resposta->json() : null;
+        if (!$resposta->successful()) {
+            // Registra o erro real do Mercado Pago para diagnóstico.
+            Log::warning('MP preferencia falhou', [
+                'status' => $resposta->status(),
+                'body'   => $resposta->body(),
+            ]);
+            return null;
+        }
+
+        return $resposta->json();
     }
 }
