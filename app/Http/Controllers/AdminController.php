@@ -148,6 +148,56 @@ class AdminController extends Controller
     }
 
     /**
+     * Redefine a senha de um usuário de uma loja (suporte do super_admin).
+     *
+     * Útil quando o cliente perde a senha: o super_admin gera uma senha
+     * PROVISÓRIA (ou informa uma) e repassa ao cliente. A senha fica visível
+     * UMA vez na tela (flash) para o super_admin copiar. O usuário deve ser da
+     * loja em questão (checagem de segurança).
+     */
+    public function redefinirSenha(Request $request, Loja $loja)
+    {
+        $dados = $request->validate([
+            'user_id' => ['required', Rule::exists('users', 'id')->where('loja_id', $loja->id)],
+            'nova_senha' => ['nullable', 'string', 'min:6', 'max:50'],
+        ]);
+
+        $usuario = User::where('id', $dados['user_id'])
+            ->where('loja_id', $loja->id)
+            ->firstOrFail();
+
+        // Usa a senha informada ou gera uma provisória fácil de digitar.
+        $senha = $dados['nova_senha'] ?? $this->gerarSenhaProvisoria();
+
+        $usuario->password = \Illuminate\Support\Facades\Hash::make($senha);
+        $usuario->setRememberToken(\Illuminate\Support\Str::random(60)); // desloga sessões antigas
+        $usuario->save();
+
+        return back()
+            ->with('success', "Senha de {$usuario->name} redefinida com sucesso!")
+            ->with('senha_provisoria', $senha)
+            ->with('senha_usuario', $usuario->email);
+    }
+
+    /**
+     * Gera uma senha provisória curta e legível (sem caracteres ambíguos).
+     */
+    private function gerarSenhaProvisoria(): string
+    {
+        $letras = 'abcdefghjkmnpqrstuvwxyz'; // sem i, l, o
+        $numeros = '23456789';               // sem 0, 1
+        $s = '';
+        for ($i = 0; $i < 4; $i++) {
+            $s .= $letras[random_int(0, strlen($letras) - 1)];
+        }
+        for ($i = 0; $i < 3; $i++) {
+            $s .= $numeros[random_int(0, strlen($numeros) - 1)];
+        }
+
+        return $s; // ex: "kmrp482"
+    }
+
+    /**
      * Painel de novos cadastros de loja (para o super_admin acompanhar).
      */
     public function cadastros()
