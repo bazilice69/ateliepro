@@ -15,23 +15,29 @@
 
         <!-- Alpine.js (interatividade). CSS/JS via CDN acima; não usamos Vite em produção. -->
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+        <style>.serif{font-family:'Cormorant Garamond',serif;}</style>
     </head>
-    <body class="font-sans text-slate-900 antialiased bg-slate-900">
+    <body class="font-sans text-slate-900 antialiased bg-[#0b0b0d]">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 relative">
             
             <!-- Imagem de fundo sutil e elegante -->
-            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-20"></div>
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-15"></div>
+            <!-- brilho dourado -->
+            <div class="absolute inset-0 pointer-events-none"><div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[150px] opacity-20" style="background:radial-gradient(circle,#c9a24b,transparent 70%);"></div></div>
             
-            <!-- Cartão Branco Flutuante onde vai entrar o Formulário -->
-            <div class="relative z-10 w-full sm:max-w-md mt-6 px-10 py-12 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden sm:rounded-[2.5rem]">
+            <!-- Cartão Flutuante onde vai entrar o Formulário -->
+            <div class="relative z-10 w-full sm:max-w-md mt-6 px-10 py-12 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden sm:rounded-[2.5rem] border-t-4 border-[#c9a24b]">
                 
                 <!-- Logo e Cabeçalho do Cartão -->
                 <div class="flex flex-col items-center justify-center mb-8">
-                    <a href="/" class="text-4xl font-light tracking-tighter text-slate-900 mb-1 hover:scale-105 transition-transform">
-                        Ateliê<span class="font-black text-[#fbbf24]">Pro</span>
+                    <a href="/" class="flex flex-col items-center gap-2 hover:scale-105 transition-transform">
+                        <span class="w-14 h-14 rounded-full border-2 border-[#c9a24b] flex items-center justify-center text-[#c9a24b] serif text-3xl font-bold">B</span>
+                        <span class="serif text-3xl font-bold tracking-wide text-slate-900">{{ \App\Models\Setting::nomeSistema() }}</span>
                     </a>
-                    <div class="h-1 w-12 bg-[#fbbf24] rounded-full mb-2"></div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Painel de Acesso</p>
+                    <div class="h-[2px] w-12 bg-[#c9a24b] rounded-full my-3"></div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.25em]">Painel de Acesso</p>
                 </div>
 
                 <!-- O Laravel injeta os campos de E-mail e Senha automaticamente aqui dentro -->
