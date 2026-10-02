@@ -201,6 +201,7 @@ require __DIR__.'/auth.php';
 Route::middleware('auth')->group(function () {
     Route::get('/assinar', [CheckoutController::class, 'escolher'])->name('assinar.escolher');
     Route::get('/assinar/{slug}', [CheckoutController::class, 'plano'])->name('checkout.plano');
+    Route::get('/assinatura/{assinatura}/retorno', [CheckoutController::class, 'retorno'])->name('checkout.retorno');
     Route::get('/assinatura/{assinatura}/status', [CheckoutController::class, 'status'])->name('checkout.status');
 });
 

@@ -48,4 +48,21 @@ class MercadoPago
 
         return $resposta->successful() ? $resposta->json() : null;
     }
+
+    /**
+     * Cria uma PREFERÊNCIA de Checkout Pro.
+     *
+     * Diferente do pagamento PIX direto, a preferência gera uma tela hospedada
+     * pelo Mercado Pago onde o cliente ESCOLHE como pagar: cartão de crédito
+     * (com PARCELAMENTO), PIX ou boleto. Retorna o array da preferência (com
+     * `init_point` = URL para redirecionar o cliente) ou null em caso de erro.
+     *
+     * @param  array  $payload  Corpo da preferência (items, back_urls, etc.).
+     */
+    public static function criarPreferencia(array $payload): ?array
+    {
+        $resposta = self::client()->post('/checkout/preferences', $payload);
+
+        return $resposta->successful() ? $resposta->json() : null;
+    }
 }
