@@ -1,9 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-black text-2xl text-slate-800 leading-tight uppercase tracking-tighter">
-                Painel <span class="text-[#fbbf24]">Financeiro</span>
-            </h2>
+            <div>
+                <h2 class="font-black text-2xl text-slate-800 leading-tight tracking-tighter">
+                    Olá, {{ \Illuminate\Support\Str::of(auth()->user()->name)->before(' ') }} 👋
+                </h2>
+                @php
+                    $diasPt = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+                    $mesesPt = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+                    $hoje = now();
+                @endphp
+                <p class="text-xs font-medium text-slate-400 mt-0.5">Seu centro de comando — {{ $diasPt[$hoje->dayOfWeek] }}, {{ $hoje->day }} de {{ $mesesPt[$hoje->month - 1] }}</p>
+            </div>
             <div class="flex gap-3">
                 <a href="{{ route('financeiro.index') }}" class="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
                     <i class="fas fa-plus mr-2"></i> Novo Lançamento
@@ -14,6 +22,63 @@
 
     <div class="py-8 relative">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+
+            <!-- ===== CENTRO DE COMANDO OPERACIONAL ===== -->
+            @php
+                $cards = [
+                    ['provas.index', 'provas', 'fa-ruler-combined', 'Provas marcadas', 'sky'],
+                    ['locacao.index', 'locacoes_abertas', 'fa-file-contract', 'Locações em aberto', 'indigo'],
+                    ['locacao.index', 'para_retirar', 'fa-box-open', 'Para retirar', 'amber'],
+                    ['locacao.index', 'para_devolucao', 'fa-rotate-left', 'Para devolução', 'rose'],
+                    ['encomendas.index', 'em_producao', 'fa-pen-ruler', 'Sob medida em produção', 'violet'],
+                    ['servicos.index', 'ajustes', 'fa-scissors', 'Ajustes pendentes', 'orange'],
+                    ['servicos.index', 'lavanderia', 'fa-soap', 'Na lavanderia', 'cyan'],
+                    ['servicos.index', 'manutencao', 'fa-wrench', 'Em manutenção', 'slate'],
+                ];
+                $cores = [
+                    'sky'    => ['bg-sky-50','text-sky-600'],
+                    'indigo' => ['bg-indigo-50','text-indigo-600'],
+                    'amber'  => ['bg-amber-50','text-amber-600'],
+                    'rose'   => ['bg-rose-50','text-rose-600'],
+                    'violet' => ['bg-violet-50','text-violet-600'],
+                    'orange' => ['bg-orange-50','text-orange-600'],
+                    'cyan'   => ['bg-cyan-50','text-cyan-600'],
+                    'slate'  => ['bg-slate-100','text-slate-600'],
+                ];
+            @endphp
+
+            @if($op['entregas_atrasadas'] > 0)
+                <a href="{{ route('encomendas.index') }}" class="block bg-rose-600 text-white rounded-2xl px-6 py-4 shadow-lg hover:bg-rose-500 transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-triangle-exclamation text-2xl"></i>
+                        <div>
+                            <p class="font-black text-sm uppercase tracking-wide">Atenção: {{ $op['entregas_atrasadas'] }} entrega(s) atrasada(s)</p>
+                            <p class="text-xs text-rose-100">Encomendas que passaram do prazo de entrega. Clique para ver.</p>
+                        </div>
+                    </div>
+                </a>
+            @endif
+
+            <div>
+                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 px-1">Hoje no ateliê</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    @foreach($cards as [$rota, $chave, $icone, $rotulo, $cor])
+                        @php [$bg, $tx] = $cores[$cor]; $valor = $op[$chave] ?? 0; @endphp
+                        <a href="{{ route($rota) }}" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition group">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-10 h-10 rounded-xl {{ $bg }} flex items-center justify-center">
+                                    <i class="fas {{ $icone }} {{ $tx }}"></i>
+                                </div>
+                                @if($valor > 0)
+                                    <span class="w-2 h-2 rounded-full {{ $tx }} bg-current animate-pulse"></span>
+                                @endif
+                            </div>
+                            <p class="text-3xl font-black text-slate-800 leading-none">{{ $valor }}</p>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5">{{ $rotulo }}</p>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
 
             <!-- CARTÕES DE RESUMO (dados reais da loja) -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">

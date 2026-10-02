@@ -47,6 +47,46 @@ class DashboardController extends Controller
             'locacoes_ativas' => Locacao::where('status', '!=', 'cancelada')->count(),
         ];
 
+        // --- Painel operacional: "o que precisa de atenção" (contadores) ------
+        $op = [
+            // Provas agendadas de hoje em diante
+            'provas' => Prova::where('status', Prova::STATUS_AGENDADA)
+                ->whereDate('data_prova', '>=', today())->count(),
+
+            // Locações em aberto (não canceladas e ainda não devolvidas)
+            'locacoes_abertas' => Locacao::where('status', '!=', 'cancelada')
+                ->whereNull('devolucao_em')->count(),
+
+            // Para retirar: pronta/combinada e ainda não retirada
+            'para_retirar' => Locacao::where('status', '!=', 'cancelada')
+                ->whereNull('retirada_em')
+                ->where(function ($q) {
+                    $q->where('status', 'pronta_para_retirada')
+                      ->orWhereNotNull('data_retirada');
+                })->count(),
+
+            // Para devolução: já retirada, ainda não devolvida
+            'para_devolucao' => Locacao::whereNotNull('retirada_em')
+                ->whereNull('devolucao_em')
+                ->where('status', '!=', 'cancelada')->count(),
+
+            // Encomendas (sob medida) em produção
+            'em_producao' => Encomenda::whereNotIn('etapa', [Encomenda::ETAPA_ENTREGUE, Encomenda::ETAPA_CANCELADA])->count(),
+
+            // Oficina por tipo (fila de trabalho pendente)
+            'ajustes' => Servico::where('tipo', Servico::TIPO_AJUSTE)
+                ->whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])->count(),
+            'lavanderia' => Servico::where('tipo', Servico::TIPO_LAVANDERIA)
+                ->whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])->count(),
+            'manutencao' => Servico::where('tipo', Servico::TIPO_MANUTENCAO)
+                ->whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])->count(),
+
+            // Encomendas/locações atrasadas (alerta vermelho)
+            'entregas_atrasadas' => Encomenda::whereNotIn('etapa', [Encomenda::ETAPA_ENTREGUE, Encomenda::ETAPA_CANCELADA])
+                ->whereNotNull('data_entrega')
+                ->whereDate('data_entrega', '<', today())->count(),
+        ];
+
         // Movimentações recentes reais
         $movimentacoes = LancamentoFinanceiro::with(['categoria', 'cliente'])
             ->orderByDesc('data_vencimento')
@@ -89,7 +129,7 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'recebidoMes', 'aReceber', 'emAtraso', 'despesasMes', 'saldoPrevisto',
-            'totais', 'movimentacoes', 'proximosEventos', 'agendaHoje',
+            'totais', 'op', 'movimentacoes', 'proximosEventos', 'agendaHoje',
             'provasHoje', 'ajustesPendentes', 'encomendasProducao'
         ));
     }
