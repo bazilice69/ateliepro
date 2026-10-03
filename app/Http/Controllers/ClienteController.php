@@ -21,6 +21,24 @@ class ClienteController extends Controller
         return view('clientes.create');
     }
 
+    /**
+     * Campos aceitos do formulário de cliente (whitelist).
+     *
+     * Usamos uma lista explícita em vez de $request->except() para NUNCA tentar
+     * gravar um campo que não exista na tabela (o que causava erro SQL / página
+     * em branco). loja_id é injetado automaticamente pela trait BelongsToLoja.
+     */
+    private function camposPermitidos(Request $request): array
+    {
+        return $request->only([
+            'nome', 'cpf', 'rg', 'telefone', 'email', 'data_nascimento',
+            'estado_civil', 'profissao', 'nacionalidade', 'tipo',
+            'responsavel_nome', 'responsavel_parentesco',
+            'cep', 'rua', 'numero', 'complemento', 'bairro', 'cidade', 'estado',
+            'observacoes',
+        ]);
+    }
+
     public function store(Request $request)
     {
         $lojaId = Auth::user()->loja_id;
@@ -32,8 +50,8 @@ class ClienteController extends Controller
             'cpf' => ['nullable', 'string', Rule::unique('clientes', 'cpf')->where('loja_id', $lojaId)],
         ]);
 
-        // Nunca confiar em loja_id vindo do form: a trait injeta a loja do usuário.
-        $cliente = Cliente::create($request->except('loja_id'));
+        // Só os campos conhecidos; loja_id é injetado pela trait BelongsToLoja.
+        $cliente = Cliente::create($this->camposPermitidos($request));
         return redirect()->route('clientes.show', $cliente->id)->with('success', 'Cliente cadastrado com sucesso!');
     }
 
@@ -64,7 +82,7 @@ class ClienteController extends Controller
 
         // findOrFail já é escopado pela loja (Global Scope) => ID de outra loja vira 404.
         $cliente = Cliente::findOrFail($id);
-        $cliente->update($request->except('loja_id'));
+        $cliente->update($this->camposPermitidos($request));
 
         return redirect()->route('clientes.show', $cliente->id)->with('success', 'Ficha atualizada com sucesso!');
     }
