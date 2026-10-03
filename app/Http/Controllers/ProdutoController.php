@@ -42,6 +42,32 @@ class ProdutoController extends Controller
         return redirect()->route('acervo.index')->with('success', 'Peça cadastrada no acervo com sucesso!');
     }
 
+    /**
+     * Cadastro RÁPIDO de peça (via modal, dentro da tela de Locação).
+     * Pede o essencial e devolve JSON para o front adicionar no seletor sem
+     * recarregar a página.
+     */
+    public function storeRapido(Request $request)
+    {
+        $lojaId = Auth::user()->loja_id;
+
+        $dados = $request->validate([
+            'codigo' => ['required', 'string', 'max:50', Rule::unique('acervos', 'codigo')->where('loja_id', $lojaId)],
+            'nome' => 'required|string|max:255',
+            'categoria' => 'required|string|max:100',
+            'valor_locacao' => 'required|numeric|min:0',
+            'caucao' => 'nullable|numeric|min:0',
+        ]);
+
+        $dados['status'] = Acervo::STATUS_DISPONIVEL;
+        $peca = Acervo::create($dados);
+
+        return response()->json([
+            'id' => $peca->id,
+            'label' => "[{$peca->codigo}] {$peca->nome} (R$ " . number_format((float) $peca->valor_locacao, 2, ',', '.') . ')',
+        ]);
+    }
+
     // Histórico / "vida" da peça: locações, provas e serviços.
     public function show(Acervo $peca)
     {

@@ -20,18 +20,31 @@
                         </div>
                     @endif
 
-                    @if($clientes->isEmpty())
+                    @if($clientes->isEmpty() || $acervos->isEmpty())
                         <div class="mb-8 p-5 bg-sky-50 border border-sky-100 rounded-2xl flex items-start gap-3">
                             <i class="fas fa-circle-info text-sky-500 text-lg mt-0.5"></i>
                             <div>
-                                <p class="font-bold text-sky-800 text-sm">Você ainda não tem clientes cadastrados.</p>
-                                <p class="text-sky-600 text-xs mt-1">Use o botão <strong>“+ Cadastrar cliente”</strong> abaixo para criar a cliente na hora, sem sair desta tela.</p>
+                                <p class="font-bold text-sky-800 text-sm">
+                                    @if($clientes->isEmpty() && $acervos->isEmpty())
+                                        Você ainda não tem clientes nem peças cadastradas.
+                                    @elseif($clientes->isEmpty())
+                                        Você ainda não tem clientes cadastrados.
+                                    @else
+                                        Você ainda não tem peças cadastradas.
+                                    @endif
+                                </p>
+                                <p class="text-sky-600 text-xs mt-1">Use os botões <strong>“+ Cadastrar cliente”</strong> e <strong>“+ Cadastrar peça”</strong> abaixo para criar na hora, sem sair desta tela.</p>
                             </div>
                         </div>
                     @endif
 
                     <form action="{{ route('locacao.store') }}" method="POST" class="space-y-8"
-                          x-data="locacaoForm({{ Js::from($clientes->map(fn($c) => ['id' => $c->id, 'nome' => $c->nome])) }}, '{{ old('cliente_id') }}')">
+                          x-data="locacaoForm(
+                              {{ Js::from($clientes->map(fn($c) => ['id' => $c->id, 'nome' => $c->nome])) }},
+                              '{{ old('cliente_id') }}',
+                              {{ Js::from($acervos->map(fn($p) => ['id' => $p->id, 'label' => '['.$p->codigo.'] '.$p->nome.' (R$ '.number_format($p->valor_locacao, 2, ',', '.').')'])) }},
+                              '{{ old('acervo_id') }}'
+                          )">
                         @csrf
 
                         <!-- BLOCO 1: CLIENTE E PEÇA -->
@@ -54,14 +67,17 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-bold text-slate-700 mb-2">Peça do Acervo</label>
-                                    <select name="acervo_id" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="block text-sm font-bold text-slate-700">Peça do Acervo</label>
+                                        <button type="button" @click="abrirModalPeca = true" class="text-[11px] font-black text-[#b8860b] hover:text-amber-700 uppercase tracking-wide">
+                                            <i class="fas fa-plus mr-1"></i> Cadastrar peça
+                                        </button>
+                                    </div>
+                                    <select name="acervo_id" x-model="acervoId" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
                                         <option value="">Selecione a peça...</option>
-                                        @foreach($acervos as $peca)
-                                            <option value="{{ $peca->id }}" {{ old('acervo_id') == $peca->id ? 'selected' : '' }}>
-                                                [{{ $peca->codigo }}] {{ $peca->nome }} (R$ {{ number_format($peca->valor_locacao, 2, ',', '.') }})
-                                            </option>
-                                        @endforeach
+                                        <template x-for="p in pecas" :key="p.id">
+                                            <option :value="p.id" x-text="p.label"></option>
+                                        </template>
                                     </select>
                                 </div>
                             </div>
@@ -153,6 +169,62 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- MODAL: cadastro rápido de peça -->
+                        <div x-show="abrirModalPeca" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" @click.self="abrirModalPeca = false">
+                            <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-8">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="font-black text-slate-800 text-lg uppercase tracking-tighter">Cadastro rápido de peça</h3>
+                                    <button type="button" @click="abrirModalPeca = false" class="text-slate-400 hover:text-slate-700 text-xl">&times;</button>
+                                </div>
+                                <p class="text-xs text-slate-400 mb-5">Só o essencial agora — fotos, medidas e detalhes você completa depois no Acervo.</p>
+
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1">Código *</label>
+                                            <input type="text" x-model="novaPeca.codigo" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="Ex: VN-1234">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1">Categoria *</label>
+                                            <select x-model="novaPeca.categoria" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                                                <option value="Noiva">Vestido de Noiva</option>
+                                                <option value="Debutante">Vestido de Debutante</option>
+                                                <option value="Mae de Noiva/Noivo">Mãe de Noiva / Noivo</option>
+                                                <option value="Madrinha">Madrinha</option>
+                                                <option value="Formatura">Formatura</option>
+                                                <option value="Festa">Festa</option>
+                                                <option value="Infantil">Infantil</option>
+                                                <option value="Outro">Outro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Nome / Descrição *</label>
+                                        <input type="text" x-model="novaPeca.nome" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="Ex: Vestido sereia renda off-white">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1">Valor da locação (R$) *</label>
+                                            <input type="number" step="0.01" min="0" x-model="novaPeca.valor_locacao" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="0,00">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-600 mb-1">Caução (R$)</label>
+                                            <input type="number" step="0.01" min="0" x-model="novaPeca.caucao" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="0,00">
+                                        </div>
+                                    </div>
+                                    <p x-show="erroPeca" x-text="erroPeca" x-cloak class="text-rose-600 text-xs font-medium"></p>
+                                </div>
+
+                                <div class="flex justify-end gap-3 mt-6">
+                                    <button type="button" @click="abrirModalPeca = false" class="px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl text-sm">Cancelar</button>
+                                    <button type="button" @click="salvarPeca()" :disabled="salvandoPeca" class="bg-slate-900 text-[#fbbf24] px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition disabled:opacity-50">
+                                        <span x-show="!salvandoPeca">Salvar e usar</span>
+                                        <span x-show="salvandoPeca" x-cloak>Salvando...</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </form>
 
                 </div>
@@ -161,7 +233,7 @@
     </div>
 
     <script>
-        function locacaoForm(clientesIniciais, clienteSelecionado) {
+        function locacaoForm(clientesIniciais, clienteSelecionado, pecasIniciais, pecaSelecionada) {
             return {
                 clientes: clientesIniciais || [],
                 clienteId: clienteSelecionado || '',
@@ -169,6 +241,49 @@
                 salvando: false,
                 erro: '',
                 novo: { nome: '', telefone: '', cpf: '' },
+
+                // --- Peça ---
+                pecas: pecasIniciais || [],
+                acervoId: pecaSelecionada || '',
+                abrirModalPeca: false,
+                salvandoPeca: false,
+                erroPeca: '',
+                novaPeca: { codigo: '', categoria: 'Noiva', nome: '', valor_locacao: '', caucao: '' },
+
+                async salvarPeca() {
+                    this.erroPeca = '';
+                    if (!this.novaPeca.codigo || !this.novaPeca.nome || !this.novaPeca.valor_locacao) {
+                        this.erroPeca = 'Preencha código, nome e valor da locação.';
+                        return;
+                    }
+                    this.salvandoPeca = true;
+                    try {
+                        const resp = await fetch("{{ route('produto.rapido') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify(this.novaPeca),
+                        });
+                        if (!resp.ok) {
+                            const data = await resp.json().catch(() => ({}));
+                            const primeiro = data.errors ? Object.values(data.errors)[0][0] : (data.message || 'Não foi possível cadastrar a peça.');
+                            this.erroPeca = primeiro;
+                            this.salvandoPeca = false;
+                            return;
+                        }
+                        const peca = await resp.json();
+                        this.pecas.push(peca);
+                        this.acervoId = String(peca.id);
+                        this.abrirModalPeca = false;
+                        this.novaPeca = { codigo: '', categoria: 'Noiva', nome: '', valor_locacao: '', caucao: '' };
+                    } catch (e) {
+                        this.erroPeca = 'Erro de conexão. Tente novamente.';
+                    }
+                    this.salvandoPeca = false;
+                },
 
                 async salvarCliente() {
                     this.erro = '';
