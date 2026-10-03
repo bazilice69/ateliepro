@@ -14,25 +14,38 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <!-- BARRA DE PESQUISA E FILTROS -->
-            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <form method="GET" action="{{ route('clientes.index') }}" class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div class="flex-1 w-full relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fas fa-search text-slate-400"></i>
                     </div>
-                    <input type="text" placeholder="Buscar por Nome, CPF ou ID (Ex: CLI-00001)..." class="w-full pl-11 pr-4 py-4 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-[#fbbf24] text-sm font-medium text-slate-700 placeholder-slate-400">
+                    <input type="text" name="q" value="{{ $busca ?? '' }}" placeholder="Buscar por Nome, CPF, telefone ou ID (Ex: CLI-00008)..." class="w-full pl-11 pr-4 py-4 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-[#fbbf24] text-sm font-medium text-slate-700 placeholder-slate-400">
                 </div>
                 <div class="flex gap-4 w-full md:w-auto">
-                    <select class="py-4 px-6 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-[#fbbf24] text-sm font-bold text-slate-600">
+                    <select name="tipo" class="py-4 px-6 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-[#fbbf24] text-sm font-bold text-slate-600">
                         <option value="">Todos os Perfis</option>
-                        <option value="Feminino">Feminino</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Infantil">Infantil</option>
+                        <option value="Feminino" @selected(($perfil ?? '') === 'Feminino')>Feminino</option>
+                        <option value="Masculino" @selected(($perfil ?? '') === 'Masculino')>Masculino</option>
+                        <option value="Infantil" @selected(($perfil ?? '') === 'Infantil')>Infantil</option>
                     </select>
-                    <button class="bg-slate-900 hover:bg-slate-800 text-[#fbbf24] px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition">
+                    <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-[#fbbf24] px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition">
                         Filtrar
                     </button>
+                    @if(($busca ?? '') !== '' || ($perfil ?? '') !== '')
+                        <a href="{{ route('clientes.index') }}" class="flex items-center px-4 py-4 text-slate-400 hover:text-slate-700 font-bold text-xs uppercase tracking-widest" title="Limpar busca">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
                 </div>
-            </div>
+            </form>
+
+            @if(($busca ?? '') !== '' || ($perfil ?? '') !== '')
+                <p class="text-xs font-bold text-slate-400 px-2 -mt-2">
+                    {{ $clientes->count() }} resultado(s)
+                    @if(($busca ?? '') !== '') para "<span class="text-slate-600">{{ $busca }}</span>" @endif
+                    @if(($perfil ?? '') !== '') no perfil <span class="text-slate-600">{{ $perfil }}</span> @endif
+                </p>
+            @endif
 
             <!-- TABELA DE CLIENTES -->
             <div class="bg-white overflow-x-auto shadow-sm sm:rounded-[2rem] border border-slate-100">
@@ -89,8 +102,13 @@
                             <tr>
                                 <td colspan="6" class="py-16 text-center">
                                     <div class="text-slate-200 mb-4"><i class="fas fa-id-card text-5xl"></i></div>
-                                    <h3 class="text-lg font-black text-slate-700 mb-1">Nenhum cliente por aqui</h3>
-                                    <p class="text-slate-500 font-medium text-sm">Comece adicionando seu primeiro cliente ao sistema.</p>
+                                    @if(($busca ?? '') !== '' || ($perfil ?? '') !== '')
+                                        <h3 class="text-lg font-black text-slate-700 mb-1">Nenhum cliente encontrado</h3>
+                                        <p class="text-slate-500 font-medium text-sm">Tente outro termo ou <a href="{{ route('clientes.index') }}" class="text-amber-600 underline">limpar a busca</a>.</p>
+                                    @else
+                                        <h3 class="text-lg font-black text-slate-700 mb-1">Nenhum cliente por aqui</h3>
+                                        <p class="text-slate-500 font-medium text-sm">Comece adicionando seu primeiro cliente ao sistema.</p>
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
