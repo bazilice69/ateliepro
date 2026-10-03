@@ -43,6 +43,12 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            // Mensagens claras para os casos de "já cadastrado" (orientam o lojista).
+            'cnpj_cpf.unique' => 'Este CNPJ/CPF já está cadastrado. Se a loja é sua, faça login em vez de criar outra conta.',
+            'email.unique' => 'Este e-mail já está cadastrado. Faça login ou use a opção "Esqueci minha senha".',
+            'email.lowercase' => 'Digite o e-mail todo em letras minúsculas.',
+            'password.confirmed' => 'A confirmação de senha não confere.',
         ]);
 
         [$user, $loja] = DB::transaction(function () use ($request) {
