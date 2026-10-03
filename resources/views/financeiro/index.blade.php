@@ -52,42 +52,82 @@
                 </div>
             </div>
 
-            <!-- CALCULADORA DE PRECIFICAÇÃO (interativa, Alpine.js) -->
+            <!-- CALCULADORA DE PRECIFICAÇÃO — 3 MODOS (Alpine.js) -->
             <div x-data="calculadoraPreco()" class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-11 h-11 rounded-2xl bg-slate-900 text-[#fbbf24] flex items-center justify-center"><i class="fas fa-calculator"></i></div>
                     <div>
                         <h3 class="text-xl font-black text-slate-800 tracking-tighter">Calculadora de Preço</h3>
-                        <p class="text-sm font-medium text-slate-500">Descubra o preço ideal considerando custos, despesas e a margem que você quer ganhar.</p>
+                        <p class="text-sm font-medium text-slate-500">Descubra quanto cobrar — sem achismo. Escolha o tipo e preencha os custos.</p>
                     </div>
+                </div>
+
+                <!-- Seletor de modo -->
+                <div class="grid grid-cols-3 gap-2 mb-6 bg-slate-100 p-1.5 rounded-2xl">
+                    <template x-for="m in modos" :key="m.id">
+                        <button type="button" @click="modo = m.id"
+                                :class="modo === m.id ? 'bg-slate-900 text-[#fbbf24] shadow' : 'text-slate-500 hover:text-slate-700'"
+                                class="py-2.5 rounded-xl font-black text-[11px] uppercase tracking-wide transition flex items-center justify-center gap-1.5">
+                            <i class="fas" :class="m.icone"></i> <span x-text="m.nome"></span>
+                        </button>
+                    </template>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Entradas -->
                     <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Custo de Material (R$)</label>
-                            <input type="number" step="0.01" min="0" x-model.number="material" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Tecido, aviamentos...">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Horas de Trabalho</label>
-                                <input type="number" step="0.5" min="0" x-model.number="horas" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 10">
+
+                        <!-- MODO SOB MEDIDA / AJUSTE: material + mão de obra + despesas -->
+                        <template x-if="modo !== 'aluguel'">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Custo de Material (R$)</label>
+                                    <input type="number" step="0.01" min="0" x-model.number="material" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Tecido, aviamentos, renda...">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Horas de Trabalho</label>
+                                        <input type="number" step="0.5" min="0" x-model.number="horas" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 10">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Valor da Hora (R$)</label>
+                                        <input type="number" step="0.01" min="0" x-model.number="valorHora" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 30">
+                                    </div>
+                                </div>
+                                <div x-show="modo === 'sob_medida'">
+                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Rateio de Despesas Fixas (R$)</label>
+                                    <input type="number" step="0.01" min="0" x-model.number="despesasFixas" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Luz, água, internet, aluguel rateados">
+                                    <p class="text-[11px] text-slate-400 mt-1">Quanto das contas do mês (luz, água, aluguel...) esta peça deve "pagar".</p>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Valor da Hora (R$)</label>
-                                <input type="number" step="0.01" min="0" x-model.number="valorHora" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 30">
+                        </template>
+
+                        <!-- MODO ALUGUEL: custo da peça diluído pelo nº de aluguéis -->
+                        <template x-if="modo === 'aluguel'">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Quanto a peça custou (R$)</label>
+                                    <input type="number" step="0.01" min="0" x-model.number="custoPeca" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Compra ou confecção da peça">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Nº de aluguéis previstos</label>
+                                        <input type="number" step="1" min="1" x-model.number="numAlugueis" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 10">
+                                        <p class="text-[11px] text-slate-400 mt-1">Quantas vezes espera alugar essa peça. Dilui o custo.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Custo por aluguel (R$)</label>
+                                        <input type="number" step="0.01" min="0" x-model.number="custoManutencaoAluguel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Lavanderia, reparos...">
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Rateio de Despesas Fixas (R$)</label>
-                            <input type="number" step="0.01" min="0" x-model.number="despesasFixas" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Luz, água, internet, aluguel rateados">
-                            <p class="text-[11px] text-slate-400 mt-1">Quanto das contas do mês (luz, água, internet, aluguel...) esta peça deve "pagar".</p>
-                        </div>
+                        </template>
+
+                        <!-- Comum a todos os modos: margem e taxa de cartão -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Margem de Lucro (%)</label>
-                                <input type="number" step="1" min="0" x-model.number="margem" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 40">
+                                <input type="number" step="1" min="0" x-model.number="margem" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:border-amber-400" placeholder="Ex: 100">
                             </div>
                             <div>
                                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Taxa de Cartão (%)</label>
@@ -99,15 +139,28 @@
                     <!-- Resultado -->
                     <div class="bg-slate-900 rounded-[2rem] p-8 flex flex-col justify-center">
                         <div class="space-y-3 text-sm">
-                            <div class="flex justify-between text-slate-400"><span>Material</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(material)"></span></span></div>
-                            <div class="flex justify-between text-slate-400"><span>Mão de obra (<span x-text="horas||0"></span>h)</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(maoDeObra)"></span></span></div>
-                            <div class="flex justify-between text-slate-400"><span>Despesas fixas</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(despesasFixas)"></span></span></div>
+                            <!-- Detalhamento sob medida / ajuste -->
+                            <template x-if="modo !== 'aluguel'">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between text-slate-400"><span>Material</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(material)"></span></span></div>
+                                    <div class="flex justify-between text-slate-400"><span>Mão de obra (<span x-text="horas||0"></span>h)</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(maoDeObra)"></span></span></div>
+                                    <div x-show="modo === 'sob_medida'" class="flex justify-between text-slate-400"><span>Despesas fixas</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(despesasFixas)"></span></span></div>
+                                </div>
+                            </template>
+                            <!-- Detalhamento aluguel -->
+                            <template x-if="modo === 'aluguel'">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between text-slate-400"><span>Peça diluída (<span x-text="numAlugueis||1"></span>x)</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(custoPecaDiluido)"></span></span></div>
+                                    <div class="flex justify-between text-slate-400"><span>Custo por aluguel</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(custoManutencaoAluguel)"></span></span></div>
+                                </div>
+                            </template>
+
                             <div class="flex justify-between text-slate-300 border-t border-slate-700 pt-3"><span class="font-bold">Custo total</span><span class="font-black">R$ <span x-text="fmt(custoTotal)"></span></span></div>
                             <div class="flex justify-between text-slate-400"><span>+ Margem (<span x-text="margem||0"></span>%)</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(valorMargem)"></span></span></div>
                             <div class="flex justify-between text-slate-400"><span>+ Taxa de cartão</span><span class="font-bold text-slate-200">R$ <span x-text="fmt(valorTaxa)"></span></span></div>
                         </div>
                         <div class="mt-6 pt-6 border-t border-slate-700 text-center">
-                            <p class="text-[10px] font-black text-[#fbbf24] uppercase tracking-widest">Preço Sugerido</p>
+                            <p class="text-[10px] font-black text-[#fbbf24] uppercase tracking-widest" x-text="rotuloPreco"></p>
                             <p class="text-4xl font-black text-white mt-1">R$ <span x-text="fmt(precoFinal)"></span></p>
                             <p class="text-xs text-emerald-400 font-bold mt-2">Lucro estimado: R$ <span x-text="fmt(valorMargem)"></span></p>
                         </div>
@@ -282,17 +335,47 @@
         // Calculadora de precificação (Alpine.js)
         function calculadoraPreco() {
             return {
-                material: 0, horas: 0, valorHora: 0, despesasFixas: 0, margem: 40, taxaCartao: 0,
+                modo: 'sob_medida',
+                modos: [
+                    { id: 'sob_medida', nome: 'Sob Medida', icone: 'fa-pen-ruler' },
+                    { id: 'aluguel',    nome: 'Aluguel',    icone: 'fa-tags' },
+                    { id: 'ajuste',     nome: 'Ajuste',     icone: 'fa-scissors' },
+                ],
+                // Sob medida / ajuste
+                material: 0, horas: 0, valorHora: 0, despesasFixas: 0,
+                // Aluguel
+                custoPeca: 0, numAlugueis: 1, custoManutencaoAluguel: 0,
+                // Comuns
+                margem: 100, taxaCartao: 0,
+
                 get maoDeObra() { return (this.horas || 0) * (this.valorHora || 0); },
-                get custoTotal() { return (this.material || 0) + this.maoDeObra + (this.despesasFixas || 0); },
+                get custoPecaDiluido() {
+                    const n = (this.numAlugueis || 1) < 1 ? 1 : (this.numAlugueis || 1);
+                    return (this.custoPeca || 0) / n;
+                },
+                // Custo total depende do modo escolhido.
+                get custoTotal() {
+                    if (this.modo === 'aluguel') {
+                        return this.custoPecaDiluido + (this.custoManutencaoAluguel || 0);
+                    }
+                    if (this.modo === 'ajuste') {
+                        return (this.material || 0) + this.maoDeObra; // ajuste nao rateia despesa fixa
+                    }
+                    // sob medida
+                    return (this.material || 0) + this.maoDeObra + (this.despesasFixas || 0);
+                },
                 get valorMargem() { return this.custoTotal * ((this.margem || 0) / 100); },
-                // Preço antes da taxa (custo + margem), depois embute a taxa de cartão.
                 get precoAntesTaxa() { return this.custoTotal + this.valorMargem; },
                 get precoFinal() {
                     const t = (this.taxaCartao || 0) / 100;
                     return t > 0 && t < 1 ? this.precoAntesTaxa / (1 - t) : this.precoAntesTaxa;
                 },
                 get valorTaxa() { return this.precoFinal - this.precoAntesTaxa; },
+                get rotuloPreco() {
+                    if (this.modo === 'aluguel') return 'Preço sugerido do aluguel';
+                    if (this.modo === 'ajuste')  return 'Preço sugerido do ajuste';
+                    return 'Preço sugerido de venda';
+                },
                 fmt(v) { return (Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
             };
         }
