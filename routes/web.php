@@ -100,6 +100,7 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/acervo', [ProdutoController::class, 'index'])->name('acervo.index');
     Route::get('/acervo/novo', [ProdutoController::class, 'create'])->name('produto.create');
     Route::post('/acervo', [ProdutoController::class, 'store'])->name('produto.store');
+    Route::post('/acervo/rapido', [ProdutoController::class, 'storeRapido'])->name('produto.rapido');
     Route::get('/acervo/{peca}', [ProdutoController::class, 'show'])->name('acervo.show');
 
     Route::get('/agenda', [AgendamentoController::class, 'index'])->name('agenda.index');
