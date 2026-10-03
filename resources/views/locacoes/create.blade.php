@@ -20,7 +20,18 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('locacao.store') }}" method="POST" class="space-y-8">
+                    @if($clientes->isEmpty())
+                        <div class="mb-8 p-5 bg-sky-50 border border-sky-100 rounded-2xl flex items-start gap-3">
+                            <i class="fas fa-circle-info text-sky-500 text-lg mt-0.5"></i>
+                            <div>
+                                <p class="font-bold text-sky-800 text-sm">Você ainda não tem clientes cadastrados.</p>
+                                <p class="text-sky-600 text-xs mt-1">Use o botão <strong>“+ Cadastrar cliente”</strong> abaixo para criar a cliente na hora, sem sair desta tela.</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('locacao.store') }}" method="POST" class="space-y-8"
+                          x-data="locacaoForm({{ Js::from($clientes->map(fn($c) => ['id' => $c->id, 'nome' => $c->nome])) }}, '{{ old('cliente_id') }}')">
                         @csrf
 
                         <!-- BLOCO 1: CLIENTE E PEÇA -->
@@ -28,14 +39,17 @@
                             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">1. Identificação</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-bold text-slate-700 mb-2">Cliente</label>
-                                    <select name="cliente_id" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="block text-sm font-bold text-slate-700">Cliente</label>
+                                        <button type="button" @click="abrirModal = true" class="text-[11px] font-black text-[#b8860b] hover:text-amber-700 uppercase tracking-wide">
+                                            <i class="fas fa-plus mr-1"></i> Cadastrar cliente
+                                        </button>
+                                    </div>
+                                    <select name="cliente_id" x-model="clienteId" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
                                         <option value="">Selecione a cliente...</option>
-                                        @foreach($clientes as $cliente)
-                                            <option value="{{ $cliente->id }}" {{ old('cliente_id') == $cliente->id ? 'selected' : '' }}>
-                                                {{ $cliente->nome }}
-                                            </option>
-                                        @endforeach
+                                        <template x-for="c in clientes" :key="c.id">
+                                            <option :value="c.id" x-text="c.nome"></option>
+                                        </template>
                                     </select>
                                 </div>
 
@@ -93,10 +107,51 @@
                             </div>
                         </div>
 
+                        <!-- Dica sobre o contrato -->
+                        <div class="flex items-center gap-2 text-xs text-slate-400 bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                            <i class="fas fa-file-signature text-slate-300"></i>
+                            <span>Depois de registrar a locação, o <strong>contrato</strong> é gerado na central dela (ou no menu <strong>Contratos</strong>), com os dados preenchidos automaticamente.</span>
+                        </div>
+
                         <div class="flex justify-end pt-4">
                             <button type="submit" class="bg-slate-900 text-[#fbbf24] px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition shadow-xl cursor-pointer">
                                 Registrar Locação e Bloquear Datas
                             </button>
+                        </div>
+
+                        <!-- MODAL: cadastro rápido de cliente -->
+                        <div x-show="abrirModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" @click.self="abrirModal = false">
+                            <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-8">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="font-black text-slate-800 text-lg uppercase tracking-tighter">Cadastro rápido de cliente</h3>
+                                    <button type="button" @click="abrirModal = false" class="text-slate-400 hover:text-slate-700 text-xl">&times;</button>
+                                </div>
+                                <p class="text-xs text-slate-400 mb-5">Só o essencial agora — os outros dados você completa depois na ficha da cliente.</p>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Nome *</label>
+                                        <input type="text" x-model="novo.nome" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="Nome da cliente">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">Telefone / WhatsApp *</label>
+                                        <input type="text" x-model="novo.telefone" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="(00) 00000-0000">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-600 mb-1">CPF (opcional)</label>
+                                        <input type="text" x-model="novo.cpf" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="000.000.000-00">
+                                    </div>
+                                    <p x-show="erro" x-text="erro" x-cloak class="text-rose-600 text-xs font-medium"></p>
+                                </div>
+
+                                <div class="flex justify-end gap-3 mt-6">
+                                    <button type="button" @click="abrirModal = false" class="px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl text-sm">Cancelar</button>
+                                    <button type="button" @click="salvarCliente()" :disabled="salvando" class="bg-slate-900 text-[#fbbf24] px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition disabled:opacity-50">
+                                        <span x-show="!salvando">Salvar e usar</span>
+                                        <span x-show="salvando" x-cloak>Salvando...</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </form>
 
@@ -104,4 +159,54 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function locacaoForm(clientesIniciais, clienteSelecionado) {
+            return {
+                clientes: clientesIniciais || [],
+                clienteId: clienteSelecionado || '',
+                abrirModal: false,
+                salvando: false,
+                erro: '',
+                novo: { nome: '', telefone: '', cpf: '' },
+
+                async salvarCliente() {
+                    this.erro = '';
+                    if (!this.novo.nome || !this.novo.telefone) {
+                        this.erro = 'Preencha o nome e o telefone.';
+                        return;
+                    }
+                    this.salvando = true;
+                    try {
+                        const resp = await fetch("{{ route('clientes.rapido') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                            },
+                            body: JSON.stringify(this.novo),
+                        });
+                        if (!resp.ok) {
+                            const data = await resp.json().catch(() => ({}));
+                            // Mostra o primeiro erro de validação, se houver.
+                            const primeiro = data.errors ? Object.values(data.errors)[0][0] : (data.message || 'Não foi possível cadastrar.');
+                            this.erro = primeiro;
+                            this.salvando = false;
+                            return;
+                        }
+                        const cliente = await resp.json();
+                        // Adiciona na lista e já seleciona.
+                        this.clientes.push(cliente);
+                        this.clienteId = String(cliente.id);
+                        this.abrirModal = false;
+                        this.novo = { nome: '', telefone: '', cpf: '' };
+                    } catch (e) {
+                        this.erro = 'Erro de conexão. Tente novamente.';
+                    }
+                    this.salvando = false;
+                },
+            };
+        }
+    </script>
 </x-app-layout>

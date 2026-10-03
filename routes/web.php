@@ -88,6 +88,7 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
     Route::get('/clientes/novo', [ClienteController::class, 'create'])->name('clientes.create');
     Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
+    Route::post('/clientes/rapido', [ClienteController::class, 'storeRapido'])->name('clientes.rapido');
     Route::get('/clientes/{id}', [ClienteController::class, 'show'])->name('clientes.show');
     Route::get('/clientes/{id}/editar', [ClienteController::class, 'edit'])->name('clientes.edit');
     Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('clientes.update');

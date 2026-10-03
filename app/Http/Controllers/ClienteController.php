@@ -55,6 +55,29 @@ class ClienteController extends Controller
         return redirect()->route('clientes.show', $cliente->id)->with('success', 'Cliente cadastrado com sucesso!');
     }
 
+    /**
+     * Cadastro RÁPIDO de cliente (via modal, dentro de outra tela como a
+     * Locação). Pede o mínimo (nome, telefone, CPF) e devolve JSON com o
+     * cliente criado, para o front adicionar na lista sem recarregar a página.
+     */
+    public function storeRapido(Request $request)
+    {
+        $lojaId = Auth::user()->loja_id;
+
+        $dados = $request->validate([
+            'nome' => 'required|string|max:255',
+            'telefone' => 'required|string|max:20',
+            'cpf' => ['nullable', 'string', Rule::unique('clientes', 'cpf')->where('loja_id', $lojaId)],
+        ]);
+
+        $cliente = Cliente::create($dados);
+
+        return response()->json([
+            'id' => $cliente->id,
+            'nome' => $cliente->nome,
+        ]);
+    }
+
     public function show($id)
     {
         $cliente = Cliente::findOrFail($id);
