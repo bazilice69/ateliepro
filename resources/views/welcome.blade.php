@@ -3,7 +3,47 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ \App\Models\Setting::nomeSistema() }} — Gestão premium para ateliês e lojas de noivas</title>
+
+    @php
+        $marcaSeo = \App\Models\Setting::nomeSistema();
+        $tituloSeo = $marcaSeo . ' — Sistema de gestão para ateliês e lojas de noivas';
+        $descSeo = 'Software de gestão para ateliês, lojas de noivas e festa: controle de acervo, agenda de provas, locações, encomendas sob medida, contratos e financeiro. Experimente grátis.';
+        $urlSeo = url('/');
+    @endphp
+
+    <title>{{ $tituloSeo }}</title>
+    <meta name="description" content="{{ $descSeo }}">
+    <meta name="keywords" content="sistema para ateliê, software locação de vestidos, gestão de loja de noivas, aluguel de trajes, sistema para estilista, controle de provas, gestão de ateliê de costura">
+    <meta name="author" content="{{ $marcaSeo }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ $urlSeo }}">
+
+    {{-- Open Graph (aparência ao compartilhar em WhatsApp / Facebook / LinkedIn) --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $marcaSeo }}">
+    <meta property="og:title" content="{{ $tituloSeo }}">
+    <meta property="og:description" content="{{ $descSeo }}">
+    <meta property="og:url" content="{{ $urlSeo }}">
+    <meta property="og:locale" content="pt_BR">
+
+    {{-- Twitter/X card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $tituloSeo }}">
+    <meta name="twitter:description" content="{{ $descSeo }}">
+
+    {{-- Dados estruturados (ajuda o Google a entender que é um software) --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "{{ $marcaSeo }}",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "{{ $descSeo }}",
+        "offers": { "@type": "Offer", "priceCurrency": "BRL" }
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -1,2 +1,21 @@
 User-agent: *
-Disallow:
+Allow: /$
+Allow: /assinar
+
+# Áreas privadas / internas não devem aparecer no Google
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /login
+Disallow: /clientes
+Disallow: /locacoes
+Disallow: /encomendas
+Disallow: /financeiro
+Disallow: /acervo
+Disallow: /provas
+Disallow: /oficina
+Disallow: /contratos
+Disallow: /relatorios
+Disallow: /profile
+Disallow: /config-loja
+
+Sitemap: https://bonaccirental.vps-kinghost.net/sitemap.xml
