@@ -18,4 +18,4 @@ Disallow: /relatorios
 Disallow: /profile
 Disallow: /config-loja
 
-Sitemap: https://bonaccirental.vps-kinghost.net/sitemap.xml
+Sitemap: https://bonaccirental.com.br/sitemap.xml
