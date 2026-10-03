@@ -9,11 +9,33 @@ use App\Models\Cliente;
 
 class ClienteController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // O Global Scope (trait BelongsToLoja) já filtra pela loja do usuário logado.
-        $clientes = Cliente::all();
-        return view('clientes.index', compact('clientes'));
+        $busca = trim((string) $request->query('q', ''));
+        $perfil = $request->query('tipo', '');
+
+        $clientes = Cliente::query()
+            ->when($busca !== '', function ($query) use ($busca) {
+                // Aceita busca por "CLI-00008" (extrai o número) ou por texto livre.
+                $idBusca = null;
+                if (preg_match('/(\d+)/', $busca, $m)) {
+                    $idBusca = (int) $m[1];
+                }
+                $query->where(function ($q) use ($busca, $idBusca) {
+                    $q->where('nome', 'like', "%{$busca}%")
+                      ->orWhere('cpf', 'like', "%{$busca}%")
+                      ->orWhere('telefone', 'like', "%{$busca}%");
+                    if ($idBusca !== null) {
+                        $q->orWhere('id', $idBusca);
+                    }
+                });
+            })
+            ->when($perfil !== '', fn ($query) => $query->where('tipo', $perfil))
+            ->orderBy('nome')
+            ->get();
+
+        return view('clientes.index', compact('clientes', 'busca', 'perfil'));
     }
 
     public function create()
