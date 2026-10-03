@@ -163,5 +163,8 @@
 
     <!-- Assistente virtual flutuante (Valentina) — em todas as telas da loja -->
     @includeWhen(!(Auth::user()?->isSuperAdmin()), 'partials.assistente-widget')
+
+    <!-- Botão flutuante de feedback/suporte — em todas as telas da loja -->
+    @includeWhen(!(Auth::user()?->isSuperAdmin()), 'partials.feedback-widget')
 </body>
 </html>
