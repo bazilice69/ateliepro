@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0b0d"/>
+      <stop offset="1" stop-color="#17140d"/>
+    </linearGradient>
+    <linearGradient id="ouro" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8d9a8"/>
+      <stop offset="1" stop-color="#c9a24b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.8" cy="0.2" r="0.6">
+      <stop offset="0" stop-color="#c9a24b" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#c9a24b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- selo circular com B -->
+  <circle cx="110" cy="105" r="42" fill="none" stroke="#c9a24b" stroke-width="3"/>
+  <text x="110" y="123" font-family="Georgia, 'Times New Roman', serif" font-size="48" font-weight="700" fill="#c9a24b" text-anchor="middle">B</text>
+  <text x="172" y="120" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#ffffff">Bonacci Rental</text>
+
+  <!-- chamada principal -->
+  <text x="80" y="300" font-family="Georgia, serif" font-size="68" font-weight="700" fill="#ffffff">A gestão impecável que o</text>
+  <text x="80" y="378" font-family="Georgia, serif" font-size="68" font-weight="700" fill="url(#ouro)">seu ateliê de noivas merece.</text>
+
+  <!-- subtítulo -->
+  <text x="80" y="452" font-family="Arial, sans-serif" font-size="30" fill="#9aa0ab">Acervo · Agenda de provas · Contratos · Financeiro</text>
+
+  <!-- selo de trial -->
+  <rect x="80" y="500" width="320" height="60" rx="30" fill="#c9a24b"/>
+  <text x="240" y="539" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#000000" text-anchor="middle">Teste grátis por 7 dias</text>
+</svg>

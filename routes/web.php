@@ -30,6 +30,26 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Sitemap para o Google indexar o site.
+Route::get('/sitemap.xml', function () {
+    $urls = [
+        ['loc' => url('/'), 'priority' => '1.0', 'changefreq' => 'weekly'],
+        ['loc' => url('/#planos'), 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['loc' => route('register'), 'priority' => '0.8', 'changefreq' => 'monthly'],
+        ['loc' => route('login'), 'priority' => '0.5', 'changefreq' => 'monthly'],
+    ];
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+    foreach ($urls as $u) {
+        $xml .= '  <url><loc>'.htmlspecialchars($u['loc']).'</loc>'
+             .  '<changefreq>'.$u['changefreq'].'</changefreq>'
+             .  '<priority>'.$u['priority'].'</priority></url>'."\n";
+    }
+    $xml .= '</urlset>';
+
+    return response($xml, 200, ['Content-Type' => 'application/xml']);
+})->name('sitemap');
+
 // --- Legado: tela de licença por máquina (mantida, mas fora do fluxo SaaS) ---
 Route::get('/licenca-expirada', [LicenseController::class, 'index'])->name('licenca.tela');
 Route::post('/licenca-ativar', [LicenseController::class, 'ativar'])->name('licenca.ativar');
