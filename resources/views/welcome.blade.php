@@ -3,7 +3,67 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ \App\Models\Setting::nomeSistema() }} — Gestão premium para ateliês e lojas de noivas</title>
+
+    @php
+        $marcaSeo = \App\Models\Setting::nomeSistema();
+        $tituloSeo = $marcaSeo.' — Sistema de gestão para ateliês e lojas de noivas';
+        $descSeo = 'Software completo para lojas de aluguel e venda de vestidos de noiva e ateliês: acervo, agenda de provas, encomendas sob medida, contratos e financeiro. Teste grátis por 7 dias.';
+        // Preview ao compartilhar o link. Se existir um og-image.jpg (recomendado
+        // para WhatsApp/Instagram), usa ele; senão cai no SVG versionado.
+        $ogImg = file_exists(public_path('og-image.jpg'))
+            ? asset('og-image.jpg')
+            : asset('og-image.svg');
+    @endphp
+
+    <title>{{ $tituloSeo }}</title>
+    <meta name="description" content="{{ $descSeo }}">
+    <meta name="keywords" content="sistema para loja de noivas, software aluguel de vestidos, gestão de ateliê, programa para loja de vestido de noiva, sistema para ateliê de costura, controle de locação de vestidos">
+    <meta name="author" content="{{ $marcaSeo }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url('/') }}">
+
+    {{-- Favicon --}}
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+
+    {{-- Open Graph (WhatsApp, Facebook, Instagram) --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $marcaSeo }}">
+    <meta property="og:title" content="{{ $tituloSeo }}">
+    <meta property="og:description" content="{{ $descSeo }}">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ $ogImg }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="pt_BR">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $tituloSeo }}">
+    <meta name="twitter:description" content="{{ $descSeo }}">
+    <meta name="twitter:image" content="{{ $ogImg }}">
+
+    {{-- Dados estruturados (Schema.org) --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": {!! json_encode($marcaSeo) !!},
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": {!! json_encode($descSeo) !!},
+        "url": {!! json_encode(url('/')) !!},
+        "offers": {
+            "@type": "AggregateOffer",
+            "priceCurrency": "BRL"
+            @if(isset($planos) && $planos->count())
+            , "lowPrice": "{{ number_format($planos->min('preco'), 2, '.', '') }}",
+            "highPrice": "{{ number_format($planos->max('preco'), 2, '.', '') }}",
+            "offerCount": "{{ $planos->count() }}"
+            @endif
+        }
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -149,8 +209,38 @@
                     <p class="col-span-4 text-center text-slate-500">Planos em breve.</p>
                 @endforelse
             </div>
+
+            {{-- CTA WhatsApp: tirar dúvidas antes de assinar --}}
+            @php
+                $wa = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+                $waMsg = urlencode('Olá! Tenho dúvidas sobre os planos do '.$marca.'. Pode me ajudar?');
+            @endphp
+            <div class="mt-14 max-w-3xl mx-auto">
+                <div class="rounded-3xl bg-gradient-to-r from-[#141418] to-[#1c1a14] border border-ouro/30 p-8 text-center">
+                    <h3 class="serif text-2xl md:text-3xl font-bold text-white mb-2">Ainda com dúvidas?</h3>
+                    <p class="text-slate-400 font-medium mb-6">Fale comigo pelo WhatsApp antes de assinar — tiro todas as suas dúvidas e te ajudo a escolher o melhor plano. 💬</p>
+                    <a href="https://wa.me/{{ $wa }}?text={{ $waMsg }}" target="_blank" rel="noopener"
+                       class="inline-flex items-center gap-3 bg-[#25D366] hover:brightness-110 text-black px-8 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition shadow-xl shadow-[#25D366]/20">
+                        <i class="fab fa-whatsapp text-xl"></i>
+                        Tire suas dúvidas no WhatsApp
+                    </a>
+                    <p class="text-xs text-slate-500 mt-4">Atendimento direto com quem desenvolve o sistema.</p>
+                </div>
+            </div>
         </div>
     </section>
+
+    {{-- Botão flutuante de WhatsApp (sempre visível) --}}
+    @php
+        $waFloat = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+        $waFloatMsg = urlencode('Olá! Vi o '.$marca.' e tenho interesse. Pode me explicar?');
+    @endphp
+    <a href="https://wa.me/{{ $waFloat }}?text={{ $waFloatMsg }}" target="_blank" rel="noopener"
+       aria-label="Fale no WhatsApp"
+       class="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-[#25D366] hover:brightness-110 text-black font-bold px-5 py-3.5 rounded-full shadow-2xl shadow-[#25D366]/30 transition">
+        <i class="fab fa-whatsapp text-2xl"></i>
+        <span class="hidden sm:inline text-sm">Fale comigo</span>
+    </a>
 
     <!-- RODAPÉ -->
     <footer class="border-t border-slate-800 py-10 px-6">
