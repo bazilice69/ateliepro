@@ -30,6 +30,30 @@ class MercadoPago
     }
 
     /**
+     * O access token cadastrado é de TESTE (sandbox)?
+     * Credenciais de teste do Mercado Pago começam com "TEST-".
+     */
+    public static function ehTeste(): bool
+    {
+        return str_starts_with((string) self::accessToken(), 'TEST-');
+    }
+
+    /**
+     * Retorna a URL correta para redirecionar o cliente:
+     * - em TESTE  -> sandbox_init_point
+     * - em PRODUÇÃO -> init_point
+     * Com fallback para o que existir.
+     */
+    public static function urlPagamento(array $preferencia): ?string
+    {
+        if (self::ehTeste()) {
+            return $preferencia['sandbox_init_point'] ?? $preferencia['init_point'] ?? null;
+        }
+
+        return $preferencia['init_point'] ?? $preferencia['sandbox_init_point'] ?? null;
+    }
+
+    /**
      * Cliente HTTP autenticado para a API do Mercado Pago.
      */
     public static function client()
