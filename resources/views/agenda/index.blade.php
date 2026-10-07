@@ -13,26 +13,26 @@
             </button>
         </div>
 
-        <!-- Cards de Resumo (Dashboard da Agenda) -->
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <!-- Cards de Resumo (dados REAIS do dia) -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
             <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-black uppercase text-slate-400">Atendimentos</p><p class="text-2xl font-black text-slate-800">18</p></div>
+                <div><p class="text-[10px] font-black uppercase text-slate-400">Atendimentos</p><p class="text-2xl font-black text-slate-800">{{ str_pad($cards['atendimentos'], 2, '0', STR_PAD_LEFT) }}</p></div>
                 <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><i class="fas fa-calendar-day"></i></div>
             </div>
             <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-black uppercase text-slate-400">Provas</p><p class="text-2xl font-black text-slate-800">07</p></div>
+                <div><p class="text-[10px] font-black uppercase text-slate-400">Provas</p><p class="text-2xl font-black text-slate-800">{{ str_pad($cards['provas'], 2, '0', STR_PAD_LEFT) }}</p></div>
                 <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500"><i class="fas fa-ruler-combined"></i></div>
             </div>
             <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-black uppercase text-slate-400">Ajustes</p><p class="text-2xl font-black text-slate-800">04</p></div>
+                <div><p class="text-[10px] font-black uppercase text-slate-400">Ajustes</p><p class="text-2xl font-black text-slate-800">{{ str_pad($cards['ajustes'], 2, '0', STR_PAD_LEFT) }}</p></div>
                 <div class="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-500"><i class="fas fa-cut"></i></div>
             </div>
             <div class="bg-white rounded-2xl p-4 border border-rose-100 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-black uppercase text-rose-400">Atrasos</p><p class="text-2xl font-black text-rose-600">02</p></div>
+                <div><p class="text-[10px] font-black uppercase text-rose-400">Atrasos</p><p class="text-2xl font-black text-rose-600">{{ str_pad($cards['atrasos'], 2, '0', STR_PAD_LEFT) }}</p></div>
                 <div class="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center text-rose-500"><i class="fas fa-exclamation-triangle"></i></div>
             </div>
             <div class="bg-white rounded-2xl p-4 border border-emerald-100 shadow-sm flex items-center justify-between">
-                <div><p class="text-[10px] font-black uppercase text-emerald-400">R$ Pendente</p><p class="text-2xl font-black text-emerald-600">03</p></div>
+                <div><p class="text-[10px] font-black uppercase text-emerald-400">C/ Pendência</p><p class="text-2xl font-black text-emerald-600">{{ str_pad($cards['pendentes'], 2, '0', STR_PAD_LEFT) }}</p></div>
                 <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500"><i class="fas fa-hand-holding-usd"></i></div>
             </div>
         </div>
@@ -51,85 +51,119 @@
                 </div>
 
                 <div class="space-y-4">
-                    <!-- Item de Agenda: Confirmado -->
-                    <div class="group flex items-center p-4 bg-white hover:bg-slate-50 border-l-4 border-emerald-500 rounded-r-2xl border-y border-r border-slate-100 shadow-sm transition-colors cursor-pointer">
-                        <div class="font-black text-lg text-slate-800 w-20">10:00</div>
-                        <div class="flex-1">
-                            <p class="font-bold text-slate-900 text-sm uppercase">Ana Clara (Noiva)</p>
-                            <p class="text-xs text-slate-500 font-medium">Evento: Casamento Ana & João (15/11/2026)</p>
-                            <div class="mt-2 flex space-x-2">
-                                <span class="bg-slate-100 text-slate-600 text-[9px] font-black uppercase px-2 py-1 rounded">Prova Final</span>
-                                <span class="bg-purple-50 text-purple-600 text-[9px] font-black uppercase px-2 py-1 rounded"><i class="fas fa-door-open mr-1"></i> Sala 1</span>
+                    @forelse($agendamentosHoje as $ag)
+                        @php
+                            // Cor da borda/estado conforme status_cor do agendamento.
+                            $cor = match($ag->status_cor) {
+                                'green'  => ['borda' => 'border-emerald-500', 'bg' => 'bg-white hover:bg-slate-50', 'hora' => 'text-slate-800', 'ic' => 'bg-emerald-100 text-emerald-600', 'icone' => 'fa-check'],
+                                'orange', 'yellow' => ['borda' => 'border-orange-500', 'bg' => 'bg-orange-50', 'hora' => 'text-orange-700', 'ic' => 'bg-orange-200 text-orange-700', 'icone' => 'fa-cut'],
+                                default  => ['borda' => 'border-blue-500', 'bg' => 'bg-white hover:bg-slate-50', 'hora' => 'text-slate-800', 'ic' => 'bg-blue-100 text-blue-600', 'icone' => 'fa-clock'],
+                            };
+                            $temPendencia = $ag->cliente_id && $clientesComPendencia->contains($ag->cliente_id);
+                            $atrasado = $ag->data_hora->isPast() && $ag->status_cor !== 'green';
+                        @endphp
+                        <div class="group flex items-center p-4 {{ $cor['bg'] }} border-l-4 {{ $cor['borda'] }} rounded-r-2xl border-y border-r border-slate-100 shadow-sm transition-colors">
+                            <div class="font-black text-lg {{ $cor['hora'] }} w-20">{{ $ag->data_hora->format('H:i') }}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-bold text-slate-900 text-sm uppercase truncate">{{ $ag->cliente?->nome ?? 'Cliente' }}</p>
+                                @if($ag->evento)
+                                    <p class="text-xs text-slate-500 font-medium">Evento: {{ $ag->evento->nome_evento }}@if($ag->evento->data_evento) ({{ $ag->evento->data_evento->format('d/m/Y') }})@endif</p>
+                                @endif
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    <span class="bg-slate-100 text-slate-600 text-[9px] font-black uppercase px-2 py-1 rounded">{{ $ag->tipo_atendimento }}</span>
+                                    @if($ag->sala_atendimento)
+                                        <span class="bg-purple-50 text-purple-600 text-[9px] font-black uppercase px-2 py-1 rounded"><i class="fas fa-door-open mr-1"></i>{{ $ag->sala_atendimento }}</span>
+                                    @endif
+                                    @if($atrasado)
+                                        <span class="bg-rose-50 text-rose-600 text-[9px] font-black uppercase px-2 py-1 rounded"><i class="fas fa-exclamation-triangle mr-1"></i>Atrasado</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="text-right pl-2">
+                                <div class="w-8 h-8 rounded-full {{ $cor['ic'] }} flex items-center justify-center mb-2 ml-auto"><i class="fas {{ $cor['icone'] }}"></i></div>
+                                @if($ag->acervo)
+                                    <span class="block text-[10px] font-bold text-slate-400">{{ $ag->acervo->codigo ?? $ag->acervo->nome }}</span>
+                                @endif
+                                @if($temPendencia)
+                                    <a href="{{ route('clientes.show', $ag->cliente_id) }}" class="block text-[10px] font-bold text-rose-500 hover:underline">Pendência financeira</a>
+                                @endif
                             </div>
                         </div>
-                        <div class="text-right">
-                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-2 ml-auto"><i class="fas fa-check"></i></div>
-                            <span class="text-[10px] font-bold text-slate-400">Vestido: V-034</span>
+                    @empty
+                        <div class="text-center py-12 text-slate-400">
+                            <i class="fas fa-calendar-day text-4xl mb-3 opacity-30"></i>
+                            <p class="font-medium">Nenhum atendimento agendado para hoje.</p>
+                            <button onclick="document.getElementById('modalNovoAgendamento').classList.remove('hidden')" class="mt-3 text-[#fbbf24] font-bold text-sm hover:underline">+ Criar o primeiro</button>
                         </div>
-                    </div>
-
-                    <!-- Item de Agenda: Em Atendimento -->
-                    <div class="group flex items-center p-4 bg-orange-50 border-l-4 border-orange-500 rounded-r-2xl border-y border-r border-orange-100 shadow-sm transition-colors cursor-pointer">
-                        <div class="font-black text-lg text-orange-700 w-20">11:30</div>
-                        <div class="flex-1">
-                            <p class="font-bold text-slate-900 text-sm uppercase">Maria Silva (Madrinha)</p>
-                            <p class="text-xs text-orange-600/80 font-medium">Evento: Casamento Ana & João</p>
-                            <div class="mt-2 flex space-x-2">
-                                <span class="bg-white text-orange-600 border border-orange-200 text-[9px] font-black uppercase px-2 py-1 rounded shadow-sm">Tirada de Medidas</span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="w-8 h-8 rounded-full bg-orange-200 flex items-center justify-center text-orange-700 mb-2 ml-auto"><i class="fas fa-cut"></i></div>
-                            <span class="text-[10px] font-bold text-orange-500">Pendência Financeira</span>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
 
-            <!-- A Grande Sacada: Linha do Tempo do Evento -->
+            <!-- A Grande Sacada: Linha do Tempo do Evento (REAL) -->
             <div class="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-8 opacity-10 text-[#fbbf24]"><i class="fas fa-ring text-6xl"></i></div>
-                
+
                 <h2 class="text-xl font-black uppercase tracking-tighter text-white mb-2 relative z-10">Dossiê do Evento</h2>
-                <p class="text-xs font-medium text-[#fbbf24] mb-8 relative z-10 uppercase tracking-widest">Casamento Ana & João</p>
 
-                <!-- Timeline Vertical -->
-                <div class="relative border-l-2 border-slate-700 ml-3 space-y-6 relative z-10">
-                    
-                    <div class="relative pl-6">
-                        <div class="absolute w-4 h-4 bg-emerald-500 rounded-full -left-[9px] top-1 ring-4 ring-slate-900"></div>
-                        <p class="text-[10px] font-bold text-slate-400">10/08/2026</p>
-                        <p class="text-sm font-bold text-white">Primeiro Atendimento</p>
+                @if($eventoDossie)
+                    <p class="text-xs font-medium text-[#fbbf24] mb-2 relative z-10 uppercase tracking-widest">{{ $eventoDossie->nome_evento }}</p>
+
+                    @php
+                        $diasRestantes = $eventoDossie->data_evento ? now()->startOfDay()->diffInDays($eventoDossie->data_evento, false) : null;
+                    @endphp
+                    @if(!is_null($diasRestantes) && $diasRestantes >= 0)
+                        <p class="text-[11px] text-slate-400 mb-8 relative z-10">
+                            @if($diasRestantes === 0)
+                                <span class="text-[#fbbf24] font-bold">É HOJE! 🎉</span>
+                            @else
+                                Faltam <span class="text-white font-bold">{{ $diasRestantes }}</span> dia(s) para o grande dia.
+                            @endif
+                        </p>
+                    @else
+                        <div class="mb-8"></div>
+                    @endif
+
+                    <!-- Timeline Vertical montada dos agendamentos reais -->
+                    <div class="relative border-l-2 border-slate-700 ml-3 space-y-6 z-10">
+                        @forelse($eventoDossie->agendamentos as $marco)
+                            @php
+                                $passou = $marco->data_hora->isPast();
+                                $ehHoje = $marco->data_hora->isToday();
+                                $cor = $ehHoje ? 'bg-blue-500 animate-pulse' : ($passou ? 'bg-emerald-500' : 'bg-slate-700');
+                            @endphp
+                            <div class="relative pl-6 {{ (!$passou && !$ehHoje) ? 'opacity-50' : '' }}">
+                                <div class="absolute w-4 h-4 {{ $cor }} rounded-full -left-[9px] top-1 ring-4 ring-slate-900"></div>
+                                <p class="text-[10px] font-bold {{ $ehHoje ? 'text-[#fbbf24]' : 'text-slate-400' }}">
+                                    {{ $ehHoje ? 'HOJE - '.$marco->data_hora->format('H:i') : $marco->data_hora->format('d/m/Y') }}
+                                </p>
+                                <p class="text-sm font-bold text-white">{{ $marco->tipo_atendimento }}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">{{ $marco->cliente?->nome }}@if($marco->sala_atendimento) · {{ $marco->sala_atendimento }}@endif</p>
+                            </div>
+                        @empty
+                            <div class="relative pl-6 opacity-70">
+                                <div class="absolute w-4 h-4 bg-slate-700 rounded-full -left-[9px] top-1 ring-4 ring-slate-900"></div>
+                                <p class="text-sm text-slate-400">Nenhum agendamento neste evento ainda.</p>
+                            </div>
+                        @endforelse
+
+                        <!-- O grande dia -->
+                        @if($eventoDossie->data_evento)
+                            <div class="relative pl-6 {{ $eventoDossie->data_evento->isFuture() ? 'opacity-80' : '' }}">
+                                <div class="absolute w-4 h-4 bg-[#fbbf24] rounded-full -left-[9px] top-1 ring-4 ring-slate-900"></div>
+                                <p class="text-[10px] font-bold text-[#fbbf24]">{{ $eventoDossie->data_evento->format('d/m/Y') }}</p>
+                                <p class="text-sm font-black text-[#fbbf24] uppercase tracking-widest">{{ $eventoDossie->tipo_evento ?: 'O Evento' }}</p>
+                            </div>
+                        @endif
                     </div>
 
-                    <div class="relative pl-6">
-                        <div class="absolute w-4 h-4 bg-emerald-500 rounded-full -left-[9px] top-1 ring-4 ring-slate-900"></div>
-                        <p class="text-[10px] font-bold text-slate-400">20/09/2026</p>
-                        <p class="text-sm font-bold text-white">Prova 1 (Medidas)</p>
+                    <a href="{{ route('clientes.index') }}" class="block text-center w-full mt-8 border border-slate-700 text-slate-300 py-3 rounded-xl text-xs font-bold uppercase hover:bg-slate-800 transition">Ver Clientes do Evento</a>
+                @else
+                    <div class="relative z-10 text-center py-10">
+                        <i class="fas fa-ring text-4xl text-slate-700 mb-4"></i>
+                        <p class="text-slate-400 text-sm font-medium">Nenhum evento ativo no momento.</p>
+                        <p class="text-slate-600 text-xs mt-1">Crie um evento ao agendar um atendimento.</p>
                     </div>
-
-                    <div class="relative pl-6">
-                        <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 ring-4 ring-slate-900 animate-pulse"></div>
-                        <p class="text-[10px] font-bold text-[#fbbf24]">HOJE - 10:00</p>
-                        <p class="text-sm font-bold text-white">Prova Final</p>
-                        <p class="text-xs text-slate-400 mt-1">Ajuste de barra e cintura prontos pela costureira.</p>
-                    </div>
-
-                    <div class="relative pl-6 opacity-50">
-                        <div class="absolute w-4 h-4 bg-slate-700 rounded-full -left-[9px] top-1 ring-4 ring-slate-900"></div>
-                        <p class="text-[10px] font-bold text-slate-400">12/11/2026</p>
-                        <p class="text-sm font-bold text-white">Retirada Agendada</p>
-                    </div>
-
-                    <div class="relative pl-6 opacity-50">
-                        <div class="absolute w-4 h-4 bg-[#fbbf24] rounded-full -left-[9px] top-1 ring-4 ring-slate-900"></div>
-                        <p class="text-[10px] font-bold text-slate-400 text-[#fbbf24]">15/11/2026</p>
-                        <p class="text-sm font-black text-[#fbbf24] uppercase tracking-widest">O Casamento</p>
-                    </div>
-
-                </div>
-                
-                <button class="w-full mt-8 border border-slate-700 text-slate-300 py-3 rounded-xl text-xs font-bold uppercase hover:bg-slate-800 transition">Ver Ficha Completa</button>
+                @endif
             </div>
         </div>
     </div>
