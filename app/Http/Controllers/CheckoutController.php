@@ -63,6 +63,30 @@ class CheckoutController extends Controller
         // Cria a assinatura pendente e gera a PREFERÊNCIA de Checkout Pro.
         $assinatura = $this->licenseService->criarAssinaturaPendente($loja, $plano);
 
+        // Monta os dados do pagador. Enviar nome e, principalmente, o CPF/CNPJ
+        // é importante para o Mercado Pago habilitar a geração do PIX (sem o
+        // documento, o botão "Gerar código" pode ficar desabilitado).
+        $payer = ['email' => $loja->email_responsavel];
+
+        $nome = trim((string) ($loja->razao_social ?: $loja->nome_fantasia));
+        if ($nome !== '') {
+            $partes = preg_split('/\s+/', $nome);
+            $payer['name'] = $nome;
+            $payer['first_name'] = $partes[0] ?? $nome;
+            if (count($partes) > 1) {
+                $payer['last_name'] = implode(' ', array_slice($partes, 1));
+            }
+        }
+
+        // Documento (CPF/CNPJ) do responsável pela loja.
+        $doc = preg_replace('/\D/', '', (string) $loja->cnpj_cpf);
+        if (strlen($doc) === 11 || strlen($doc) === 14) {
+            $payer['identification'] = [
+                'type'   => strlen($doc) === 11 ? 'CPF' : 'CNPJ',
+                'number' => $doc,
+            ];
+        }
+
         $preferencia = MercadoPago::criarPreferencia([
             'items' => [[
                 'title'       => Setting::nomeSistema() . " - Plano {$plano->nome}",
@@ -71,9 +95,7 @@ class CheckoutController extends Controller
                 'currency_id' => 'BRL',
                 'unit_price'  => (float) $plano->preco,
             ]],
-            'payer' => [
-                'email' => $loja->email_responsavel,
-            ],
+            'payer' => $payer,
             // Liga o pagamento à assinatura (o webhook usa isto para confirmar).
             'external_reference' => (string) $assinatura->id,
             'notification_url'   => route('webhook.mercadopago'),
@@ -92,7 +114,10 @@ class CheckoutController extends Controller
             'statement_descriptor' => Str::limit(Setting::nomeSistema(), 22, ''),
         ]);
 
-        if (!$preferencia || empty($preferencia['init_point'])) {
+        // URL correta conforme o ambiente (sandbox em teste, init_point em produção).
+        $urlPagamento = $preferencia ? MercadoPago::urlPagamento($preferencia) : null;
+
+        if (!$preferencia || empty($urlPagamento)) {
             $assinatura->update(['status' => Assinatura::STATUS_CANCELADA]);
             return view('checkout.erro', ['mensagem' => 'Não foi possível iniciar o pagamento. Tente novamente.']);
         }
@@ -101,7 +126,7 @@ class CheckoutController extends Controller
         $assinatura->update(['transacao_mp_id' => (string) ($preferencia['id'] ?? '')]);
 
         // Redireciona o cliente para a tela do Mercado Pago (cartão/PIX/boleto).
-        return redirect()->away($preferencia['init_point']);
+        return redirect()->away($urlPagamento);
     }
 
     /**
