@@ -187,7 +187,18 @@
                 <p class="text-slate-400 font-medium">Cancele quando quiser. Sem taxas escondidas.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            @php
+                // Ajusta o grid conforme a quantidade de planos ativos, para os
+                // cards ficarem sempre centralizados (não encostados na borda).
+                $qtdPlanos = $planos->count();
+                $colunasGrid = match (true) {
+                    $qtdPlanos <= 1 => 'md:grid-cols-1 max-w-sm',
+                    $qtdPlanos === 2 => 'md:grid-cols-2 max-w-3xl',
+                    $qtdPlanos === 3 => 'md:grid-cols-3 max-w-5xl',
+                    default => 'md:grid-cols-2 lg:grid-cols-4 max-w-7xl',
+                };
+            @endphp
+            <div class="grid grid-cols-1 {{ $colunasGrid }} gap-8 mx-auto justify-center items-stretch">
                 @forelse($planos as $plano)
                     @php $destaque = $plano->destaque; @endphp
                     <div class="rounded-3xl p-8 relative flex flex-col transition
@@ -206,13 +217,13 @@
                                 <li><i class="fas fa-check mr-2 text-ouro"></i>{{ $rec }}</li>
                             @endforeach
                         </ul>
-                        <a href="{{ route('checkout.plano', $plano->slug) }}" class="w-full text-center font-bold py-3.5 rounded-xl transition uppercase tracking-widest text-xs
+                        <a href="{{ route('checkout.plano', $plano->slug) }}" class="mt-auto w-full text-center font-bold py-3.5 rounded-xl transition uppercase tracking-widest text-xs
                                   {{ $destaque ? 'bg-ouro hover:brightness-110 text-black shadow-lg shadow-[#c9a24b]/20' : 'border border-slate-700 hover:border-ouro text-slate-200' }}">
                             Assinar {{ $plano->nome }}
                         </a>
                     </div>
                 @empty
-                    <p class="col-span-4 text-center text-slate-500">Planos em breve.</p>
+                    <p class="text-center text-slate-500">Planos em breve.</p>
                 @endforelse
             </div>
 
