@@ -29,11 +29,13 @@ use App\Http\Controllers\ServicoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/funcionalidades', [HomeController::class, 'funcionalidades'])->name('funcionalidades');
 
 // Sitemap para o Google indexar o site.
 Route::get('/sitemap.xml', function () {
     $urls = [
         ['loc' => url('/'), 'priority' => '1.0', 'changefreq' => 'weekly'],
+        ['loc' => route('funcionalidades'), 'priority' => '0.9', 'changefreq' => 'monthly'],
         ['loc' => url('/#planos'), 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['loc' => route('register'), 'priority' => '0.8', 'changefreq' => 'monthly'],
         ['loc' => route('login'), 'priority' => '0.5', 'changefreq' => 'monthly'],

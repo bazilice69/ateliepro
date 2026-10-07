@@ -98,6 +98,8 @@
             </div>
 
             <div class="flex items-center gap-5">
+                <a href="{{ route('funcionalidades') }}" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Funcionalidades</a>
+                <a href="#planos" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Planos</a>
                 @if (Route::has('login'))
                     @auth
                         <a href="{{ url('/dashboard') }}" class="font-semibold text-sm text-slate-300 hover:text-ouro transition">Acessar Painel</a>

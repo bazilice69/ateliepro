@@ -15,4 +15,10 @@ class HomeController extends Controller
         $planos = Plano::ativos()->get();
         return view('welcome', compact('planos'));
     }
+
+    /** Página pública que apresenta as funcionalidades do sistema. */
+    public function funcionalidades()
+    {
+        return view('funcionalidades');
+    }
 }
