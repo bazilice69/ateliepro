@@ -13,6 +13,29 @@
         $ogImg = file_exists(public_path('og-image.jpg'))
             ? asset('og-image.jpg')
             : asset('og-image.svg');
+
+        // Monta o Schema.org em PHP (evita escrever @context/@type/@if direto no
+        // Blade, que o compilador confundiria com diretivas).
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => $marcaSeo,
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'description' => $descSeo,
+            'url' => url('/'),
+        ];
+        if (isset($planos) && $planos->count()) {
+            $schema['offers'] = [
+                '@type' => 'AggregateOffer',
+                'priceCurrency' => 'BRL',
+                'lowPrice' => number_format($planos->min('preco'), 2, '.', ''),
+                'highPrice' => number_format($planos->max('preco'), 2, '.', ''),
+                'offerCount' => (string) $planos->count(),
+            ];
+        } else {
+            $schema['offers'] = ['@type' => 'AggregateOffer', 'priceCurrency' => 'BRL'];
+        }
     @endphp
 
     <title>{{ $tituloSeo }}</title>
@@ -44,24 +67,7 @@
 
     {{-- Dados estruturados (Schema.org) --}}
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": {!! json_encode($marcaSeo) !!},
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "description": {!! json_encode($descSeo) !!},
-        "url": {!! json_encode(url('/')) !!},
-        "offers": {
-            "@type": "AggregateOffer",
-            "priceCurrency": "BRL"
-            @if(isset($planos) && $planos->count())
-            , "lowPrice": "{{ number_format($planos->min('preco'), 2, '.', '') }}",
-            "highPrice": "{{ number_format($planos->max('preco'), 2, '.', '') }}",
-            "offerCount": "{{ $planos->count() }}"
-            @endif
-        }
-    }
+    {!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
