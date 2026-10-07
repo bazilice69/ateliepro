@@ -39,64 +39,19 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- Lista de Atendimentos do Dia -->
-            <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black uppercase tracking-tighter text-slate-900">Horários de Hoje</h2>
-                    <div class="flex space-x-2">
-                        <span class="text-[9px] font-bold px-2 py-1 bg-emerald-100 text-emerald-700 rounded uppercase">Confirmado</span>
-                        <span class="text-[9px] font-bold px-2 py-1 bg-blue-100 text-blue-700 rounded uppercase">Agendado</span>
-                        <span class="text-[9px] font-bold px-2 py-1 bg-orange-100 text-orange-700 rounded uppercase">Em Prova</span>
-                    </div>
+            <!-- CALENDÁRIO (FullCalendar) + filtros por tipo -->
+            <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-5 md:p-8 shadow-sm border border-slate-100">
+                <!-- Filtros de visualização -->
+                <div class="flex flex-wrap gap-2 mb-5" id="filtrosAgenda">
+                    <button data-cat="todos"       class="filtro-btn ativo text-[10px] md:text-xs font-black uppercase px-3 py-2 rounded-xl border transition">Todos</button>
+                    <button data-cat="atendimento" class="filtro-btn text-[10px] md:text-xs font-black uppercase px-3 py-2 rounded-xl border transition"><span class="inline-block w-2 h-2 rounded-full align-middle mr-1" style="background:#64748b"></span>Atendimentos</button>
+                    <button data-cat="prova"       class="filtro-btn text-[10px] md:text-xs font-black uppercase px-3 py-2 rounded-xl border transition"><span class="inline-block w-2 h-2 rounded-full align-middle mr-1" style="background:#3b82f6"></span>Provas</button>
+                    <button data-cat="retirada"    class="filtro-btn text-[10px] md:text-xs font-black uppercase px-3 py-2 rounded-xl border transition"><span class="inline-block w-2 h-2 rounded-full align-middle mr-1" style="background:#10b981"></span>Retiradas</button>
+                    <button data-cat="ajuste"      class="filtro-btn text-[10px] md:text-xs font-black uppercase px-3 py-2 rounded-xl border transition"><span class="inline-block w-2 h-2 rounded-full align-middle mr-1" style="background:#a855f7"></span>Ajustes</button>
+                    <button data-cat="aniversario" class="filtro-btn text-[10px] md:text-xs font-black uppercase px-3 py-2 rounded-xl border transition"><span class="inline-block w-2 h-2 rounded-full align-middle mr-1" style="background:#ec4899"></span>Aniversários</button>
                 </div>
 
-                <div class="space-y-4">
-                    @forelse($agendamentosHoje as $ag)
-                        @php
-                            // Cor da borda/estado conforme status_cor do agendamento.
-                            $cor = match($ag->status_cor) {
-                                'green'  => ['borda' => 'border-emerald-500', 'bg' => 'bg-white hover:bg-slate-50', 'hora' => 'text-slate-800', 'ic' => 'bg-emerald-100 text-emerald-600', 'icone' => 'fa-check'],
-                                'orange', 'yellow' => ['borda' => 'border-orange-500', 'bg' => 'bg-orange-50', 'hora' => 'text-orange-700', 'ic' => 'bg-orange-200 text-orange-700', 'icone' => 'fa-cut'],
-                                default  => ['borda' => 'border-blue-500', 'bg' => 'bg-white hover:bg-slate-50', 'hora' => 'text-slate-800', 'ic' => 'bg-blue-100 text-blue-600', 'icone' => 'fa-clock'],
-                            };
-                            $temPendencia = $ag->cliente_id && $clientesComPendencia->contains($ag->cliente_id);
-                            $atrasado = $ag->data_hora->isPast() && $ag->status_cor !== 'green';
-                        @endphp
-                        <div class="group flex items-center p-4 {{ $cor['bg'] }} border-l-4 {{ $cor['borda'] }} rounded-r-2xl border-y border-r border-slate-100 shadow-sm transition-colors">
-                            <div class="font-black text-lg {{ $cor['hora'] }} w-20">{{ $ag->data_hora->format('H:i') }}</div>
-                            <div class="flex-1 min-w-0">
-                                <p class="font-bold text-slate-900 text-sm uppercase truncate">{{ $ag->cliente?->nome ?? 'Cliente' }}</p>
-                                @if($ag->evento)
-                                    <p class="text-xs text-slate-500 font-medium">Evento: {{ $ag->evento->nome_evento }}@if($ag->evento->data_evento) ({{ $ag->evento->data_evento->format('d/m/Y') }})@endif</p>
-                                @endif
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    <span class="bg-slate-100 text-slate-600 text-[9px] font-black uppercase px-2 py-1 rounded">{{ $ag->tipo_atendimento }}</span>
-                                    @if($ag->sala_atendimento)
-                                        <span class="bg-purple-50 text-purple-600 text-[9px] font-black uppercase px-2 py-1 rounded"><i class="fas fa-door-open mr-1"></i>{{ $ag->sala_atendimento }}</span>
-                                    @endif
-                                    @if($atrasado)
-                                        <span class="bg-rose-50 text-rose-600 text-[9px] font-black uppercase px-2 py-1 rounded"><i class="fas fa-exclamation-triangle mr-1"></i>Atrasado</span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="text-right pl-2">
-                                <div class="w-8 h-8 rounded-full {{ $cor['ic'] }} flex items-center justify-center mb-2 ml-auto"><i class="fas {{ $cor['icone'] }}"></i></div>
-                                @if($ag->acervo)
-                                    <span class="block text-[10px] font-bold text-slate-400">{{ $ag->acervo->codigo ?? $ag->acervo->nome }}</span>
-                                @endif
-                                @if($temPendencia)
-                                    <a href="{{ route('clientes.show', $ag->cliente_id) }}" class="block text-[10px] font-bold text-rose-500 hover:underline">Pendência financeira</a>
-                                @endif
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-12 text-slate-400">
-                            <i class="fas fa-calendar-day text-4xl mb-3 opacity-30"></i>
-                            <p class="font-medium">Nenhum atendimento agendado para hoje.</p>
-                            <button onclick="document.getElementById('modalNovoAgendamento').classList.remove('hidden')" class="mt-3 text-[#fbbf24] font-bold text-sm hover:underline">+ Criar o primeiro</button>
-                        </div>
-                    @endforelse
-                </div>
+                <div id="calendario"></div>
             </div>
 
             <!-- A Grande Sacada: Linha do Tempo do Evento (REAL) -->
@@ -264,4 +219,73 @@
             </form>
         </div>
     </div>
+
+    {{-- ===== FullCalendar (calendário mês/semana/dia) ===== --}}
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <style>
+        /* Deixa o calendário no tom da marca */
+        #calendario { --fc-border-color: #eef2f7; --fc-today-bg-color: #fffbeb; --fc-event-border-color: transparent; }
+        #calendario .fc .fc-button-primary { background:#0f172a; border-color:#0f172a; text-transform:uppercase; font-size:11px; font-weight:800; letter-spacing:.05em; }
+        #calendario .fc .fc-button-primary:not(:disabled).fc-button-active,
+        #calendario .fc .fc-button-primary:hover { background:#1e293b; border-color:#1e293b; }
+        #calendario .fc .fc-toolbar-title { font-weight:800; color:#0f172a; text-transform:capitalize; }
+        #calendario .fc-daygrid-event { border-radius:9999px; padding:1px 6px; font-weight:700; font-size:11px; }
+        #calendario .fc-event { cursor:pointer; }
+        .filtro-btn { border-color:#e2e8f0; color:#64748b; background:#fff; }
+        .filtro-btn.ativo { background:#0f172a; color:#fff; border-color:#0f172a; }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const el = document.getElementById('calendario');
+            if (!el || typeof FullCalendar === 'undefined') return;
+
+            const todosEventos = @json($eventosCalendario);
+            let filtroAtual = 'todos';
+
+            function eventosFiltrados() {
+                if (filtroAtual === 'todos') return todosEventos;
+                return todosEventos.filter(e => (e.extendedProps?.categoria) === filtroAtual);
+            }
+
+            const calendar = new FullCalendar.Calendar(el, {
+                locale: 'pt-br',
+                initialView: window.innerWidth < 768 ? 'listWeek' : 'dayGridMonth',
+                height: 'auto',
+                headerToolbar: {
+                    left: 'prev,next hoje',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                customButtons: {
+                    hoje: { text: 'Hoje', click: () => calendar.today() }
+                },
+                buttonText: { month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista' },
+                events: eventosFiltrados(),
+                eventClick: function (info) {
+                    const url = info.event.extendedProps?.url;
+                    if (url) { info.jsEvent.preventDefault(); window.location.href = url; }
+                },
+                eventDidMount: function (info) {
+                    const p = info.event.extendedProps || {};
+                    const partes = [];
+                    if (p.evento) partes.push('Evento: ' + p.evento);
+                    if (p.sala) partes.push(p.sala);
+                    if (partes.length) info.el.setAttribute('title', partes.join(' · '));
+                },
+            });
+            calendar.render();
+
+            // Filtros por categoria
+            document.querySelectorAll('#filtrosAgenda .filtro-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('#filtrosAgenda .filtro-btn').forEach(b => b.classList.remove('ativo'));
+                    this.classList.add('ativo');
+                    filtroAtual = this.dataset.cat;
+                    calendar.removeAllEvents();
+                    calendar.addEventSource(eventosFiltrados());
+                });
+            });
+        });
+    </script>
 </x-app-layout>

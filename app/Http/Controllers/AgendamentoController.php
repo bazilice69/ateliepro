@@ -64,6 +64,9 @@ class AgendamentoController extends Controller
         $produtos = Acervo::where('status', 'disponivel')->orderBy('nome')->get();
         $eventos  = Evento::where('status', 'Ativo')->get();
 
+        // ===== Eventos para o CALENDÁRIO (FullCalendar) =====
+        $eventosCalendario = $this->montarEventosCalendario($clientesComPendencia);
+
         return view('agenda.index', compact(
             'agendamentosHoje',
             'clientesComPendencia',
@@ -71,7 +74,82 @@ class AgendamentoController extends Controller
             'eventoDossie',
             'clientes',
             'produtos',
-            'eventos'
+            'eventos',
+            'eventosCalendario'
         ));
+    }
+
+    /**
+     * Monta a lista de eventos para o calendário, com uma categoria/cor por tipo
+     * (atendimento, prova, locação, confecção, aniversário). Cada módulo "conversa"
+     * com o calendário aqui.
+     */
+    private function montarEventosCalendario($clientesComPendencia): array
+    {
+        $eventos = [];
+
+        // Cores por categoria (usadas tanto na pílula quanto nos filtros).
+        $cores = [
+            'prova'       => '#3b82f6', // azul
+            'retirada'    => '#10b981', // verde
+            'devolucao'   => '#f59e0b', // âmbar
+            'ajuste'      => '#a855f7', // roxo
+            'atendimento' => '#64748b', // cinza
+            'aniversario' => '#ec4899', // rosa
+        ];
+
+        // --- Agendamentos (provas, retiradas, ajustes, atendimentos) ---
+        $agendamentos = Agendamento::with(['cliente', 'evento'])->get();
+        foreach ($agendamentos as $ag) {
+            $tipoLower = mb_strtolower((string) $ag->tipo_atendimento);
+            $cat = match (true) {
+                str_contains($tipoLower, 'prova')     => 'prova',
+                str_contains($tipoLower, 'retirada')  => 'retirada',
+                str_contains($tipoLower, 'devolu')    => 'devolucao',
+                str_contains($tipoLower, 'ajuste')    => 'ajuste',
+                default                                => 'atendimento',
+            };
+            $temPendencia = $ag->cliente_id && $clientesComPendencia->contains($ag->cliente_id);
+
+            $eventos[] = [
+                'id'    => 'ag-'.$ag->id,
+                'title' => ($ag->cliente?->nome ?? 'Cliente').' · '.$ag->tipo_atendimento.($temPendencia ? ' 💰' : ''),
+                'start' => $ag->data_hora->toIso8601String(),
+                'color' => $cores[$cat],
+                'extendedProps' => [
+                    'categoria' => $cat,
+                    'cliente'   => $ag->cliente?->nome,
+                    'evento'    => $ag->evento?->nome_evento,
+                    'sala'      => $ag->sala_atendimento,
+                    'url'       => $ag->cliente_id ? route('clientes.show', $ag->cliente_id) : null,
+                ],
+            ];
+        }
+
+        // --- Aniversários das clientes (recorrentes, no mês atual e nos próximos) ---
+        $clientesComNascimento = Cliente::whereNotNull('data_nascimento')->get();
+        foreach ($clientesComNascimento as $cli) {
+            try {
+                $nasc = \Illuminate\Support\Carbon::parse($cli->data_nascimento);
+            } catch (\Throwable $e) {
+                continue;
+            }
+            // Aniversário neste ano (o FullCalendar mostra na data certa do mês).
+            $aniversarioEsteAno = $nasc->copy()->year(now()->year)->format('Y-m-d');
+            $eventos[] = [
+                'id'    => 'bday-'.$cli->id,
+                'title' => '🎂 '.$cli->nome,
+                'start' => $aniversarioEsteAno,
+                'allDay' => true,
+                'color' => $cores['aniversario'],
+                'extendedProps' => [
+                    'categoria' => 'aniversario',
+                    'cliente'   => $cli->nome,
+                    'url'       => route('clientes.show', $cli->id),
+                ],
+            ];
+        }
+
+        return $eventos;
     }
 }
