@@ -70,6 +70,17 @@ class OrcamentoController extends Controller
         $dados['status'] = Orcamento::STATUS_RASCUNHO;
         $dados['loja_id'] = $lojaId; // explícito (a trait não preenche p/ super_admin)
 
+        // As colunas de custo são NOT NULL no banco (default 0). Dependendo do
+        // modo escolhido, vários campos não são preenchidos no formulário e
+        // chegam como null — o que viola a constraint. Normaliza para 0.
+        foreach ([
+            'custo_material', 'horas_trabalho', 'valor_hora', 'despesas_fixas',
+            'custo_peca', 'custo_manutencao', 'margem_percent', 'taxa_cartao_percent',
+            'custo_total', 'lucro_estimado', 'valor_final',
+        ] as $campoNumerico) {
+            $dados[$campoNumerico] = $dados[$campoNumerico] ?? 0;
+        }
+
         $orcamento = Orcamento::create($dados);
 
         return redirect()->route('orcamentos.show', $orcamento)
