@@ -50,7 +50,14 @@
                     <div class="bg-slate-50 rounded-2xl p-4"><p class="text-[10px] font-black uppercase text-slate-400">Valor total</p><p class="font-black text-slate-800">R$ {{ number_format((float)$locacao->valor_total, 2, ',', '.') }}</p></div>
                     <div class="bg-slate-50 rounded-2xl p-4"><p class="text-[10px] font-black uppercase text-slate-400">Sinal pago</p><p class="font-black text-emerald-600">R$ {{ number_format((float)$locacao->sinal_pago, 2, ',', '.') }}</p></div>
                     <div class="bg-slate-50 rounded-2xl p-4"><p class="text-[10px] font-black uppercase text-slate-400">Caução</p><p class="font-black text-slate-800">R$ {{ number_format((float)$locacao->caucao, 2, ',', '.') }}</p></div>
-                    <div class="bg-slate-900 rounded-2xl p-4"><p class="text-[10px] font-black uppercase text-[#fbbf24]">Saldo</p><p class="font-black text-white">R$ {{ number_format($locacao->saldo(), 2, ',', '.') }}</p></div>
+                    @php $saldo = $locacao->saldo(); @endphp
+                    <div class="bg-slate-900 rounded-2xl p-4">
+                        <p class="text-[10px] font-black uppercase text-[#fbbf24]">{{ $saldo > 0 ? 'Falta pagar' : 'Saldo' }}</p>
+                        <p class="font-black {{ $saldo > 0 ? 'text-amber-400' : 'text-emerald-400' }}">R$ {{ number_format($saldo, 2, ',', '.') }}</p>
+                        <p class="text-[9px] font-bold uppercase tracking-wider mt-1 {{ $saldo > 0 ? 'text-slate-400' : 'text-emerald-400' }}">
+                            {{ $saldo > 0 ? 'o cliente ainda deve' : 'tudo pago ✓' }}
+                        </p>
+                    </div>
                 </div>
                 <div class="text-sm text-slate-600">
                     <p><strong>Retirada:</strong> {{ optional($locacao->data_retirada)->format('d/m/Y') }} · <strong>Devolução:</strong> {{ optional($locacao->data_devolucao)->format('d/m/Y') }}</p>
