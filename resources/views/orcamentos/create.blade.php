@@ -5,6 +5,9 @@
 
     <div class="py-10" x-data="orcamento()">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+            @if(session('error'))
+                <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-6 py-4 rounded-2xl text-sm font-semibold">⚠️ {{ session('error') }}</div>
+            @endif
             @if($errors->any())
                 <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-700 px-6 py-4 rounded-2xl text-sm">{{ $errors->first() }}</div>
             @endif
@@ -73,10 +76,19 @@
                                 <input type="text" inputmode="decimal" name="despesas_fixas" x-model="despesasFixas" placeholder="0,00" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl">
                                 <p class="text-[11px] text-slate-400 mt-1">Quanto das contas do mês (luz, água, aluguel) esta peça deve "pagar".</p>
                             </div>
-                            <div x-show="modo==='aluguel'" class="grid grid-cols-2 gap-4">
-                                <div><label class="text-[10px] font-black uppercase text-slate-400">Quanto a peça custou (R$)</label><input type="text" inputmode="decimal" name="custo_peca" x-model="custoPeca" placeholder="0,00" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl"></div>
-                                <div><label class="text-[10px] font-black uppercase text-slate-400">Nº de aluguéis previstos</label><input type="number" name="num_alugueis" x-model="numAlugueis" placeholder="10" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl"></div>
-                                <div><label class="text-[10px] font-black uppercase text-slate-400">Custo por aluguel (R$)</label><input type="text" inputmode="decimal" name="custo_manutencao" x-model="custoManutencao" placeholder="0,00" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl"></div>
+                            <div x-show="modo==='aluguel'" class="space-y-4">
+                                <div class="bg-violet-50 border border-violet-100 rounded-xl p-3 text-[11px] text-violet-700 leading-relaxed">
+                                    💡 <strong>Como funciona o aluguel:</strong> uma peça é alugada <strong>várias vezes</strong> na vida dela. Então o que ela custou é <strong>dividido</strong> pelo nº de aluguéis previstos. Ex.: peça de R$ 2.600 alugada 10× = só <strong>R$ 260</strong> de custo por locação.
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="text-[10px] font-black uppercase text-slate-400">Quanto a peça custou (R$)</label><input type="text" inputmode="decimal" name="custo_peca" x-model="custoPeca" placeholder="0,00" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl"></div>
+                                    <div>
+                                        <label class="text-[10px] font-black uppercase text-slate-400">Quantas vezes pretende alugar?</label>
+                                        <input type="number" min="1" name="num_alugueis" x-model="numAlugueis" placeholder="10" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl">
+                                        <p class="text-[11px] text-emerald-600 font-bold mt-1" x-show="num(custoPeca)>0">= R$ <span x-text="custoPecaDiluido.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})"></span> por locação</p>
+                                    </div>
+                                    <div class="col-span-2"><label class="text-[10px] font-black uppercase text-slate-400">Custo de manutenção por aluguel (R$)</label><input type="text" inputmode="decimal" name="custo_manutencao" x-model="custoManutencao" placeholder="0,00" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl"><p class="text-[11px] text-slate-400 mt-1">Lavagem a seco, pequenos reparos, passadoria após cada locação.</p></div>
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100">

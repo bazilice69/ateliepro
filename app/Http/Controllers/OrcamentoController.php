@@ -34,6 +34,13 @@ class OrcamentoController extends Controller
     {
         $lojaId = Auth::user()->loja_id;
 
+        // Orçamento é operação de LOJA. O super_admin (dono do SaaS) não tem
+        // loja própria, então não há onde gravar — avisa em vez de dar 500.
+        if (empty($lojaId)) {
+            return back()->withInput()->with('error',
+                'Orçamentos pertencem a uma loja. Entre com um usuário da loja (admin ou funcionário) para criar orçamentos.');
+        }
+
         // Normaliza os valores em formato BR antes de validar.
         $this->normalizarDinheiro($request, [
             'valor_final', 'custo_material', 'valor_hora', 'despesas_fixas',
@@ -61,6 +68,8 @@ class OrcamentoController extends Controller
         ]);
 
         $dados['status'] = Orcamento::STATUS_RASCUNHO;
+        $dados['loja_id'] = $lojaId; // explícito (a trait não preenche p/ super_admin)
+
         $orcamento = Orcamento::create($dados);
 
         return redirect()->route('orcamentos.show', $orcamento)
