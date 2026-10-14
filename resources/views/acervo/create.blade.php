@@ -45,25 +45,9 @@
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Categoria *</label>
                                 <select name="categoria" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
-                                    <!-- Noivas e Debutantes -->
-                                    <option value="Noiva">Vestido de Noiva</option>
-                                    <option value="Debutante">Vestido de Debutante</option>
-                                    
-                                    <!-- Linha Festa (Desmembrada conforme pedido) -->
-                                    <option value="Mae de Noiva/Noivo">Mãe de Noiva / Noivo</option>
-                                    <option value="Madrinha">Madrinha</option>
-                                    <option value="Formatura">Formatura</option>
-                                    <option value="Convidada">Convidada</option>
-                                    
-                                    <!-- Masculino e Infantil -->
-                                    <option value="Terno">Terno / Masculino</option>
-                                    <option value="Infantil">Infantil</option>
-                                    
-                                    <!-- Acessórios (Novos) -->
-                                    <option value="Veu">Véu</option>
-                                    <option value="Saiote">Saiote</option>
-                                    <option value="Arranjo de Cabelo">Arranjo de Cabelo</option>
-                                    <option value="Acessorio">Outros Acessórios</option>
+                                    @foreach(\App\Models\Acervo::CATEGORIAS as $val => $label)
+                                        <option value="{{ $val }}">{{ $label }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div>

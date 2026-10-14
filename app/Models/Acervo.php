@@ -63,6 +63,26 @@ class Acervo extends Model
     public const STATUS_INDISPONIVEL = 'indisponivel';
 
     /**
+     * Categorias de peças (fonte única — usada no cadastro e na edição).
+     * Chave = valor salvo no banco; valor = rótulo exibido.
+     */
+    public const CATEGORIAS = [
+        'Noiva' => 'Vestido de Noiva',
+        'Plus Size' => 'Plus Size',
+        'Debutante' => 'Vestido de Debutante',
+        'Mae de Noiva/Noivo' => 'Mãe de Noiva / Noivo',
+        'Madrinha' => 'Madrinha',
+        'Formatura' => 'Formatura',
+        'Convidada' => 'Convidada',
+        'Terno' => 'Terno / Masculino',
+        'Infantil' => 'Infantil',
+        'Veu' => 'Véu',
+        'Saiote' => 'Saiote',
+        'Arranjo de Cabelo' => 'Arranjo de Cabelo',
+        'Acessorio' => 'Outros Acessórios',
+    ];
+
+    /**
      * Locações desta peça.
      */
     public function locacoes(): HasMany

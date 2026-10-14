@@ -85,7 +85,7 @@
                         <div class="md:col-span-2">
                             <label class="block text-sm font-bold text-slate-700 mb-2">Categoria *</label>
                             <select name="categoria" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
-                                @foreach(['Noiva'=>'Vestido de Noiva','Debutante'=>'Vestido de Debutante','Mae de Noiva/Noivo'=>'Mãe de Noiva / Noivo','Madrinha'=>'Madrinha','Formatura'=>'Formatura','Convidada'=>'Convidada','Terno'=>'Terno / Masculino','Infantil'=>'Infantil','Veu'=>'Véu','Saiote'=>'Saiote','Arranjo de Cabelo'=>'Arranjo de Cabelo','Acessorio'=>'Outros Acessórios'] as $val => $label)
+                                @foreach(\App\Models\Acervo::CATEGORIAS as $val => $label)
                                     <option value="{{ $val }}" @selected($peca->categoria === $val)>{{ $label }}</option>
                                 @endforeach
                             </select>
