@@ -52,6 +52,7 @@ class AdminPlanoController extends Controller
     private function validar(Request $request, ?Plano $plano = null): array
     {
         $slugRule = 'unique:planos,slug' . ($plano ? ',' . $plano->id : '');
+        $this->normalizarDinheiro($request, ['preco']);
 
         $validated = $request->validate([
             'nome' => ['required', 'string', 'max:100'],

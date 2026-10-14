@@ -76,6 +76,8 @@ class AdminController extends Controller
      */
     public function updatePlano(Request $request, Loja $loja)
     {
+        $this->normalizarDinheiro($request, ['valor_mensal', 'desconto']);
+
         $dados = $request->validate([
             'plano' => ['required', 'string', 'max:100'],
             'valor_mensal' => ['required', 'numeric', 'min:0'],

@@ -31,6 +31,7 @@ class ProdutoController extends Controller
     public function store(Request $request)
     {
         $lojaId = Auth::user()->loja_id;
+        $this->normalizarDinheiro($request, ['valor_locacao', 'valor_venda', 'caucao']);
 
         $request->validate([
             // Código único DENTRO da loja (cada loja tem sua própria numeração).
@@ -60,6 +61,7 @@ class ProdutoController extends Controller
     public function update(Request $request, Acervo $peca)
     {
         $lojaId = Auth::user()->loja_id;
+        $this->normalizarDinheiro($request, ['valor_locacao', 'valor_venda', 'caucao']);
 
         $dados = $request->validate([
             'codigo' => ['required', 'string', Rule::unique('acervos', 'codigo')->where('loja_id', $lojaId)->ignore($peca->id)],
@@ -170,6 +172,7 @@ class ProdutoController extends Controller
     public function storeRapido(Request $request)
     {
         $lojaId = Auth::user()->loja_id;
+        $this->normalizarDinheiro($request, ['valor_locacao', 'caucao']);
 
         $dados = $request->validate([
             'codigo' => ['required', 'string', 'max:50', Rule::unique('acervos', 'codigo')->where('loja_id', $lojaId)],
