@@ -6,6 +6,10 @@
     @php
         $marca = \App\Models\Setting::nomeSistema();
         $nomeLoja = $loja->nome_fantasia ?? $marca;
+        // Mês/ano em português SEM depender de locale/intl (evita erro no servidor).
+        $meses = [1=>'Janeiro',2=>'Fevereiro',3=>'Março',4=>'Abril',5=>'Maio',6=>'Junho',7=>'Julho',8=>'Agosto',9=>'Setembro',10=>'Outubro',11=>'Novembro',12=>'Dezembro'];
+        $mesAno = $meses[(int) now()->format('n')].' de '.now()->format('Y');
+        $dataHoje = now()->format('d/m/Y');
     @endphp
     <title>Catálogo — {{ $nomeLoja }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -68,7 +72,7 @@
                     @if($categoriaFiltro)
                         <p class="text-ouro text-xs font-bold uppercase tracking-widest">Seleção: {{ \App\Models\Acervo::CATEGORIAS[$categoriaFiltro] ?? $categoriaFiltro }}</p>
                     @endif
-                    <p class="text-white/50 text-sm">{{ $pecas->count() }} peças · {{ now()->translatedFormat('F \d\e Y') }}</p>
+                    <p class="text-white/50 text-sm">{{ $pecas->count() }} peças · {{ $mesAno }}</p>
                 </div>
                 @if($loja && ($loja->telefone || $loja->cidade))
                     <div class="text-right text-white/60 text-xs">
@@ -85,7 +89,7 @@
         <div class="pagina p-12">
             <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
                 <span class="serif text-2xl font-bold text-slate-800">{{ $nomeLoja }}</span>
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Catálogo · {{ now()->format('d/m/Y') }}</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Catálogo · {{ $dataHoje }}</span>
             </div>
 
             <div class="grid grid-cols-2 gap-8">
@@ -120,7 +124,7 @@
             @if($loja && $loja->telefone)<p>📞 {{ $loja->telefone }}</p>@endif
             @if($loja && $loja->endereco)<p>📍 {{ $loja->endereco }}@if($loja->cidade) — {{ $loja->cidade }}@if($loja->estado)/{{ $loja->estado }}@endif @endif</p>@endif
         </div>
-        <p class="absolute bottom-10 text-white/30 text-[10px] uppercase tracking-widest">Catálogo gerado em {{ now()->format('d/m/Y') }}</p>
+        <p class="absolute bottom-10 text-white/30 text-[10px] uppercase tracking-widest">Catálogo gerado em {{ $dataHoje }}</p>
     </div>
 
     @endif
