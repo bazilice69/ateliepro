@@ -73,13 +73,13 @@ class DashboardController extends Controller
             // Encomendas (sob medida) em produção
             'em_producao' => Encomenda::whereNotIn('etapa', [Encomenda::ETAPA_ENTREGUE, Encomenda::ETAPA_CANCELADA])->count(),
 
-            // Oficina por tipo (fila de trabalho pendente)
-            'ajustes' => Servico::where('tipo', Servico::TIPO_AJUSTE)
-                ->whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])->count(),
-            'lavanderia' => Servico::where('tipo', Servico::TIPO_LAVANDERIA)
-                ->whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])->count(),
-            'manutencao' => Servico::where('tipo', Servico::TIPO_MANUTENCAO)
-                ->whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])->count(),
+            // Oficina por tipo (fila de trabalho pendente). Conta as DUAS fontes
+            // sem duplicar: uma ordem de serviço ABERTA na oficina OU uma peça
+            // marcada diretamente com aquele status no acervo. Assim o que a
+            // lojista vê no Acervo bate com o contador do painel.
+            'ajustes' => $this->contarOficina(Servico::TIPO_AJUSTE, Acervo::STATUS_EM_AJUSTE),
+            'lavanderia' => $this->contarOficina(Servico::TIPO_LAVANDERIA, Acervo::STATUS_LAVANDERIA),
+            'manutencao' => $this->contarOficina(Servico::TIPO_MANUTENCAO, Acervo::STATUS_MANUTENCAO),
 
             // Encomendas/locações atrasadas (alerta vermelho)
             'entregas_atrasadas' => Encomenda::whereNotIn('etapa', [Encomenda::ETAPA_ENTREGUE, Encomenda::ETAPA_CANCELADA])
@@ -132,5 +132,30 @@ class DashboardController extends Controller
             'totais', 'op', 'movimentacoes', 'proximosEventos', 'agendaHoje',
             'provasHoje', 'ajustesPendentes', 'encomendasProducao'
         ));
+    }
+
+    /**
+     * Conta, SEM duplicar, quantas peças estão naquela etapa da oficina —
+     * considerando as duas fontes do sistema:
+     *   (1) uma ordem de serviço ABERTA na oficina (tipo informado);
+     *   (2) uma peça do acervo marcada diretamente com aquele status.
+     *
+     * Assim o painel reflete tanto a fila da oficina quanto o status manual
+     * que a lojista define no card da peça (Acervo).
+     */
+    private function contarOficina(string $tipoServico, string $statusAcervo): int
+    {
+        // (1) IDs de peças com serviço aberto desse tipo.
+        $pecasComServico = Servico::where('tipo', $tipoServico)
+            ->whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])
+            ->pluck('acervo_id')
+            ->filter()
+            ->unique();
+
+        // (2) IDs de peças marcadas com esse status direto no acervo.
+        $pecasComStatus = Acervo::where('status', $statusAcervo)->pluck('id');
+
+        // União sem duplicar.
+        return $pecasComServico->merge($pecasComStatus)->unique()->count();
     }
 }

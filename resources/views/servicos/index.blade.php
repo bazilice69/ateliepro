@@ -20,6 +20,28 @@
                 @endforeach
             </div>
 
+            {{-- Peças marcadas com status de oficina no Acervo mas SEM ordem de serviço aberta --}}
+            @if($pecasSemOS->isNotEmpty())
+                @php
+                    $rotuloStatus = ['em_ajuste' => 'em ajuste', 'lavanderia' => 'na lavanderia', 'manutencao' => 'em manutenção'];
+                @endphp
+                <div class="bg-amber-50 border border-amber-200 rounded-3xl p-5">
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-700 mb-3">⚠️ Peças marcadas no acervo (sem ordem de serviço)</p>
+                    <div class="space-y-2">
+                        @foreach($pecasSemOS as $p)
+                            <div class="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-amber-100">
+                                <div class="min-w-0">
+                                    <p class="font-bold text-slate-800 text-sm truncate">{{ $p->codigo }} · {{ $p->nome }}</p>
+                                    <p class="text-[11px] text-amber-600 font-bold uppercase">{{ $rotuloStatus[$p->status] ?? $p->status }}</p>
+                                </div>
+                                <a href="{{ route('servicos.create', ['acervo_id' => $p->id, 'tipo' => $p->status === 'em_ajuste' ? 'ajuste' : $p->status]) }}" class="shrink-0 bg-slate-900 text-[#fbbf24] px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition">+ Abrir ordem</a>
+                            </div>
+                        @endforeach
+                    </div>
+                    <p class="text-[11px] text-amber-600 mt-3">Essas peças aparecem no painel mas ainda não têm uma ordem de serviço formal. Clique em "Abrir ordem" para registrar o trabalho.</p>
+                </div>
+            @endif
+
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-x-auto">
                 <table class="w-full min-w-[700px] text-left">
                     <thead>
