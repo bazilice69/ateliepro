@@ -30,7 +30,25 @@ class ServicoController extends Controller
             ->orderBy('prazo')
             ->get();
 
-        return view('servicos.index', compact('servicos', 'tipo'));
+        // Peças marcadas com um status de oficina DIRETO no acervo mas que ainda
+        // não têm ordem de serviço aberta. Mostramos como "pendentes de abrir OS"
+        // para que o painel (que conta as duas fontes) fique coerente com a tela.
+        $mapaStatus = [
+            Servico::TIPO_AJUSTE => Acervo::STATUS_EM_AJUSTE,
+            Servico::TIPO_LAVANDERIA => Acervo::STATUS_LAVANDERIA,
+            Servico::TIPO_MANUTENCAO => Acervo::STATUS_MANUTENCAO,
+        ];
+        $statusAlvo = $tipo ? array_filter([$mapaStatus[$tipo] ?? null]) : array_values($mapaStatus);
+
+        $pecasComServicoAberto = Servico::whereIn('status', [Servico::STATUS_SOLICITADO, Servico::STATUS_EM_ANDAMENTO])
+            ->pluck('acervo_id')->filter()->unique();
+
+        $pecasSemOS = empty($statusAlvo) ? collect() : Acervo::whereIn('status', $statusAlvo)
+            ->whereNotIn('id', $pecasComServicoAberto)
+            ->orderBy('nome')
+            ->get();
+
+        return view('servicos.index', compact('servicos', 'tipo', 'pecasSemOS'));
     }
 
     public function create(Request $request)
