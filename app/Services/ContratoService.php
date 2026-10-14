@@ -63,7 +63,7 @@ class ContratoService
      *
      * @return array<string, string>
      */
-    public function valores(Loja $loja, ?Cliente $cliente = null, ?Locacao $locacao = null): array
+    public function valores(Loja $loja, ?Cliente $cliente = null, ?Locacao $locacao = null, ?\App\Models\Orcamento $orcamento = null): array
     {
         $mesesPt = [1 => 'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
             'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
@@ -109,6 +109,18 @@ class ContratoService
                 'locacao_data_evento' => optional($locacao->data_evento)->format('d/m/Y') ?? '',
                 'locacao_data_devolucao' => optional($locacao->data_devolucao)->format('d/m/Y') ?? '',
             ];
+        } elseif ($orcamento) {
+            // Contrato gerado a partir de um ORÇAMENTO (ainda não há locação).
+            // Preenche o que dá: a peça e o valor do orçamento entram no lugar
+            // dos campos de valor da locação para o contrato ficar completo.
+            $peca = $orcamento->acervo;
+            if ($peca) {
+                $valores['locacao_peca'] = "{$peca->codigo} - {$peca->nome}";
+                $valores['locacao_caucao'] = $this->moeda($peca->caucao ?? 0);
+            } elseif ($orcamento->descricao) {
+                $valores['locacao_peca'] = $orcamento->descricao;
+            }
+            $valores['locacao_valor_total'] = $this->moeda($orcamento->valor_final);
         }
 
         return $valores;

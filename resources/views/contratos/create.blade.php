@@ -9,11 +9,24 @@
                 <div class="bg-rose-50 border border-rose-200 text-rose-700 px-6 py-4 rounded-2xl text-sm">{{ $errors->first() }}</div>
             @endif
 
+            @isset($orcamento)
+            @if($orcamento)
+                <div class="bg-amber-50 border border-amber-200 text-amber-800 px-6 py-4 rounded-2xl text-sm flex items-center gap-3">
+                    <span class="text-xl">🧾</span>
+                    <span>Gerando contrato a partir do <strong>Orçamento #{{ $orcamento->id }}</strong>
+                        — {{ $orcamento->cliente?->nome ?? 'sem cliente' }} ·
+                        <strong>R$ {{ number_format((float)$orcamento->valor_final, 2, ',', '.') }}</strong>.
+                        Escolha o modelo abaixo e clique em pré-visualizar.</span>
+                </div>
+            @endif
+            @endisset
+
             <!-- PASSO 1: escolher modelo + cliente/locação e pré-visualizar -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
                 <h3 class="font-black text-slate-800 uppercase text-sm tracking-wider mb-4">1. Escolha os dados</h3>
                 <form method="POST" action="{{ route('contratos.preview') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     @csrf
+                    @isset($orcamento)@if($orcamento)<input type="hidden" name="orcamento_id" value="{{ $orcamento->id }}">@endif @endisset
                     <div>
                         <label class="text-[10px] font-black uppercase text-slate-400">Modelo</label>
                         <select name="modelo_contrato_id" required class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
@@ -61,6 +74,7 @@
                         <input type="hidden" name="cliente_id" value="{{ $cliente->id ?? '' }}">
                         <input type="hidden" name="locacao_id" value="{{ $locacao->id ?? '' }}">
                         <input type="hidden" name="modelo_contrato_id" value="{{ $modelo->id ?? '' }}">
+                        @isset($orcamento)@if($orcamento)<input type="hidden" name="orcamento_id" value="{{ $orcamento->id }}">@endif @endisset
                         <div>
                             <label class="text-[10px] font-black uppercase text-slate-400">Título do contrato</label>
                             <input type="text" name="titulo" value="{{ $modelo->titulo ?? 'Contrato' }}{{ isset($cliente) && $cliente ? ' - '.$cliente->nome : '' }}" required class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
