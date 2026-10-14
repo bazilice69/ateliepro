@@ -124,6 +124,7 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::post('/acervo', [ProdutoController::class, 'store'])->name('produto.store');
     Route::post('/acervo/rapido', [ProdutoController::class, 'storeRapido'])->name('produto.rapido');
     Route::get('/acervo/{peca}/editar', [ProdutoController::class, 'edit'])->name('acervo.edit');
+    Route::get('/acervo/{peca}/etiqueta', [ProdutoController::class, 'etiqueta'])->name('acervo.etiqueta');
     Route::put('/acervo/{peca}', [ProdutoController::class, 'update'])->name('acervo.update');
     Route::delete('/acervo/{peca}', [ProdutoController::class, 'destroy'])->name('acervo.destroy');
     Route::post('/acervo/{peca}/fotos/{foto}/capa', [ProdutoController::class, 'definirCapa'])->name('acervo.fotos.capa');
