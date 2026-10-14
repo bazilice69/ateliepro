@@ -1,0 +1,20 @@
+{
+    "name": "AteliêPro — Gestão para ateliês e lojas de noivas",
+    "short_name": "AteliêPro",
+    "description": "Gestão completa do seu ateliê: acervo, agenda, locações, contratos e financeiro.",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0b0b0d",
+    "theme_color": "#0b0b0d",
+    "lang": "pt-BR",
+    "icons": [
+        {
+            "src": "/icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
