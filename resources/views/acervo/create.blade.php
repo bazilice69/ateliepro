@@ -27,9 +27,15 @@
                     <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200">
                         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">1. Identificação da Peça</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
+                            <div x-data="{ codigo: '{{ $codigoSugerido }}' }">
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Código da Peça *</label>
-                                <input type="text" name="codigo" value="{{ $codigoSugerido }}" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none uppercase">
+                                <div class="flex gap-2">
+                                    <input type="text" name="codigo" x-model="codigo" required class="flex-1 min-w-0 p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none uppercase">
+                                    <button type="button" @click="codigo = 'VN-' + Math.floor(1000 + Math.random()*9000)"
+                                            title="Gerar código automático"
+                                            class="shrink-0 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-600"><i class="fas fa-dice"></i></button>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">Use o número de controle que você já usa, ou gere um automático 🎲.</p>
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Nome ou Modelo *</label>

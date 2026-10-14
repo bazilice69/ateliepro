@@ -188,6 +188,16 @@ class ProdutoController extends Controller
         ]);
     }
 
+    // Etiqueta imprimível da peça (com QR Code que abre a ficha).
+    public function etiqueta(Acervo $peca)
+    {
+        // URL que o QR Code vai abrir ao ser escaneado: a ficha da peça.
+        $urlFicha = route('acervo.show', $peca);
+        $loja = Auth::user()->loja ?? null;
+
+        return view('acervo.etiqueta', compact('peca', 'urlFicha', 'loja'));
+    }
+
     // Histórico / "vida" da peça: locações, provas e serviços.
     public function show(Acervo $peca)
     {

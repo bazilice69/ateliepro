@@ -5,6 +5,7 @@
                 {{ $peca->codigo }} <span class="text-[#fbbf24]">· {{ $peca->nome }}</span>
             </h2>
             <div class="flex items-center gap-4 self-center">
+                <a href="{{ route('acervo.etiqueta', $peca) }}" target="_blank" class="text-xs font-bold text-slate-400 hover:text-[#fbbf24] uppercase tracking-widest">🏷️ Etiqueta</a>
                 <a href="{{ route('acervo.edit', $peca) }}" class="text-xs font-bold text-slate-400 hover:text-[#fbbf24] uppercase tracking-widest">✏️ Editar</a>
                 <a href="{{ route('acervo.index') }}" class="text-xs font-bold text-slate-400 hover:text-slate-700 uppercase tracking-widest">← Acervo</a>
             </div>
