@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @php
         $marca = \App\Models\Setting::nomeSistema();
-        $nomeLoja = $loja->nome_fantasia ?? $marca;
+        $nomeLoja = $loja?->nome_fantasia ?? $marca;
         // Mês/ano em português SEM depender de locale/intl (evita erro no servidor).
         $meses = [1=>'Janeiro',2=>'Fevereiro',3=>'Março',4=>'Abril',5=>'Maio',6=>'Junho',7=>'Julho',8=>'Agosto',9=>'Setembro',10=>'Outubro',11=>'Novembro',12=>'Dezembro'];
         $mesAno = $meses[(int) now()->format('n')].' de '.now()->format('Y');
