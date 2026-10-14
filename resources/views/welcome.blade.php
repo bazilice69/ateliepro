@@ -98,6 +98,7 @@
             </div>
 
             <div class="flex items-center gap-5">
+                <a href="#historia" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Nossa história</a>
                 <a href="{{ route('funcionalidades') }}" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Funcionalidades</a>
                 <a href="#planos" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Planos</a>
                 @if (Route::has('login'))
@@ -153,6 +154,79 @@
                     <p class="text-ouro serif text-2xl font-bold leading-none">+100</p>
                     <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">peças sob controle</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO QUEM SOMOS -->
+    <section id="historia" class="py-24 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute top-1/3 left-0 w-[600px] h-[600px] rounded-full blur-[180px] opacity-10" style="background: radial-gradient(circle, #c9a24b, transparent 70%);"></div>
+        </div>
+        <div class="relative max-w-4xl mx-auto">
+            <div class="text-center mb-14">
+                <p class="text-ouro text-xs font-bold uppercase tracking-[0.3em] mb-4">Nossa história</p>
+                <h2 class="serif text-4xl md:text-5xl font-bold text-white leading-tight">Quem é a {{ $marca }}</h2>
+                <p class="text-slate-400 font-medium mt-4 max-w-2xl mx-auto">
+                    A {{ $marca }} nasceu de uma história que começou muito antes de existir qualquer sistema.
+                </p>
+            </div>
+
+            <!-- Números de autoridade -->
+            <div class="grid grid-cols-3 gap-4 mb-16">
+                <div class="text-center bg-[#141418] border border-slate-800 rounded-3xl p-6">
+                    <p class="ouro-gradient serif text-4xl md:text-5xl font-bold">+20</p>
+                    <p class="text-[11px] text-slate-400 uppercase tracking-widest mt-1">anos de mercado</p>
+                </div>
+                <div class="text-center bg-[#141418] border border-slate-800 rounded-3xl p-6">
+                    <p class="ouro-gradient serif text-4xl md:text-5xl font-bold">+9 mil</p>
+                    <p class="text-[11px] text-slate-400 uppercase tracking-widest mt-1">clientes atendidos</p>
+                </div>
+                <div class="text-center bg-[#141418] border border-slate-800 rounded-3xl p-6">
+                    <p class="ouro-gradient serif text-4xl md:text-5xl font-bold">Brasil</p>
+                    <p class="text-[11px] text-slate-400 uppercase tracking-widest mt-1">de ponta a ponta</p>
+                </div>
+            </div>
+
+            <!-- Texto da história -->
+            <div class="space-y-6 text-slate-300 leading-relaxed text-[15px] md:text-base">
+                <p><strong class="text-white">Andreia é estilista e está no ramo das noivas desde 2003.</strong> Ao longo de mais de duas décadas, construiu sua experiência dentro do próprio mercado, vivendo de perto a rotina de uma loja física voltada para noivas, vestidos de festa, ternos e eventos.</p>
+
+                <p>Ela conhece esse universo não apenas como profissional, mas como alguém que vive diariamente os desafios e as responsabilidades que existem por trás de cada atendimento. Porque trabalhar com noivas é muito mais do que vender ou alugar uma roupa:</p>
+
+                <ul class="grid sm:grid-cols-2 gap-3 py-2">
+                    @foreach(['É ouvir sonhos', 'É entender expectativas', 'É acompanhar medidas, provas e ajustes', 'É cuidar de cada detalhe'] as $item)
+                        <li class="flex items-center gap-3 bg-[#141418]/60 border border-slate-800 rounded-xl px-4 py-3 text-sm">
+                            <i class="fas fa-heart text-ouro"></i>{{ $item }}
+                        </li>
+                    @endforeach
+                </ul>
+
+                <p>É organizar peças, agendas, contratos, pagamentos, retiradas e devoluções. E é, principalmente, entender que cada cliente está confiando à loja uma parte muito importante da sua história.</p>
+
+                <h3 class="serif text-2xl font-bold text-white pt-6">Foi dessa experiência que nasceu a {{ $marca }}</h3>
+                <p>Depois de tantos anos no segmento, Andreia percebeu algo que muitos profissionais conhecem bem: <strong class="text-white">administrar um ateliê ou uma loja pode ser tão desafiador quanto atender bem seus clientes.</strong> Papéis, cadernos, planilhas, mensagens e informações espalhadas transformam uma rotina que deveria ser organizada em uma verdadeira correria.</p>
+                <p>Foi então que surgiu a vontade de criar uma ferramenta que tornasse esse dia a dia mais simples. Não para substituir o trabalho de ninguém — <strong class="text-ouro">mas para agregar.</strong></p>
+
+                <h3 class="serif text-2xl font-bold text-white pt-6">Tecnologia para ajudar, não para substituir</h3>
+                <p>A {{ $marca }} acredita que a tecnologia deve estar ao lado do profissional, nunca no lugar dele. O conhecimento, a experiência, o olhar da estilista, o atendimento e o carinho continuam sendo insubstituíveis. A tecnologia entra para cuidar daquilo que pode ser organizado, automatizado e centralizado — permitindo que você tenha mais tempo para o que nenhuma tecnologia faz igual: <strong class="text-white">cuidar de pessoas.</strong></p>
+
+                <div class="bg-gradient-to-r from-[#1c1a14] to-[#141418] border border-ouro/30 rounded-2xl p-6 my-4">
+                    <p class="text-sm text-slate-400 mb-3">Por isso reunimos num só lugar tudo o que faz parte da rotina da sua loja:</p>
+                    <p class="serif text-xl text-white leading-relaxed">Clientes · Medidas · Eventos · Peças · Provas · Ajustes · Agenda · Contratos · Pagamentos · Retiradas · Devoluções · Histórico.</p>
+                    <p class="text-ouro text-xs font-bold uppercase tracking-widest mt-3">Tudo conectado e organizado.</p>
+                </div>
+
+                <h3 class="serif text-2xl font-bold text-white pt-6">Nosso sonho</h3>
+                <p>O sonho da {{ $marca }} é simples: <strong class="text-white">ajudar quem trabalha realizando o sonho de outras pessoas.</strong> Queremos que você termine o dia sabendo que seus clientes estão organizados, suas peças controladas, sua agenda em ordem e suas informações seguras.</p>
+                <p>A {{ $marca }} não quer tirar espaço de ninguém. <strong class="text-ouro">Quer somar.</strong> Não quer substituir a experiência dos profissionais — <strong class="text-ouro">quer potencializá-la.</strong></p>
+            </div>
+
+            <!-- Fecho -->
+            <div class="text-center mt-16 border-t border-slate-800 pt-12">
+                <p class="serif text-3xl md:text-4xl font-bold text-white">{{ $marca }}</p>
+                <p class="text-slate-400 mt-2">Mais de 20 anos vivendo o mercado. Agora, transformando experiência em tecnologia.</p>
+                <p class="ouro-gradient serif text-2xl font-bold mt-4">Para agregar. Para facilitar. Para evoluir juntos.</p>
             </div>
         </div>
     </section>
