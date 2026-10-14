@@ -51,7 +51,10 @@ class DashboardController extends Controller
         $lojaVazia = $totais['clientes'] === 0 && $totais['pecas'] === 0 && $totais['locacoes_ativas'] === 0;
 
         // Tem dados de demonstração carregados? (para oferecer o "limpar")
-        $temDemo = \App\Models\Cliente::where('is_demo', true)->exists();
+        // Blindagem: só consulta se a migration da coluna já rodou — evita 500
+        // caso o deploy aplique as views antes do migrate.
+        $temDemo = \Illuminate\Support\Facades\Schema::hasColumn('clientes', 'is_demo')
+            && \App\Models\Cliente::where('is_demo', true)->exists();
 
         // --- Painel operacional: "o que precisa de atenção" (contadores) ------
         $op = [
