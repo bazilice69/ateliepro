@@ -84,6 +84,12 @@ class AdminController extends Controller
             'observacoes_admin' => ['nullable', 'string'],
         ]);
 
+        // Se o admin definiu um vencimento no futuro, a loja passa a ter
+        // assinatura — encerra o trial para o banner refletir o vencimento.
+        if (!empty($dados['data_vencimento']) && \Illuminate\Support\Carbon::parse($dados['data_vencimento'])->endOfDay()->isFuture()) {
+            $dados['trial_termina_em'] = null;
+        }
+
         $loja->update($dados);
 
         return back()->with('success', 'Plano da loja atualizado com sucesso!');
@@ -122,6 +128,9 @@ class AdminController extends Controller
         $loja->update([
             'data_vencimento' => $base->addMonths($meses),
             'status' => Loja::STATUS_ATIVO,
+            // Ao liberar/estender, a loja deixa de estar em trial (passa a ter
+            // assinatura/vencimento). Encerra o trial para o banner não ficar "0 dias".
+            'trial_termina_em' => null,
         ]);
 
         return back()->with('success', "Vencimento estendido em {$meses} mês(es).");
