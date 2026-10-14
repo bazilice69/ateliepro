@@ -90,7 +90,43 @@ class OrcamentoController extends Controller
     public function show(Orcamento $orcamento)
     {
         $orcamento->load(['cliente', 'acervo', 'contrato']);
-        return view('orcamentos.show', compact('orcamento'));
+        $temModelo = \App\Models\ModeloContrato::where('ativo', true)->exists();
+        return view('orcamentos.show', compact('orcamento', 'temModelo'));
+    }
+
+    /**
+     * Cliente aceitou: marca o orçamento como ACEITO e leva a lojista para a
+     * geração do contrato já com o cliente e os valores pré-carregados.
+     */
+    public function aceitar(Orcamento $orcamento)
+    {
+        if ($orcamento->status !== Orcamento::STATUS_ACEITO) {
+            $orcamento->update(['status' => Orcamento::STATUS_ACEITO]);
+        }
+
+        // Já tem contrato gerado? Vai direto pra ele.
+        if ($orcamento->contrato_id) {
+            return redirect()->route('contratos.show', $orcamento->contrato_id);
+        }
+
+        // Sem modelo de contrato cadastrado: orienta a cadastrar primeiro.
+        // (A criação de modelos é restrita ao admin da loja; por isso avisamos
+        // aqui em vez de redirecionar — evita um 403 para funcionários.)
+        if (!\App\Models\ModeloContrato::where('ativo', true)->exists()) {
+            return back()->with('error',
+                'Para gerar o contrato, cadastre antes um MODELO de contrato em "Contratos → Modelos". '
+                . 'Depois volte a este orçamento e clique em "Aceitar e gerar contrato".');
+        }
+
+        // Leva para a geração de contrato já vinculada a este orçamento.
+        return redirect()->route('contratos.create', ['orcamento_id' => $orcamento->id]);
+    }
+
+    /** Cliente recusou o orçamento. */
+    public function recusar(Orcamento $orcamento)
+    {
+        $orcamento->update(['status' => Orcamento::STATUS_RECUSADO]);
+        return back()->with('success', 'Orçamento marcado como recusado.');
     }
 
     /** Versão imprimível/PDF — mostra APENAS o valor final (sem custos internos). */

@@ -11,6 +11,9 @@
             @if(session('success'))
                 <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-2xl text-sm">{{ session('success') }}</div>
             @endif
+            @if(session('error'))
+                <div class="bg-amber-50 border border-amber-200 text-amber-800 px-6 py-4 rounded-2xl text-sm font-semibold">⚠️ {{ session('error') }}</div>
+            @endif
 
             {{-- Valor + ações --}}
             <div class="bg-slate-900 rounded-3xl p-8 text-center">
@@ -43,13 +46,46 @@
                 </div>
             </div>
 
-            {{-- Status / aceite (o "virar contrato" vem no Bloco 2) --}}
+            {{-- Status / aceite → vira contrato --}}
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center">
-                <p class="text-sm text-slate-500">Status atual: <strong class="uppercase">{{ $orcamento->status }}</strong></p>
+                @php
+                    $corStatus = match($orcamento->status) {
+                        'aceito' => 'bg-emerald-100 text-emerald-700',
+                        'enviado' => 'bg-blue-100 text-blue-700',
+                        'recusado' => 'bg-rose-100 text-rose-700',
+                        default => 'bg-slate-100 text-slate-600',
+                    };
+                @endphp
+                <p class="text-sm text-slate-500">Status atual:
+                    <span class="inline-block ml-1 px-3 py-0.5 rounded-full text-[11px] font-bold uppercase {{ $corStatus }}">{{ $orcamento->status }}</span>
+                </p>
+
                 @if($orcamento->contrato_id)
-                    <a href="{{ route('contratos.show', $orcamento->contrato_id) }}" class="inline-block mt-3 text-sm font-bold text-[#fbbf24]">Ver contrato gerado →</a>
+                    {{-- Já virou contrato --}}
+                    <div class="mt-4">
+                        <p class="text-sm text-emerald-600 font-bold">✓ Contrato já gerado a partir deste orçamento.</p>
+                        <a href="{{ route('contratos.show', $orcamento->contrato_id) }}" class="inline-block mt-3 bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest">Ver contrato →</a>
+                    </div>
+                @elseif($orcamento->status === 'recusado')
+                    <p class="text-xs text-slate-400 mt-3">Este orçamento foi recusado pelo cliente.</p>
                 @else
-                    <p class="text-xs text-slate-400 mt-2">Quando o cliente aceitar, você poderá gerar o contrato a partir deste orçamento.</p>
+                    {{-- Ainda aberto: aceitar (gera contrato) ou recusar --}}
+                    <p class="text-xs text-slate-400 mt-2 mb-4">O cliente aprovou? Transforme este orçamento em contrato — os dados do cliente entram automaticamente no modelo da loja.</p>
+                    @if(! $temModelo)
+                        <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-xs mb-4">
+                            ⚠️ Você ainda não tem um <strong>modelo de contrato</strong> cadastrado. Ao clicar em aceitar, vamos te levar para criar um — depois é só voltar aqui.
+                        </div>
+                    @endif
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <form method="POST" action="{{ route('orcamentos.aceitar', $orcamento) }}">
+                            @csrf
+                            <button class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">✓ Aceitar e gerar contrato</button>
+                        </form>
+                        <form method="POST" action="{{ route('orcamentos.recusar', $orcamento) }}" onsubmit="return confirm('Marcar este orçamento como recusado?')">
+                            @csrf
+                            <button class="bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-700 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">✕ Recusar</button>
+                        </form>
+                    </div>
                 @endif
             </div>
         </div>

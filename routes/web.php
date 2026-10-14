@@ -205,6 +205,8 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::post('/orcamentos', [OrcamentoController::class, 'store'])->name('orcamentos.store');
     Route::get('/orcamentos/{orcamento}', [OrcamentoController::class, 'show'])->name('orcamentos.show');
     Route::get('/orcamentos/{orcamento}/imprimir', [OrcamentoController::class, 'imprimir'])->name('orcamentos.imprimir');
+    Route::post('/orcamentos/{orcamento}/aceitar', [OrcamentoController::class, 'aceitar'])->name('orcamentos.aceitar');
+    Route::post('/orcamentos/{orcamento}/recusar', [OrcamentoController::class, 'recusar'])->name('orcamentos.recusar');
 
     // Gestão de Funcionários (apenas admin_loja / super_admin)
     Route::middleware('adminloja')->group(function () {
