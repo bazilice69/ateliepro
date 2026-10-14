@@ -24,7 +24,8 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            <th class="py-5 pl-8">Código</th>
+                            <th class="py-5 pl-8">Foto</th>
+                            <th class="py-5">Código</th>
                             <th class="py-5">Peça</th>
                             <th class="py-5">Categoria</th>
                             <th class="py-5">Tam / Cor</th>
@@ -36,7 +37,16 @@
                     <tbody class="divide-y divide-slate-50">
                         @forelse($pecas as $peca)
                             <tr class="hover:bg-slate-50/50 transition-colors group">
-                                <td class="py-5 pl-8">
+                                <td class="py-4 pl-8">
+                                    <div class="w-12 h-14 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center">
+                                        @if($peca->capa_url)
+                                            <img src="{{ $peca->capa_url }}" alt="{{ $peca->nome }}" class="w-full h-full object-cover">
+                                        @else
+                                            <i class="fas fa-tshirt text-slate-300"></i>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="py-5">
                                     <span class="text-xs font-bold text-slate-400">{{ $peca->codigo }}</span>
                                 </td>
                                 <td class="py-5">
@@ -68,13 +78,14 @@
                                         {{ ucfirst($status) }}
                                     </span>
                                 </td>
-                                <td class="py-5 text-right pr-8">
+                                <td class="py-5 text-right pr-8 whitespace-nowrap">
+                                    <a href="{{ route('acervo.edit', $peca) }}" class="text-xs font-bold text-slate-400 hover:text-[#fbbf24] uppercase mr-4">Editar</a>
                                     <a href="{{ route('acervo.show', $peca) }}" class="text-xs font-bold text-slate-500 hover:text-slate-900 uppercase">Histórico →</a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-16 text-center">
+                                <td colspan="8" class="py-16 text-center">
                                     <div class="text-slate-200 mb-4"><i class="fas fa-tshirt text-5xl"></i></div>
                                     <h3 class="text-lg font-black text-slate-700 mb-1">Acervo vazio</h3>
                                     <p class="text-slate-500 font-medium text-sm">Cadastre a primeira peça do seu acervo.</p>
