@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Acervo;
+use App\Models\AcervoFoto;
 
 class ProdutoController extends Controller
 {
@@ -35,11 +37,127 @@ class ProdutoController extends Controller
             'nome' => 'required|string|max:255',
             'categoria' => 'required|string',
             'valor_locacao' => 'required|numeric',
+            'fotos.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
         ]);
 
-        Acervo::create($request->except('loja_id'));
+        $peca = Acervo::create($request->except(['loja_id', 'fotos']));
 
-        return redirect()->route('acervo.index')->with('success', 'Peça cadastrada no acervo com sucesso!');
+        // Fotos enviadas no cadastro (a primeira vira capa).
+        $this->salvarFotos($request, $peca);
+
+        return redirect()->route('acervo.show', $peca)->with('success', 'Peça cadastrada no acervo com sucesso!');
+    }
+
+    // Tela de edição da peça (editar dados + gerenciar a galeria de fotos).
+    public function edit(Acervo $peca)
+    {
+        $peca->load('fotos');
+        return view('acervo.edit', compact('peca'));
+    }
+
+    // Atualiza os dados da peça.
+    public function update(Request $request, Acervo $peca)
+    {
+        $lojaId = Auth::user()->loja_id;
+
+        $dados = $request->validate([
+            'codigo' => ['required', 'string', Rule::unique('acervos', 'codigo')->where('loja_id', $lojaId)->ignore($peca->id)],
+            'nome' => 'required|string|max:255',
+            'categoria' => 'required|string',
+            'tamanho' => 'nullable|string|max:50',
+            'cor' => 'nullable|string|max:50',
+            'valor_locacao' => 'required|numeric',
+            'status' => 'nullable|string',
+            'observacoes' => 'nullable|string',
+            'fotos.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+        ]);
+
+        $peca->update(collect($dados)->except('fotos')->toArray());
+
+        // Novas fotos adicionadas na edição.
+        $this->salvarFotos($request, $peca);
+
+        return redirect()->route('acervo.edit', $peca)->with('success', 'Peça atualizada!');
+    }
+
+    // Define uma foto como capa.
+    public function definirCapa(Acervo $peca, AcervoFoto $foto)
+    {
+        abort_unless($foto->acervo_id === $peca->id, 404);
+
+        $peca->fotos()->update(['capa' => false]);
+        $foto->update(['capa' => true]);
+        // Mantém a coluna `foto` (capa) sincronizada para listagem/compatibilidade.
+        $peca->update(['foto' => $foto->caminho]);
+
+        return back()->with('success', 'Foto de capa definida!');
+    }
+
+    // Remove uma foto da galeria.
+    public function removerFoto(Acervo $peca, AcervoFoto $foto)
+    {
+        abort_unless($foto->acervo_id === $peca->id, 404);
+
+        Storage::disk('public')->delete($foto->caminho);
+        $eraCapa = $foto->capa;
+        $foto->delete();
+
+        // Se a capa foi removida, promove a próxima foto a capa.
+        if ($eraCapa) {
+            $nova = $peca->fotos()->first();
+            if ($nova) {
+                $nova->update(['capa' => true]);
+                $peca->update(['foto' => $nova->caminho]);
+            } else {
+                $peca->update(['foto' => null]);
+            }
+        }
+
+        return back()->with('success', 'Foto removida.');
+    }
+
+    /** Remove a peça inteira (e suas fotos). */
+    public function destroy(Acervo $peca)
+    {
+        foreach ($peca->fotos as $f) {
+            Storage::disk('public')->delete($f->caminho);
+        }
+        $peca->delete(); // cascade apaga as fotos no banco
+
+        return redirect()->route('acervo.index')->with('success', 'Peça removida do acervo.');
+    }
+
+    /**
+     * Salva as fotos enviadas (upload múltiplo) na galeria da peça.
+     * A primeira foto da peça vira capa automaticamente.
+     */
+    private function salvarFotos(Request $request, Acervo $peca): void
+    {
+        if (!$request->hasFile('fotos')) {
+            return;
+        }
+
+        $lojaId = Auth::user()->loja_id;
+        $jaTemCapa = $peca->fotos()->where('capa', true)->exists();
+        $ordem = (int) $peca->fotos()->max('ordem');
+
+        foreach ($request->file('fotos') as $arquivo) {
+            if (!$arquivo || !$arquivo->isValid()) {
+                continue;
+            }
+            $caminho = $arquivo->store("acervo/{$lojaId}", 'public');
+            $ehCapa = !$jaTemCapa;
+            $peca->fotos()->create([
+                'loja_id' => $lojaId,
+                'caminho' => $caminho,
+                'capa' => $ehCapa,
+                'ordem' => ++$ordem,
+            ]);
+            if ($ehCapa) {
+                $peca->update(['foto' => $caminho]); // sincroniza capa na coluna legada
+                $jaTemCapa = true;
+            }
+        }
     }
 
     /**

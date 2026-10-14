@@ -87,6 +87,27 @@ class Acervo extends Model
     }
 
     /**
+     * Galeria de fotos da peça (capa primeiro, depois pela ordem).
+     */
+    public function fotos(): HasMany
+    {
+        return $this->hasMany(AcervoFoto::class)->orderByDesc('capa')->orderBy('ordem')->orderBy('id');
+    }
+
+    /**
+     * URL da foto de CAPA: usa a galeria (foto marcada como capa, ou a primeira);
+     * se não houver, cai na coluna `foto` (compatibilidade) ou null.
+     */
+    public function getCapaUrlAttribute(): ?string
+    {
+        $capa = $this->fotos->firstWhere('capa', true) ?? $this->fotos->first();
+        if ($capa) {
+            return $capa->url;
+        }
+        return $this->foto ? asset('storage/'.$this->foto) : null;
+    }
+
+    /**
      * A peça está livre para uma nova reserva?
      */
     public function estaDisponivel(): bool

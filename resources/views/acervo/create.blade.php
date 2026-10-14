@@ -20,7 +20,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('produto.store') }}" method="POST" class="space-y-8">
+                <form action="{{ route('produto.store') }}" method="POST" class="space-y-8" enctype="multipart/form-data">
                     @csrf
 
                     <!-- BLOCO 1: IDENTIFICAÇÃO -->
@@ -89,9 +89,27 @@
                         </div>
                     </div>
 
-                    <!-- BLOCO 3: OBSERVAÇÕES -->
+                    <!-- BLOCO 3: FOTOS -->
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200" x-data="galeriaUpload()">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">3. Fotos da Peça</h3>
+                        <label class="inline-flex items-center gap-2 cursor-pointer bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 hover:border-[#fbbf24]">
+                            <i class="fas fa-camera text-[#fbbf24]"></i> Escolher fotos
+                            <input type="file" name="fotos[]" accept="image/*" multiple class="hidden" @change="preview($event)">
+                        </label>
+                        <span class="ml-2 text-xs text-slate-400" x-text="qtd ? qtd + ' foto(s) selecionada(s)' : 'A 1ª foto vira a capa. Você pode selecionar várias.'"></span>
+                        <div class="mt-4 grid grid-cols-3 md:grid-cols-5 gap-3" x-show="imagens.length">
+                            <template x-for="(src, i) in imagens" :key="i">
+                                <div class="relative aspect-[3/4] rounded-xl overflow-hidden border border-slate-200 bg-white">
+                                    <img :src="src" class="w-full h-full object-cover">
+                                    <span x-show="i === 0" class="absolute bottom-1 left-1 text-[9px] bg-[#fbbf24] text-black font-black px-1.5 py-0.5 rounded">CAPA</span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- BLOCO 4: OBSERVAÇÕES -->
                     <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">3. Observações</h3>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">4. Observações</h3>
                         <textarea name="observacoes" rows="2" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="Detalhes sobre bordados, danos existentes, ajustes padrão..."></textarea>
                     </div>
 
@@ -105,4 +123,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function galeriaUpload() {
+            return {
+                imagens: [],
+                qtd: 0,
+                preview(e) {
+                    this.imagens = [];
+                    const files = Array.from(e.target.files || []);
+                    this.qtd = files.length;
+                    files.forEach(f => {
+                        const url = URL.createObjectURL(f);
+                        this.imagens.push(url);
+                    });
+                }
+            }
+        }
+    </script>
 </x-app-layout>

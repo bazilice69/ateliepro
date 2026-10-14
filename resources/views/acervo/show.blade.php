@@ -4,7 +4,10 @@
             <h2 class="font-black text-2xl text-slate-800 uppercase tracking-tighter">
                 {{ $peca->codigo }} <span class="text-[#fbbf24]">· {{ $peca->nome }}</span>
             </h2>
-            <a href="{{ route('acervo.index') }}" class="text-xs font-bold text-slate-400 hover:text-slate-700 uppercase tracking-widest self-center">← Acervo</a>
+            <div class="flex items-center gap-4 self-center">
+                <a href="{{ route('acervo.edit', $peca) }}" class="text-xs font-bold text-slate-400 hover:text-[#fbbf24] uppercase tracking-widest">✏️ Editar</a>
+                <a href="{{ route('acervo.index') }}" class="text-xs font-bold text-slate-400 hover:text-slate-700 uppercase tracking-widest">← Acervo</a>
+            </div>
         </div>
     </x-slot>
 
@@ -13,11 +16,22 @@
 
             <!-- Dados da peça -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-6">
-                <div class="w-28 h-28 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-                    @if($peca->foto)
-                        <img src="{{ asset('storage/'.$peca->foto) }}" alt="{{ $peca->nome }}" class="w-full h-full object-cover">
-                    @else
-                        <i class="fas fa-tshirt text-3xl text-slate-300"></i>
+                <div class="shrink-0" x-data="{ atual: '{{ $peca->capa_url ?? '' }}' }">
+                    <div class="w-40 h-52 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden">
+                        @if($peca->capa_url)
+                            <img :src="atual" alt="{{ $peca->nome }}" class="w-full h-full object-cover">
+                        @else
+                            <i class="fas fa-tshirt text-3xl text-slate-300"></i>
+                        @endif
+                    </div>
+                    @if($peca->fotos->count() > 1)
+                        <div class="flex gap-2 mt-2 flex-wrap w-40">
+                            @foreach($peca->fotos as $foto)
+                                <button type="button" @click="atual = '{{ $foto->url }}'" class="w-9 h-11 rounded-lg overflow-hidden border border-slate-200 hover:ring-2 hover:ring-[#fbbf24]">
+                                    <img src="{{ $foto->url }}" class="w-full h-full object-cover">
+                                </button>
+                            @endforeach
+                        </div>
                     @endif
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
