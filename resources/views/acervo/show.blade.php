@@ -17,23 +17,48 @@
 
             <!-- Dados da peça -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-6">
-                <div class="shrink-0" x-data="{ atual: '{{ $peca->capa_url ?? '' }}' }">
-                    <div class="w-40 h-52 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden">
+                @php $fotosGaleria = $peca->fotos->map(fn($f) => $f->url)->values(); @endphp
+                <div class="shrink-0" x-data="galeriaPeca(@json($fotosGaleria))">
+                    {{-- Foto principal (clica para ampliar) --}}
+                    <button type="button" @click="if(fotos.length) abrir(indice)"
+                            class="block w-40 h-52 rounded-2xl bg-slate-50 border border-slate-200 overflow-hidden {{ $peca->capa_url ? 'cursor-zoom-in' : '' }} flex items-center justify-center">
                         @if($peca->capa_url)
-                            <img :src="atual" alt="{{ $peca->nome }}" class="w-full h-full object-cover">
+                            <img :src="fotos[indice]" alt="{{ $peca->nome }}" class="w-full h-full object-cover">
                         @else
                             <i class="fas fa-tshirt text-3xl text-slate-300"></i>
                         @endif
-                    </div>
+                    </button>
                     @if($peca->fotos->count() > 1)
                         <div class="flex gap-2 mt-2 flex-wrap w-40">
-                            @foreach($peca->fotos as $foto)
-                                <button type="button" @click="atual = '{{ $foto->url }}'" class="w-9 h-11 rounded-lg overflow-hidden border border-slate-200 hover:ring-2 hover:ring-[#fbbf24]">
+                            @foreach($peca->fotos as $i => $foto)
+                                <button type="button" @click="indice = {{ $i }}"
+                                        :class="indice === {{ $i }} ? 'ring-2 ring-[#fbbf24]' : ''"
+                                        class="w-9 h-11 rounded-lg overflow-hidden border border-slate-200 hover:ring-2 hover:ring-[#fbbf24]">
                                     <img src="{{ $foto->url }}" class="w-full h-full object-cover">
                                 </button>
                             @endforeach
                         </div>
                     @endif
+
+                    {{-- Lightbox (tela cheia com navegação) --}}
+                    <div x-show="aberto" x-cloak class="fixed inset-0 z-[80] flex flex-col" style="background: rgba(0,0,0,.92)"
+                         @keydown.escape.window="fechar()" @keydown.arrow-right.window="proxima()" @keydown.arrow-left.window="anterior()">
+                        <div class="flex items-center justify-between px-4 py-3 text-white/90 text-sm shrink-0">
+                            <span x-text="(indice + 1) + ' de ' + fotos.length"></span>
+                            <button @click="fechar()" class="text-3xl leading-none">&times;</button>
+                        </div>
+                        <div class="flex-1 flex items-center justify-center relative overflow-hidden select-none"
+                             @touchstart="toqueInicio($event)" @touchend="toqueFim($event)">
+                            <button @click="anterior()" x-show="fotos.length > 1" class="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white text-2xl items-center justify-center">‹</button>
+                            <img :src="fotos[indice]" draggable="false" class="max-w-full max-h-[85vh] object-contain rounded-lg">
+                            <button @click="proxima()" x-show="fotos.length > 1" class="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white text-2xl items-center justify-center">›</button>
+                        </div>
+                        <div x-show="fotos.length > 1" class="flex justify-center gap-1.5 pb-5">
+                            <template x-for="(f, i) in fotos" :key="i">
+                                <button @click="indice = i" class="w-2 h-2 rounded-full transition" :class="i === indice ? 'bg-white' : 'bg-white/30'"></button>
+                            </template>
+                        </div>
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
                     <div><p class="text-[10px] font-black uppercase text-slate-400">Categoria</p><p class="font-bold text-slate-800 text-sm">{{ $peca->categoria }}</p></div>
@@ -92,4 +117,25 @@
 
         </div>
     </div>
+
+    <script>
+        function galeriaPeca(fotos) {
+            return {
+                fotos: fotos || [],
+                indice: 0,
+                aberto: false,
+                touchX: 0,
+                abrir(i) { this.indice = i; this.aberto = true; document.body.style.overflow = 'hidden'; },
+                fechar() { this.aberto = false; document.body.style.overflow = ''; },
+                proxima() { if (this.fotos.length > 1) this.indice = (this.indice + 1) % this.fotos.length; },
+                anterior() { if (this.fotos.length > 1) this.indice = (this.indice - 1 + this.fotos.length) % this.fotos.length; },
+                toqueInicio(e) { this.touchX = e.changedTouches[0].screenX; },
+                toqueFim(e) {
+                    const dx = e.changedTouches[0].screenX - this.touchX;
+                    if (Math.abs(dx) < 40) return;
+                    if (dx < 0) this.proxima(); else this.anterior();
+                },
+            }
+        }
+    </script>
 </x-app-layout>
