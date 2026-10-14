@@ -17,7 +17,7 @@ class Prova extends Model
     protected $table = 'provas';
 
     protected $fillable = [
-        'loja_id', 'cliente_id', 'acervo_id', 'locacao_id',
+        'loja_id', 'is_demo', 'cliente_id', 'acervo_id', 'locacao_id',
         'data_prova', 'responsavel', 'status', 'resultado',
         'ajustes_necessarios', 'proxima_prova', 'observacoes', 'fotos',
     ];

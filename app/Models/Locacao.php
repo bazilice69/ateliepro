@@ -14,6 +14,7 @@ class Locacao extends Model
     // Diz ao Laravel que estes campos são seguros para gravar em massa
     protected $fillable = [
         'loja_id',
+        'is_demo',
         'cliente_id',
         'acervo_id',
         'data_retirada',

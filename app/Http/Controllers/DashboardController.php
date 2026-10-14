@@ -47,6 +47,12 @@ class DashboardController extends Controller
             'locacoes_ativas' => Locacao::where('status', '!=', 'cancelada')->count(),
         ];
 
+        // Loja "nova/vazia": usada para mostrar o onboarding de primeiros passos.
+        $lojaVazia = $totais['clientes'] === 0 && $totais['pecas'] === 0 && $totais['locacoes_ativas'] === 0;
+
+        // Tem dados de demonstração carregados? (para oferecer o "limpar")
+        $temDemo = \App\Models\Cliente::where('is_demo', true)->exists();
+
         // --- Painel operacional: "o que precisa de atenção" (contadores) ------
         $op = [
             // Provas agendadas de hoje em diante
@@ -130,7 +136,7 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'recebidoMes', 'aReceber', 'emAtraso', 'despesasMes', 'saldoPrevisto',
             'totais', 'op', 'movimentacoes', 'proximosEventos', 'agendaHoje',
-            'provasHoje', 'ajustesPendentes', 'encomendasProducao'
+            'provasHoje', 'ajustesPendentes', 'encomendasProducao', 'lojaVazia', 'temDemo'
         ));
     }
 

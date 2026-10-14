@@ -23,6 +23,64 @@
     <div class="py-8 relative">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
+            @if(session('success'))
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-2xl text-sm font-medium">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="bg-amber-50 border border-amber-200 text-amber-800 px-6 py-4 rounded-2xl text-sm font-semibold">⚠️ {{ session('error') }}</div>
+            @endif
+
+            {{-- Barra de dados de exemplo: aparece quando há demo carregado --}}
+            @if($temDemo)
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3 flex flex-wrap items-center justify-between gap-3">
+                    <span class="text-sm text-amber-800 font-semibold"><i class="fas fa-wand-magic-sparkles mr-1"></i> Você está vendo <strong>dados de exemplo</strong>. Sinta-se à vontade para explorar.</span>
+                    <form method="POST" action="{{ route('demo.limpar') }}" onsubmit="return confirm('Remover todos os dados de exemplo? Seus dados reais não serão afetados.')">
+                        @csrf
+                        <button class="bg-white border border-amber-300 text-amber-700 hover:bg-amber-100 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition">🧹 Limpar dados de exemplo</button>
+                    </form>
+                </div>
+            @endif
+
+            {{-- ===== PRIMEIROS PASSOS (só aparece com a loja ainda vazia) ===== --}}
+            @if($lojaVazia)
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-6 -top-6 text-white/5 text-9xl"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-[#fbbf24]">Bem-vinda ao {{ \App\Models\Setting::nomeSistema() }} ✨</p>
+                        <h3 class="text-2xl font-black tracking-tight mt-1">Vamos começar? É rápido!</h3>
+                        <p class="text-sm text-slate-300 mt-1 max-w-xl">Siga os passos abaixo para dar vida ao seu ateliê. Ou, se quiser só <strong>conhecer o sistema funcionando</strong>, clique em “Ver com dados de exemplo”.</p>
+
+                        <div class="grid sm:grid-cols-3 gap-4 mt-6">
+                            <a href="{{ route('produto.create') }}" class="bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-5 transition group">
+                                <div class="w-10 h-10 rounded-xl bg-[#fbbf24] text-black flex items-center justify-center font-black mb-3">1</div>
+                                <p class="font-black text-sm">Cadastre uma peça</p>
+                                <p class="text-xs text-slate-400 mt-1">Seu primeiro vestido no acervo.</p>
+                            </a>
+                            <a href="{{ route('clientes.create') }}" class="bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-5 transition group">
+                                <div class="w-10 h-10 rounded-xl bg-[#fbbf24] text-black flex items-center justify-center font-black mb-3">2</div>
+                                <p class="font-black text-sm">Cadastre uma cliente</p>
+                                <p class="text-xs text-slate-400 mt-1">A noiva ou cliente da vez.</p>
+                            </a>
+                            <a href="{{ route('locacao.create') }}" class="bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-5 transition group">
+                                <div class="w-10 h-10 rounded-xl bg-[#fbbf24] text-black flex items-center justify-center font-black mb-3">3</div>
+                                <p class="font-black text-sm">Crie uma locação</p>
+                                <p class="text-xs text-slate-400 mt-1">Alugue uma peça para a cliente.</p>
+                            </a>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3 mt-6">
+                            <form method="POST" action="{{ route('demo.popular') }}" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerText='Preenchendo...';">
+                                @csrf
+                                <button class="bg-[#fbbf24] hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg">
+                                    <i class="fas fa-wand-magic-sparkles mr-1"></i> Ver com dados de exemplo
+                                </button>
+                            </form>
+                            <span class="text-xs text-slate-400">Cria noivas, peças e provas fictícias para você explorar. Dá para apagar depois.</span>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- ===== CENTRO DE COMANDO OPERACIONAL ===== -->
             @php
                 $cards = [
