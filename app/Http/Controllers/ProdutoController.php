@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Acervo;
 use App\Models\AcervoFoto;
+use App\Support\Imagens;
 
 class ProdutoController extends Controller
 {
@@ -145,7 +146,8 @@ class ProdutoController extends Controller
             if (!$arquivo || !$arquivo->isValid()) {
                 continue;
             }
-            $caminho = $arquivo->store("acervo/{$lojaId}", 'public');
+            // Comprime/redimensiona (evita erro com fotos grandes e economiza disco).
+            $caminho = Imagens::salvarComprimida($arquivo, "acervo/{$lojaId}");
             $ehCapa = !$jaTemCapa;
             $peca->fotos()->create([
                 'loja_id' => $lojaId,
