@@ -126,9 +126,27 @@
             @endif
 
             @if($lojaAtual && $lojaAtual->emTrial())
+                @php $diasTrial = $lojaAtual->diasDeTrial(); @endphp
                 <div class="bg-emerald-500 text-white px-4 py-2 flex justify-between items-center text-xs sm:text-sm font-bold gap-2">
-                    <span class="truncate"><i class="fas fa-gift mr-2"></i> Teste grátis — restam <strong>{{ $lojaAtual->diasDeTrial() }} dia(s)</strong>.</span>
+                    <span class="truncate"><i class="fas fa-gift mr-2"></i>
+                        @if($diasTrial <= 0)
+                            Teste grátis — <strong>último dia</strong>! Assine para não perder o acesso.
+                        @else
+                            Teste grátis — restam <strong>{{ $diasTrial }} dia(s)</strong>.
+                        @endif
+                    </span>
                     <a href="{{ route('assinar.escolher') }}" class="bg-white text-emerald-600 px-3 py-1 rounded-lg uppercase text-[10px] sm:text-xs tracking-widest hover:bg-emerald-50 shrink-0">Assinar</a>
+                </div>
+            @elseif($lojaAtual && $lojaAtual->temVencimentoVigente())
+                @php $diasVenc = $lojaAtual->diasAteVencimento(); @endphp
+                <div class="bg-slate-800 text-white px-4 py-2 flex justify-between items-center text-xs sm:text-sm font-bold gap-2">
+                    <span class="truncate"><i class="fas fa-circle-check mr-2 text-emerald-400"></i>
+                        Acesso ativo até <strong>{{ $lojaAtual->data_vencimento->format('d/m/Y') }}</strong>
+                        @if($diasVenc <= 7)
+                            <span class="text-amber-300">· {{ $diasVenc }} dia(s) para renovar</span>
+                        @endif
+                    </span>
+                    <a href="{{ route('assinar.escolher') }}" class="bg-white text-slate-800 px-3 py-1 rounded-lg uppercase text-[10px] sm:text-xs tracking-widest hover:bg-slate-100 shrink-0">Renovar</a>
                 </div>
             @endif
 

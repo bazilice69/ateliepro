@@ -124,6 +124,28 @@ class Loja extends Model
     }
 
     /**
+     * Tem uma assinatura/vencimento vigente (liberada pelo admin ou paga)?
+     * Ou seja: NÃO está mais em trial, mas tem data_vencimento no futuro.
+     */
+    public function temVencimentoVigente(): bool
+    {
+        return !$this->emTrial()
+            && $this->data_vencimento
+            && $this->data_vencimento->endOfDay()->isFuture();
+    }
+
+    /**
+     * Dias restantes até o vencimento da assinatura (0 se já venceu / não há).
+     */
+    public function diasAteVencimento(): int
+    {
+        if (!$this->data_vencimento) {
+            return 0;
+        }
+        return max(0, (int) now()->startOfDay()->diffInDays($this->data_vencimento->endOfDay(), false));
+    }
+
+    /**
      * A loja tem acesso liberado ao sistema?
      * Regra SaaS: status ativo E (dentro do trial OU com vencimento vigente).
      */
