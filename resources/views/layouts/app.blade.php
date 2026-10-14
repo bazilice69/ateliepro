@@ -68,6 +68,7 @@
                         ['provas.index', 'provas.*', 'fa-ruler-combined', 'Provas'],
                         ['encomendas.index', 'encomendas.*', 'fa-pen-ruler', 'Sob Medida'],
                         ['servicos.index', 'servicos.*', 'fa-scissors', 'Oficina'],
+                        ['orcamentos.index', 'orcamentos.*', 'fa-calculator', 'Orçamentos'],
                         ['contratos.index', 'contratos.*', 'fa-file-signature', 'Contratos'],
                         ['financeiro.index', 'financeiro.index', 'fa-dollar-sign', 'Financeiro'],
                         ['recorrentes.index', 'recorrentes.*', 'fa-repeat', 'Despesas Fixas'],

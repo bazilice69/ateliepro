@@ -54,12 +54,17 @@
 
             <!-- CALCULADORA DE PRECIFICAÇÃO — 3 MODOS (Alpine.js) -->
             <div x-data="calculadoraPreco()" class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-900 text-[#fbbf24] flex items-center justify-center"><i class="fas fa-calculator"></i></div>
-                    <div>
-                        <h3 class="text-xl font-black text-slate-800 tracking-tighter">Calculadora de Preço</h3>
-                        <p class="text-sm font-medium text-slate-500">Descubra quanto cobrar — sem achismo. Escolha o tipo e preencha os custos.</p>
+                <div class="flex items-center justify-between gap-3 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-slate-900 text-[#fbbf24] flex items-center justify-center"><i class="fas fa-calculator"></i></div>
+                        <div>
+                            <h3 class="text-xl font-black text-slate-800 tracking-tighter">Calculadora de Preço</h3>
+                            <p class="text-sm font-medium text-slate-500">Cálculo rápido. Para <b>salvar e enviar ao cliente</b>, use o Orçamento.</p>
+                        </div>
                     </div>
+                    <a href="{{ route('orcamentos.create') }}" class="shrink-0 bg-slate-900 text-[#fbbf24] px-4 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-800 transition">
+                        <i class="fas fa-file-invoice-dollar mr-1"></i> Gerar orçamento
+                    </a>
                 </div>
 
                 <!-- Seletor de modo -->
