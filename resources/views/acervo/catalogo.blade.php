@@ -76,8 +76,12 @@
                 </div>
                 @if($loja && ($loja->telefone || $loja->cidade))
                     <div class="text-right text-white/60 text-xs">
-                        @if($loja->telefone)<p>{{ $loja->telefone }}</p>@endif
-                        @if($loja->cidade)<p>{{ $loja->cidade }}@if($loja->estado)/{{ $loja->estado }}@endif</p>@endif
+                        @if($loja->telefone)
+                            <p>{{ $loja->telefone }}</p>
+                        @endif
+                        @if($loja->cidade)
+                            <p>{{ $loja->cidade }}{{ $loja->estado ? '/'.$loja->estado : '' }}</p>
+                        @endif
                     </div>
                 @endif
             </div>
@@ -104,7 +108,12 @@
                         </div>
                         <p class="text-[10px] font-bold text-ouro uppercase tracking-widest">{{ $peca->categoria }}</p>
                         <p class="serif text-xl font-bold text-slate-900 leading-tight">{{ $peca->nome }}</p>
-                        <p class="text-xs text-slate-400 mt-0.5">Ref. {{ $peca->codigo }}@if($peca->tamanho) · Tam {{ $peca->tamanho }}@endif@if($peca->cor) · {{ $peca->cor }}@endif</p>
+                        @php
+                            $detalhe = 'Ref. '.$peca->codigo;
+                            if ($peca->tamanho) $detalhe .= ' · Tam '.$peca->tamanho;
+                            if ($peca->cor) $detalhe .= ' · '.$peca->cor;
+                        @endphp
+                        <p class="text-xs text-slate-400 mt-0.5">{{ $detalhe }}</p>
                         <p class="text-lg font-black text-slate-900 mt-1">R$ {{ number_format((float) $peca->valor_locacao, 2, ',', '.') }}</p>
                     </div>
                 @endforeach
@@ -121,8 +130,18 @@
         <h2 class="serif text-5xl font-bold">{{ $nomeLoja }}</h2>
         <p class="text-ouro uppercase tracking-[0.4em] text-xs mt-4">Agende sua visita</p>
         <div class="mt-8 text-white/70 space-y-1 text-sm">
-            @if($loja && $loja->telefone)<p>📞 {{ $loja->telefone }}</p>@endif
-            @if($loja && $loja->endereco)<p>📍 {{ $loja->endereco }}@if($loja->cidade) — {{ $loja->cidade }}@if($loja->estado)/{{ $loja->estado }}@endif @endif</p>@endif
+            @if($loja && $loja->telefone)
+                <p>📞 {{ $loja->telefone }}</p>
+            @endif
+            @if($loja && $loja->endereco)
+                @php
+                    $localEndereco = $loja->endereco;
+                    if ($loja->cidade) {
+                        $localEndereco .= ' — '.$loja->cidade.($loja->estado ? '/'.$loja->estado : '');
+                    }
+                @endphp
+                <p>📍 {{ $localEndereco }}</p>
+            @endif
         </div>
         <p class="absolute bottom-10 text-white/30 text-[10px] uppercase tracking-widest">Catálogo gerado em {{ $dataHoje }}</p>
     </div>
