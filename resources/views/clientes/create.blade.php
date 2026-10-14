@@ -21,7 +21,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Nome Completo *</label>
-                                <input type="text" name="nome" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="Ex: Ana Paula Silva">
+                                <input type="text" name="nome" value="{{ old('nome', request('nome')) }}" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none" placeholder="Ex: Ana Paula Silva">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">CPF</label>
