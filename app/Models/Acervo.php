@@ -16,6 +16,7 @@ class Acervo extends Model
     // Estoque unificado: campos originais + campos migrados de `produtos`.
     protected $fillable = [
         'loja_id',
+        'is_demo',
         'codigo',
         'nome',
         'categoria',

@@ -17,7 +17,7 @@ class Servico extends Model
     protected $table = 'servicos';
 
     protected $fillable = [
-        'loja_id', 'acervo_id', 'cliente_id', 'locacao_id',
+        'loja_id', 'is_demo', 'acervo_id', 'cliente_id', 'locacao_id',
         'tipo', 'descricao', 'itens', 'responsavel', 'prazo',
         'custo', 'status', 'observacoes', 'fotos',
     ];

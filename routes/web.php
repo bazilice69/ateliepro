@@ -199,6 +199,10 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/contratos/{contrato}/imprimir', [ContratoController::class, 'imprimir'])->name('contratos.imprimir');
     Route::delete('/contratos/{contrato}', [ContratoController::class, 'destroy'])->name('contratos.destroy');
 
+    // Dados de demonstração (botão "Ver com dados de exemplo" no dashboard)
+    Route::post('/demo/popular', [App\Http\Controllers\DemoController::class, 'popular'])->name('demo.popular');
+    Route::post('/demo/limpar', [App\Http\Controllers\DemoController::class, 'limpar'])->name('demo.limpar');
+
     // Orçamentos (calculadora conectada → orçamento → vira contrato)
     Route::get('/orcamentos', [OrcamentoController::class, 'index'])->name('orcamentos.index');
     Route::get('/orcamentos/novo', [OrcamentoController::class, 'create'])->name('orcamentos.create');

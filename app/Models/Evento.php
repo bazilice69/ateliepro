@@ -15,6 +15,7 @@ class Evento extends Model
 
     protected $fillable = [
         'loja_id',
+        'is_demo',
         'nome_evento',
         'data_evento',
         'tipo_evento',
