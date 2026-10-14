@@ -24,6 +24,7 @@ use App\Http\Controllers\ModeloContratoController;
 use App\Http\Controllers\AssistenteController;
 use App\Http\Controllers\LojaConfigController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrcamentoController;
 use App\Http\Controllers\ProvaController;
 use App\Http\Controllers\ServicoController;
 use Illuminate\Support\Facades\Route;
@@ -197,6 +198,13 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/contratos/{contrato}', [ContratoController::class, 'show'])->name('contratos.show');
     Route::get('/contratos/{contrato}/imprimir', [ContratoController::class, 'imprimir'])->name('contratos.imprimir');
     Route::delete('/contratos/{contrato}', [ContratoController::class, 'destroy'])->name('contratos.destroy');
+
+    // Orçamentos (calculadora conectada → orçamento → vira contrato)
+    Route::get('/orcamentos', [OrcamentoController::class, 'index'])->name('orcamentos.index');
+    Route::get('/orcamentos/novo', [OrcamentoController::class, 'create'])->name('orcamentos.create');
+    Route::post('/orcamentos', [OrcamentoController::class, 'store'])->name('orcamentos.store');
+    Route::get('/orcamentos/{orcamento}', [OrcamentoController::class, 'show'])->name('orcamentos.show');
+    Route::get('/orcamentos/{orcamento}/imprimir', [OrcamentoController::class, 'imprimir'])->name('orcamentos.imprimir');
 
     // Gestão de Funcionários (apenas admin_loja / super_admin)
     Route::middleware('adminloja')->group(function () {
