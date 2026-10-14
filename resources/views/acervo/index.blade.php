@@ -4,9 +4,14 @@
             <h2 class="font-black text-2xl text-slate-800 leading-tight uppercase tracking-tighter">
                 Gestão de <span class="text-[#fbbf24]">Acervo</span>
             </h2>
-            <a href="{{ route('produto.create') }}" class="bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition shadow-lg">
-                + Nova Peça
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('acervo.catalogo') }}" target="_blank" class="bg-white text-slate-800 border border-slate-200 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:border-[#fbbf24] transition shadow-sm">
+                    📖 Catálogo PDF
+                </a>
+                <a href="{{ route('produto.create') }}" class="bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition shadow-lg">
+                    + Nova Peça
+                </a>
+            </div>
         </div>
     </x-slot>
 

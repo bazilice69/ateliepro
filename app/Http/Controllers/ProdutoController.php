@@ -188,6 +188,36 @@ class ProdutoController extends Controller
         ]);
     }
 
+    /**
+     * Catálogo estilo revista (gerado com o acervo ATUAL — reflete as fotos/
+     * peças do momento). Filtros opcionais por categoria e status.
+     * Página pronta para "Salvar como PDF" e enviar à cliente.
+     */
+    public function catalogo(Request $request)
+    {
+        $query = Acervo::query()->with('fotos');
+
+        // Filtro por categoria (opcional).
+        if ($request->filled('categoria')) {
+            $query->where('categoria', $request->categoria);
+        }
+
+        // Por padrão mostra só as DISPONÍVEIS (o que a cliente pode alugar);
+        // ?todas=1 inclui todas.
+        if (!$request->boolean('todas')) {
+            $query->where('status', Acervo::STATUS_DISPONIVEL);
+        }
+
+        $pecas = $query->orderBy('categoria')->orderBy('nome')->get();
+        $loja = Auth::user()->loja ?? null;
+
+        return view('acervo.catalogo', [
+            'pecas' => $pecas,
+            'loja' => $loja,
+            'categoriaFiltro' => $request->categoria,
+        ]);
+    }
+
     // Etiqueta imprimível da peça (com QR Code que abre a ficha).
     public function etiqueta(Acervo $peca)
     {
