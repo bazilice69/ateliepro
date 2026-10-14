@@ -109,11 +109,12 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
                                     <label class="block text-sm font-bold text-slate-700 mb-2">Valor Total (R$)</label>
-                                    <input type="number" step="0.01" name="valor_total" value="{{ old('valor_total') }}" required class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                                    <input type="text" inputmode="decimal" name="valor_total" value="{{ old('valor_total') }}" required placeholder="Ex: 1.500,00" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                                    <p class="text-[11px] text-slate-400 mt-1">Use vírgula para centavos. Ex: <b>1.500,00</b></p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-bold text-slate-700 mb-2">Sinal / Entrada Paga (R$)</label>
-                                    <input type="number" step="0.01" name="sinal_pago" value="{{ old('sinal_pago') ?? '0' }}" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
+                                    <input type="text" inputmode="decimal" name="sinal_pago" value="{{ old('sinal_pago') ?? '0' }}" placeholder="Ex: 500,00" class="w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none">
                                 </div>
                             </div>
 

@@ -25,6 +25,7 @@ class DespesaRecorrenteController extends Controller
     public function store(Request $request)
     {
         $lojaId = $request->user()->loja_id;
+        $this->normalizarDinheiro($request, ['valor']);
 
         $dados = $request->validate([
             'descricao' => ['required', 'string', 'max:150'],
@@ -42,6 +43,7 @@ class DespesaRecorrenteController extends Controller
     public function update(Request $request, DespesaRecorrente $recorrente)
     {
         $lojaId = $request->user()->loja_id;
+        $this->normalizarDinheiro($request, ['valor']);
 
         $dados = $request->validate([
             'descricao' => ['required', 'string', 'max:150'],

@@ -48,6 +48,7 @@ class ServicoController extends Controller
     public function store(Request $request)
     {
         $lojaId = Auth::user()->loja_id;
+        $this->normalizarDinheiro($request, ['custo']);
 
         $dados = $request->validate([
             'tipo' => ['required', Rule::in([Servico::TIPO_AJUSTE, Servico::TIPO_LAVANDERIA, Servico::TIPO_MANUTENCAO])],

@@ -41,6 +41,13 @@ class LocacaoController extends Controller
     {
         $lojaId = Auth::user()->loja_id;
 
+        // Normaliza valores em formato BR ("1.500,00") para float antes de validar.
+        $request->merge([
+            'valor_total' => \App\Support\Dinheiro::paraFloat($request->input('valor_total')),
+            'sinal_pago'  => $request->filled('sinal_pago') ? \App\Support\Dinheiro::paraFloat($request->input('sinal_pago')) : null,
+            'caucao'      => $request->filled('caucao') ? \App\Support\Dinheiro::paraFloat($request->input('caucao')) : null,
+        ]);
+
         $request->validate([
             'cliente_id' => ['required', Rule::exists('clientes', 'id')->where('loja_id', $lojaId)],
             'acervo_id' => ['required', Rule::exists('acervos', 'id')->where('loja_id', $lojaId)],
@@ -131,6 +138,8 @@ class LocacaoController extends Controller
     // Registra a DEVOLUÇÃO com vistoria (estado, multa, caução, fotos)
     public function devolver(Request $request, Locacao $locacao)
     {
+        $this->normalizarDinheiro($request, ['multa']);
+
         $request->validate([
             'vistoria_estado' => ['required', 'string', 'max:40'],
             'vistoria_observacoes' => ['nullable', 'string'],

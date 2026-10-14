@@ -49,6 +49,7 @@ class EncomendaController extends Controller
     public function store(Request $request)
     {
         $lojaId = Auth::user()->loja_id;
+        $this->normalizarDinheiro($request, ['valor', 'sinal']);
 
         $dados = $request->validate([
             'cliente_id'   => ['required', Rule::exists('clientes', 'id')->where('loja_id', $lojaId)],
@@ -171,6 +172,7 @@ class EncomendaController extends Controller
     public function update(Request $request, Encomenda $encomenda)
     {
         $lojaId = Auth::user()->loja_id;
+        $this->normalizarDinheiro($request, ['valor', 'sinal']);
 
         $dados = $request->validate([
             'medida_id'    => ['nullable', Rule::exists('medidas', 'id')],

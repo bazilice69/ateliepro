@@ -37,6 +37,7 @@ class FinanceiroController extends Controller
     public function store(Request $request)
     {
         $lojaId = Auth::user()->loja_id;
+        $this->normalizarDinheiro($request, ['valor_original', 'desconto', 'acrescimo']);
 
         // Validação dos campos essenciais
         $request->validate([
