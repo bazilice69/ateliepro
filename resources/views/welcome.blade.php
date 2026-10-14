@@ -217,6 +217,20 @@
                     <p class="text-ouro text-xs font-bold uppercase tracking-widest mt-3">Tudo conectado e organizado.</p>
                 </div>
 
+                <h3 class="serif text-2xl font-bold text-white pt-6">E o preço certo? A gente ajuda com isso também</h3>
+                <p>Uma das maiores dúvidas de quem confecciona ou aluga é simples e dolorida: <strong class="text-white">quanto cobrar?</strong> Muita gente trabalha demais e lucra de menos porque chuta o preço, esquece custos ou não considera a margem.</p>
+                <p>Por isso a {{ $marca }} tem uma <strong class="text-ouro">calculadora de precificação</strong> feita pra esse mercado. Você informa o custo do material, a mão de obra, as despesas e a margem que deseja — e o sistema sugere o <strong class="text-white">preço justo</strong>, tanto para <strong class="text-white">peças sob medida (confecção)</strong> quanto para <strong class="text-white">peças prontas (venda e locação)</strong>.</p>
+
+                <div class="bg-gradient-to-r from-[#1c1a14] to-[#141418] border border-ouro/30 rounded-2xl p-6 my-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl border border-ouro/40 flex items-center justify-center shrink-0"><i class="fas fa-calculator text-ouro text-xl"></i></div>
+                        <div>
+                            <p class="text-white font-bold">Pare de cobrar no "achismo".</p>
+                            <p class="text-sm text-slate-400 mt-1">Material + mão de obra + despesas + a sua margem = o preço que faz você <strong class="text-ouro">lucrar de verdade</strong>, sem medo de perder dinheiro nem de assustar a cliente.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <h3 class="serif text-2xl font-bold text-white pt-6">Nosso sonho</h3>
                 <p>O sonho da {{ $marca }} é simples: <strong class="text-white">ajudar quem trabalha realizando o sonho de outras pessoas.</strong> Queremos que você termine o dia sabendo que seus clientes estão organizados, suas peças controladas, sua agenda em ordem e suas informações seguras.</p>
                 <p>A {{ $marca }} não quer tirar espaço de ninguém. <strong class="text-ouro">Quer somar.</strong> Não quer substituir a experiência dos profissionais — <strong class="text-ouro">quer potencializá-la.</strong></p>
@@ -251,6 +265,116 @@
                     <p class="text-sm text-slate-400 font-medium">{{ $desc }}</p>
                 </div>
             @endforeach
+        </div>
+    </section>
+
+    <!-- SEÇÃO: VEJA O SISTEMA POR DENTRO (mockups) -->
+    <section class="py-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-14">
+                <p class="text-ouro text-xs font-bold uppercase tracking-[0.3em] mb-3">Por dentro</p>
+                <h2 class="serif text-4xl md:text-5xl font-bold text-white">Veja o sistema por dentro</h2>
+                <p class="text-slate-400 font-medium mt-4">Uma prévia de como você vai trabalhar no dia a dia.</p>
+            </div>
+
+            @php
+                // "Janela de navegador" reutilizável para emoldurar cada tela.
+            @endphp
+
+            <div class="space-y-10">
+                <!-- MOCKUP 1: DASHBOARD -->
+                <div class="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-[#141418]">
+                    <div class="flex items-center gap-2 px-4 py-3 bg-[#0f0f12] border-b border-slate-800">
+                        <span class="w-3 h-3 rounded-full bg-rose-400"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                        <span class="ml-3 text-[11px] text-slate-500">Painel · {{ $marca }}</span>
+                    </div>
+                    <div class="p-6 bg-slate-100">
+                        <p class="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-4">Hoje no ateliê</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                            @foreach([['Provas marcadas','3','fa-ruler-combined','text-blue-500'],['Locações em aberto','5','fa-handshake','text-emerald-500'],['Para retirar','2','fa-box-open','text-amber-500'],['Ajustes pendentes','4','fa-scissors','text-purple-500']] as [$t,$n,$ic,$c])
+                                <div class="bg-white rounded-xl p-4 border border-slate-100">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-2xl font-black text-slate-800">{{ $n }}</span>
+                                        <i class="fas {{ $ic }} {{ $c }}"></i>
+                                    </div>
+                                    <p class="text-[10px] font-bold uppercase text-slate-400 mt-1">{{ $t }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            @foreach([['Recebido no mês','R$ 12.4k','text-emerald-600'],['A receber','R$ 3.8k','text-amber-600'],['Em atraso','R$ 900','text-rose-600'],['Projeção','R$ 16.2k','text-slate-800']] as [$t,$v,$c])
+                                <div class="bg-white rounded-xl p-4 border border-slate-100">
+                                    <p class="text-lg font-black {{ $c }}">{{ $v }}</p>
+                                    <p class="text-[10px] font-bold uppercase text-slate-400">{{ $t }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-10">
+                    <!-- MOCKUP 2: AGENDA -->
+                    <div class="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-[#141418]">
+                        <div class="flex items-center gap-2 px-4 py-3 bg-[#0f0f12] border-b border-slate-800">
+                            <span class="w-3 h-3 rounded-full bg-rose-400"></span><span class="w-3 h-3 rounded-full bg-amber-400"></span><span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                            <span class="ml-3 text-[11px] text-slate-500">Agenda</span>
+                        </div>
+                        <div class="p-5 bg-slate-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-black text-slate-700 capitalize">Outubro 2026</span>
+                                <div class="flex gap-1">
+                                    <span class="text-[9px] bg-slate-900 text-white px-2 py-1 rounded">Mês</span>
+                                    <span class="text-[9px] bg-white border border-slate-200 text-slate-500 px-2 py-1 rounded">Semana</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center">
+                                @foreach(['D','S','T','Q','Q','S','S'] as $d)<div class="text-[9px] font-bold text-slate-400 py-1">{{ $d }}</div>@endforeach
+                                @for($i=1;$i<=28;$i++)
+                                    <div class="aspect-square rounded bg-white border border-slate-100 text-[9px] text-slate-400 p-1 relative">
+                                        {{ $i }}
+                                        @if($i==7)<span class="block mt-0.5 h-1 rounded bg-blue-400"></span>@endif
+                                        @if($i==12)<span class="block mt-0.5 h-1 rounded bg-emerald-400"></span>@endif
+                                        @if($i==18)<span class="block mt-0.5 h-1 rounded bg-pink-400"></span>@endif
+                                        @if($i==21)<span class="block mt-0.5 h-1 rounded bg-purple-400"></span>@endif
+                                    </div>
+                                @endfor
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-3 text-[9px] font-bold text-slate-500">
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-blue-400"></span> Provas</span>
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Retiradas</span>
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-pink-400"></span> Aniversários</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MOCKUP 3: ACERVO (vitrine) -->
+                    <div class="rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-[#141418]">
+                        <div class="flex items-center gap-2 px-4 py-3 bg-[#0f0f12] border-b border-slate-800">
+                            <span class="w-3 h-3 rounded-full bg-rose-400"></span><span class="w-3 h-3 rounded-full bg-amber-400"></span><span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                            <span class="ml-3 text-[11px] text-slate-500">Acervo</span>
+                        </div>
+                        <div class="p-5 bg-slate-100">
+                            <div class="grid grid-cols-3 gap-3">
+                                @foreach([['Noiva','VN-100','#fdf2f8'],['Festa','VF-210','#eef2ff'],['Plus Size','PS-052','#f0fdf4'],['Madrinha','MD-071','#fef3c7'],['Terno','TM-034','#f1f5f9'],['Noiva','VN-118','#fdf2f8']] as [$cat,$cod,$bg])
+                                    <div class="bg-white rounded-xl overflow-hidden border border-slate-100">
+                                        <div class="aspect-[3/4] flex items-center justify-center" style="background: {{ $bg }}">
+                                            <i class="fas fa-tshirt text-2xl text-slate-300"></i>
+                                        </div>
+                                        <div class="p-2">
+                                            <p class="text-[8px] font-bold uppercase text-amber-600">{{ $cat }}</p>
+                                            <p class="text-[9px] font-bold text-slate-700">{{ $cod }}</p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-center text-slate-500 text-xs mt-8">Prévia ilustrativa das telas · a interface real é ainda mais completa.</p>
         </div>
     </section>
 
