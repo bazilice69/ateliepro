@@ -4,6 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ \App\Models\Setting::nomeSistema() }} - Gestão Inteligente</title>
+
+    {{-- PWA: app instalável na tela do celular --}}
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0b0b0d">
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/icon.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="{{ \App\Models\Setting::nomeSistema() }}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -184,5 +194,46 @@
 
     <!-- Botão flutuante de feedback/suporte — em todas as telas da loja -->
     @includeWhen(!(Auth::user()?->isSuperAdmin()), 'partials.feedback-widget')
+
+    {{-- ===== PWA: registro + convite de instalação ===== --}}
+    <div id="pwa-instalar" style="display:none"
+         class="fixed z-50 left-1/2 -translate-x-1/2 bottom-5 w-[92%] max-w-sm">
+        <div class="rounded-2xl bg-slate-900 text-white shadow-2xl border border-[#c9a24b]/40 p-4 flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl border border-[#c9a24b] flex items-center justify-center text-[#c9a24b] font-bold shrink-0" style="font-family:Georgia,serif">B</div>
+            <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm leading-tight">Instalar o {{ \App\Models\Setting::nomeSistema() }}</p>
+                <p class="text-xs text-slate-400">Adicione à tela inicial e use como um app. ✨</p>
+            </div>
+            <button id="pwa-btn" class="rounded-xl bg-[#c9a24b] text-black px-3 py-2 text-xs font-black uppercase tracking-widest shrink-0">Instalar</button>
+            <button id="pwa-fechar" class="text-slate-500 hover:text-white text-lg shrink-0">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        // Registra o service worker (necessário para o PWA/instalação).
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+        }
+
+        // Convite de instalação (Android/Chrome/Edge).
+        let promptInstalar = null;
+        const caixaPwa = document.getElementById('pwa-instalar');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            promptInstalar = e;
+            if (!localStorage.getItem('pwa-dispensado')) caixaPwa.style.display = 'block';
+        });
+        document.getElementById('pwa-btn')?.addEventListener('click', async () => {
+            if (!promptInstalar) return;
+            promptInstalar.prompt();
+            await promptInstalar.userChoice;
+            promptInstalar = null;
+            caixaPwa.style.display = 'none';
+        });
+        document.getElementById('pwa-fechar')?.addEventListener('click', () => {
+            caixaPwa.style.display = 'none';
+            localStorage.setItem('pwa-dispensado', '1');
+        });
+    </script>
 </body>
 </html>
