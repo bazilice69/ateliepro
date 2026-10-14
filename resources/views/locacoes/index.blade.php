@@ -19,7 +19,7 @@
                             <th class="py-4 pl-6">Cliente</th>
                             <th class="py-4">Peça</th>
                             <th class="py-4">Evento</th>
-                            <th class="py-4 text-right">Saldo</th>
+                            <th class="py-4 text-right">A receber</th>
                             <th class="py-4 text-center">Status</th>
                             <th class="py-4 pr-6 text-right"></th>
                         </tr>
@@ -30,7 +30,7 @@
                                 <td class="py-4 pl-6 font-bold text-slate-800 text-sm">{{ $l->cliente->nome ?? '—' }}</td>
                                 <td class="py-4 text-sm text-slate-600">{{ $l->acervo->nome ?? '—' }}</td>
                                 <td class="py-4 text-sm text-slate-600">{{ optional($l->data_evento)->format('d/m/Y') }}</td>
-                                <td class="py-4 text-right font-bold text-slate-800 text-sm">R$ {{ number_format($l->saldo(), 2, ',', '.') }}</td>
+                                <td class="py-4 text-right font-bold text-sm {{ $l->saldo() > 0 ? 'text-amber-600' : 'text-emerald-600' }}">R$ {{ number_format($l->saldo(), 2, ',', '.') }}</td>
                                 <td class="py-4 text-center">
                                     <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 uppercase">{{ str_replace('_', ' ', $l->status) }}</span>
                                 </td>
