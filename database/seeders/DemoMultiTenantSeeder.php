@@ -27,7 +27,7 @@ class DemoMultiTenantSeeder extends Seeder
         // Contato de suporte padrão (configurável depois em /admin/config).
         \App\Models\Setting::set('saas_nome', 'Bonacci Rental');
         \App\Models\Setting::set('saas_email_suporte', 'thg.bazilice@gmail.com');
-        \App\Models\Setting::set('saas_whatsapp_suporte', '5511957866836');
+        \App\Models\Setting::set('saas_whatsapp_suporte', '5511965578434');
 
         // Super Admin (dono do AteliêPro) — sem loja, enxerga tudo.
         User::firstOrCreate(

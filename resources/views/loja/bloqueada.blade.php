@@ -37,7 +37,7 @@
         @endif
 
         @php
-            $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+            $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434'));
             $msgSuporte = urlencode('Olá! Sou da loja ' . ($loja?->nome_fantasia ?? '') . ' e preciso de ajuda com o acesso ao ' . \App\Models\Setting::nomeSistema() . '.');
         @endphp
         <div class="mt-8 space-y-3">

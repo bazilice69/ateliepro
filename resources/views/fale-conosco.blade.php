@@ -20,7 +20,7 @@
             @endif
 
             @php
-                $waSuporte = $waSuporte ?? preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+                $waSuporte = $waSuporte ?? preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434'));
                 $nomeAtual = Auth::user()?->name ?? '';
                 $lojaAtualNome = Auth::user()?->loja?->nome_fantasia ?? '';
             @endphp

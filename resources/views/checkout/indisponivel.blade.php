@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen p-4">
     @php
-        $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+        $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434'));
         $msg = urlencode('Olá! Quero assinar o plano ' . $plano->nome . ' do ' . \App\Models\Setting::nomeSistema() . '.');
     @endphp
     <div class="bg-white rounded-[2rem] p-8 md:p-10 shadow-xl border border-slate-100 max-w-lg w-full text-center">

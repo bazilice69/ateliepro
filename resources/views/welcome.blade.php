@@ -473,7 +473,7 @@
 
             {{-- CTA WhatsApp: tirar dúvidas antes de assinar --}}
             @php
-                $wa = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+                $wa = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434'));
                 $waMsg = urlencode('Olá! Tenho dúvidas sobre os planos do '.$marca.'. Pode me ajudar?');
             @endphp
             <div class="mt-14 max-w-3xl mx-auto">
@@ -493,7 +493,7 @@
 
     {{-- Botão flutuante de WhatsApp (sempre visível) --}}
     @php
-        $waFloat = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+        $waFloat = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434'));
         $waFloatMsg = urlencode('Olá! Vi o '.$marca.' e tenho interesse. Pode me explicar?');
     @endphp
     <a href="https://wa.me/{{ $waFloat }}?text={{ $waFloatMsg }}" target="_blank" rel="noopener"

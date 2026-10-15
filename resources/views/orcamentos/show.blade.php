@@ -21,7 +21,7 @@
                 <p class="text-5xl font-black text-[#fbbf24] mt-1">R$ {{ number_format((float)$orcamento->valor_final, 2, ',', '.') }}</p>
                 <p class="text-sm text-slate-400 mt-2">{{ $orcamento->cliente?->nome ?? 'Sem cliente' }} · {{ $orcamento->modoLabel() }}</p>
                 <div class="flex flex-wrap justify-center gap-3 mt-6">
-                    @php $wa = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836')); @endphp
+                    @php $wa = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434')); @endphp
                     <a href="{{ route('orcamentos.imprimir', $orcamento) }}" target="_blank" class="bg-white text-slate-900 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest">🖨️ Imprimir / PDF</a>
                     @if($orcamento->cliente)
                         <a href="https://wa.me/?text={{ urlencode('Olá '.$orcamento->cliente->nome.'! Segue seu orçamento: R$ '.number_format((float)$orcamento->valor_final,2,',','.').($orcamento->descricao ? ' — '.$orcamento->descricao : '')) }}" target="_blank" class="bg-[#25D366] text-black px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest">📤 Enviar no WhatsApp</a>
