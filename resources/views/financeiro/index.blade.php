@@ -173,64 +173,103 @@
                 </div>
             </div>
 
-            <!-- TABELA REAL DE LANÇAMENTOS -->
-            <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
-                <h3 class="text-xl font-black text-slate-800 tracking-tighter mb-6">Todos os Lançamentos</h3>
+            @php
+                // Agrupa os lançamentos por mês/ano (ex.: "Outubro 2026") preservando
+                // a ordem (mais recente primeiro). Também pré-calcula entra/sai por mês.
+                $meses = ['01'=>'Janeiro','02'=>'Fevereiro','03'=>'Março','04'=>'Abril','05'=>'Maio','06'=>'Junho','07'=>'Julho','08'=>'Agosto','09'=>'Setembro','10'=>'Outubro','11'=>'Novembro','12'=>'Dezembro'];
+                $grupos = $lancamentos->groupBy(fn ($l) => \Carbon\Carbon::parse($l->data_vencimento)->format('Y-m'));
+            @endphp
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-100">
-                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vencimento</th>
-                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Descrição</th>
-                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Categoria</th>
-                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Valor</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm">
-                            @forelse($lancamentos as $lancamento)
-                                <tr class="border-b border-slate-50 hover:bg-slate-50 transition">
-                                    <td class="py-4 font-bold text-slate-600">{{ date('d/m/Y', strtotime($lancamento->data_vencimento)) }}</td>
-                                    <td class="py-4">
-                                        <p class="font-black text-slate-800 flex items-center gap-2">
-                                            {{ $lancamento->descricao }}
-                                            @if($lancamento->origem)
-                                                <span class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-md font-black text-[9px] uppercase tracking-wider inline-flex items-center gap-1" title="Lançado automaticamente pelo sistema">
-                                                    <i class="fas fa-bolt"></i> Auto
-                                                </span>
-                                            @endif
-                                        </p>
-                                        @if($lancamento->cliente)
-                                            <p class="text-xs text-slate-400">Cliente: {{ $lancamento->cliente->nome }}</p>
-                                        @endif
-                                    </td>
-                                    <td class="py-4"><span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-bold text-[10px] uppercase">{{ $lancamento->categoria->nome ?? 'Sem Categoria' }}</span></td>
-                                    <td class="py-4 text-center">
-                                        @if($lancamento->status == 'Pago')
-                                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black text-[10px] uppercase">Pago</span>
-                                        @elseif($lancamento->status == 'Pendente')
-                                            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-lg font-black text-[10px] uppercase">Pendente</span>
-                                        @else
-                                            <span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-lg font-black text-[10px] uppercase">{{ $lancamento->status }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="py-4 font-black text-right {{ $lancamento->tipo == 'Receita' ? 'text-emerald-600' : 'text-rose-500' }}">
-                                        {{ $lancamento->tipo == 'Receita' ? '+' : '-' }} R$ {{ number_format($lancamento->valor_final, 2, ',', '.') }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="py-12 text-center text-slate-400">
-                                        <i class="fas fa-box-open text-4xl mb-3 opacity-50"></i>
-                                        <p class="font-bold">O caixa está zerado.</p>
-                                        <p class="text-xs">Registre sua primeira receita ou despesa nos botões acima!</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <!-- HISTÓRICO DE LANÇAMENTOS (agrupado por mês, filtrável, mobile-first) -->
+            <div x-data="{ filtro: 'tudo' }" class="bg-white rounded-[2.5rem] p-5 sm:p-8 shadow-sm border border-slate-100">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+                    <h3 class="text-xl font-black text-slate-800 tracking-tighter">Histórico</h3>
+
+                    <!-- Filtros rápidos -->
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl overflow-x-auto">
+                        @foreach([['tudo','Tudo','fa-layer-group'],['Receita','Entradas','fa-arrow-up'],['Despesa','Saídas','fa-arrow-down'],['Pendente','Pendentes','fa-clock']] as [$f,$rotulo,$ic])
+                            <button type="button" @click="filtro = '{{ $f }}'"
+                                    :class="filtro === '{{ $f }}' ? 'bg-slate-900 text-[#fbbf24] shadow' : 'text-slate-500 hover:text-slate-700'"
+                                    class="shrink-0 px-3.5 py-2 rounded-xl font-black text-[11px] uppercase tracking-wide transition flex items-center gap-1.5">
+                                <i class="fas {{ $ic }}"></i> <span>{{ $rotulo }}</span>
+                            </button>
+                        @endforeach
+                    </div>
                 </div>
+
+                @forelse($grupos as $ym => $itens)
+                    @php
+                        [$ano, $mes] = explode('-', $ym);
+                        $entrouMes = $itens->where('tipo', 'Receita')->sum('valor_final');
+                        $saiuMes = $itens->where('tipo', 'Despesa')->sum('valor_final');
+                    @endphp
+
+                    <!-- Cabeçalho do mês com subtotais -->
+                    <div class="flex items-center justify-between gap-3 mt-6 mb-2 px-1">
+                        <h4 class="text-[11px] font-black uppercase tracking-widest text-slate-400">{{ $meses[$mes] ?? $mes }} {{ $ano }}</h4>
+                        <div class="flex items-center gap-3 text-[11px] font-black">
+                            <span class="text-emerald-600">+ R$ {{ number_format($entrouMes, 2, ',', '.') }}</span>
+                            <span class="text-rose-500">− R$ {{ number_format($saiuMes, 2, ',', '.') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="divide-y divide-slate-50">
+                        @foreach($itens as $lancamento)
+                            @php
+                                $ehReceita = $lancamento->tipo === 'Receita';
+                                // Título curto: a parte antes do "—" (ex.: "Sinal") OU a descrição truncada.
+                                $tituloCurto = \Illuminate\Support\Str::of($lancamento->descricao)->before(' —')->trim();
+                                if ($tituloCurto->isEmpty() || $tituloCurto->length() === \Illuminate\Support\Str::length($lancamento->descricao)) {
+                                    $tituloCurto = \Illuminate\Support\Str::limit($lancamento->descricao, 42);
+                                }
+                            @endphp
+                            <div x-show="filtro === 'tudo'
+                                        || ('{{ $lancamento->tipo }}' === filtro)
+                                        || ('{{ $lancamento->status }}' === filtro)"
+                                 class="flex items-center gap-3 py-3.5 hover:bg-slate-50/70 rounded-xl px-1 transition">
+
+                                <!-- Ícone entrada/saída -->
+                                <div class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center {{ $ehReceita ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-500' }}">
+                                    <i class="fas {{ $ehReceita ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                                </div>
+
+                                <!-- Descrição + meta -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="font-black text-slate-800 text-sm truncate" title="{{ $lancamento->descricao }}">{{ $tituloCurto }}</span>
+                                        @if($lancamento->origem)
+                                            <span class="bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded font-black text-[9px] uppercase tracking-wider inline-flex items-center gap-0.5 shrink-0" title="Lançado automaticamente pelo sistema">
+                                                <i class="fas fa-bolt text-[8px]"></i> Auto
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="text-[11px] text-slate-400 truncate">
+                                        {{ \Carbon\Carbon::parse($lancamento->data_vencimento)->format('d/m') }}
+                                        · {{ $lancamento->categoria->nome ?? 'Sem categoria' }}
+                                        @if($lancamento->cliente) · {{ $lancamento->cliente->nome }} @endif
+                                    </p>
+                                </div>
+
+                                <!-- Status + valor -->
+                                <div class="text-right shrink-0">
+                                    <p class="font-black text-sm {{ $ehReceita ? 'text-emerald-600' : 'text-rose-500' }}">
+                                        {{ $ehReceita ? '+' : '−' }} R$ {{ number_format($lancamento->valor_final, 2, ',', '.') }}
+                                    </p>
+                                    @php
+                                        $corStatus = $lancamento->status === 'Pago' ? 'text-emerald-600' : ($lancamento->status === 'Pendente' ? 'text-amber-600' : 'text-rose-600');
+                                    @endphp
+                                    <span class="text-[10px] font-black uppercase tracking-wider {{ $corStatus }}">{{ $lancamento->status }}</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @empty
+                    <div class="py-16 text-center text-slate-400">
+                        <i class="fas fa-box-open text-4xl mb-3 opacity-50"></i>
+                        <p class="font-bold">O caixa está zerado.</p>
+                        <p class="text-xs">Registre sua primeira receita ou despesa nos botões acima!</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
