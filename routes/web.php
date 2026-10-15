@@ -21,7 +21,6 @@ use App\Http\Controllers\DespesaRecorrenteController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\ModeloContratoController;
-use App\Http\Controllers\AssistenteController;
 use App\Http\Controllers\LojaConfigController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrcamentoController;
@@ -182,13 +181,6 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/relatorios', [RelatorioController::class, 'index'])->name('relatorios.index');
     Route::get('/relatorios/exportar', [RelatorioController::class, 'exportar'])->name('relatorios.exportar');
     Route::get('/relatorios/imprimir', [RelatorioController::class, 'imprimir'])->name('relatorios.imprimir');
-
-    // Assistente de IA
-    Route::get('/assistente', [AssistenteController::class, 'index'])->name('assistente.index');
-    Route::post('/assistente/enviar', [AssistenteController::class, 'enviar'])->name('assistente.enviar');
-    Route::post('/assistente/limpar', [AssistenteController::class, 'limpar'])->name('assistente.limpar');
-    Route::post('/assistente/conversar', [AssistenteController::class, 'conversar'])->name('assistente.conversar');
-    Route::post('/assistente/whatsapp', [AssistenteController::class, 'gerarWhatsapp'])->name('assistente.whatsapp');
 
     // Contratos (gerar, listar, visualizar) — disponível para a equipe da loja
     Route::get('/contratos', [ContratoController::class, 'index'])->name('contratos.index');

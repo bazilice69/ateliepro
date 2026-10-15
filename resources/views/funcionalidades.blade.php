@@ -7,7 +7,7 @@
     @php
         $marca = \App\Models\Setting::nomeSistema();
         $tituloSeo = 'Funcionalidades — '.$marca;
-        $descSeo = 'Conheça as funcionalidades do '.$marca.': acervo com fotos, agenda de provas, locações, encomendas sob medida, contratos, financeiro, relatórios e assistente virtual. Tudo em um só lugar.';
+        $descSeo = 'Conheça as funcionalidades do '.$marca.': acervo com fotos, agenda de provas, locações, encomendas sob medida, contratos, financeiro e relatórios. Tudo em um só lugar.';
         $ogImg = file_exists(public_path('og-image.jpg')) ? asset('og-image.jpg') : asset('og-image.svg');
         $wa = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
     @endphp
@@ -92,7 +92,6 @@
                     ['fa-chart-pie', 'Relatórios', 'Saiba exatamente como vai o seu negócio com relatórios claros e imprimíveis.'],
                     ['fa-users-gear', 'Perfis de Acesso', 'Cadastre funcionárias e defina o que cada uma pode ver e fazer no sistema.'],
                     ['fa-image', 'Fotos das Peças e Clientes', 'Suba fotos do acervo, croquis e das clientes — tudo organizado e à mão.'],
-                    ['fa-robot', 'Assistente Virtual (Valentina)', 'Uma assistente inteligente que ajuda no dia a dia da loja, direto na tela.'],
                 ];
             @endphp
             @foreach($features as [$icone, $titulo, $desc])

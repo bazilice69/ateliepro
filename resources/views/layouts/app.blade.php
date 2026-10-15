@@ -73,7 +73,6 @@
                         ['financeiro.index', 'financeiro.index', 'fa-dollar-sign', 'Financeiro'],
                         ['recorrentes.index', 'recorrentes.*', 'fa-repeat', 'Despesas Fixas'],
                         ['relatorios.index', 'relatorios.*', 'fa-chart-pie', 'Relatórios'],
-                        ['assistente.index', 'assistente.*', 'fa-robot', 'Assistente IA'],
                     ];
                 @endphp
                 @foreach($links as [$rota, $padrao, $icone, $rotulo])
@@ -189,9 +188,6 @@
             </main>
         </div>
     </div>
-
-    <!-- Assistente virtual flutuante (Valentina) — em todas as telas da loja -->
-    @includeWhen(!(Auth::user()?->isSuperAdmin()), 'partials.assistente-widget')
 
     <!-- Botão flutuante de feedback/suporte — em todas as telas da loja -->
     @includeWhen(!(Auth::user()?->isSuperAdmin()), 'partials.feedback-widget')
