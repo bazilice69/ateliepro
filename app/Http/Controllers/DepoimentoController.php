@@ -16,7 +16,18 @@ use Illuminate\Support\Facades\Auth;
 class DepoimentoController extends Controller
 {
     /**
-     * Recebe o elogio enviado pelo lojista (via widget de feedback).
+     * Página "Fale Conosco" (acessível pelo menu lateral da loja): canal único
+     * para Problema / Sugestão / Dúvida (WhatsApp) e Elogio (salvo no banco).
+     */
+    public function faleConosco()
+    {
+        $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+
+        return view('fale-conosco', compact('waSuporte'));
+    }
+
+    /**
+     * Recebe o elogio enviado pelo lojista (via página Fale Conosco).
      * Fica PENDENTE até o super_admin aprovar.
      */
     public function store(Request $request)

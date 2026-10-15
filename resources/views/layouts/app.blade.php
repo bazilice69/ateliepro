@@ -73,6 +73,7 @@
                         ['financeiro.index', 'financeiro.index', 'fa-dollar-sign', 'Financeiro'],
                         ['recorrentes.index', 'recorrentes.*', 'fa-repeat', 'Despesas Fixas'],
                         ['relatorios.index', 'relatorios.*', 'fa-chart-pie', 'Relatórios'],
+                        ['fale-conosco', 'fale-conosco', 'fa-comment-dots', 'Fale Conosco'],
                     ];
                 @endphp
                 @foreach($links as [$rota, $padrao, $icone, $rotulo])
@@ -188,9 +189,6 @@
             </main>
         </div>
     </div>
-
-    <!-- Botão flutuante de feedback/suporte — em todas as telas da loja -->
-    @includeWhen(!(Auth::user()?->isSuperAdmin()), 'partials.feedback-widget')
 
     {{-- ===== PWA: registro + convite de instalação ===== --}}
     <div id="pwa-instalar" style="display:none"
