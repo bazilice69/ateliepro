@@ -104,6 +104,9 @@
             <div class="flex items-center gap-5">
                 <a href="#historia" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Nossa história</a>
                 <a href="{{ route('funcionalidades') }}" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Funcionalidades</a>
+                @if(isset($depoimentos) && $depoimentos->count())
+                    <a href="#depoimentos" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Depoimentos</a>
+                @endif
                 <a href="#planos" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Planos</a>
                 @if (Route::has('login'))
                     @auth
@@ -381,6 +384,43 @@
             <p class="text-center text-slate-500 text-xs mt-8">Prévia ilustrativa das telas · a interface real é ainda mais completa.</p>
         </div>
     </section>
+
+    <!-- SEÇÃO: O QUE OS LOJISTAS DIZEM (prova social) -->
+    @if(isset($depoimentos) && $depoimentos->count())
+    <section id="depoimentos" class="py-24 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute bottom-0 right-1/4 w-[600px] h-[600px] rounded-full blur-[180px] opacity-10" style="background: radial-gradient(circle, #c9a24b, transparent 70%);"></div>
+        </div>
+        <div class="relative max-w-6xl mx-auto">
+            <div class="text-center mb-14">
+                <p class="text-ouro text-xs font-bold uppercase tracking-[0.3em] mb-3">Prova social</p>
+                <h2 class="serif text-4xl md:text-5xl font-bold text-white">O que nossos clientes dizem</h2>
+                <p class="text-slate-400 font-medium mt-4">Lojistas reais que já usam a {{ $marca }} no dia a dia.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach($depoimentos as $dep)
+                    <figure class="bg-[#141418] border border-slate-800 rounded-3xl p-7 flex flex-col hover:border-ouro/40 transition">
+                        <div class="text-ouro text-2xl mb-3"><i class="fas fa-quote-left opacity-60"></i></div>
+                        <blockquote class="text-slate-300 leading-relaxed text-[15px] flex-1">{{ $dep->mensagem }}</blockquote>
+                        <figcaption class="mt-6 pt-5 border-t border-slate-800">
+                            <p class="font-bold text-white">{{ $dep->autor_nome }}</p>
+                            @if($dep->loja_nome)
+                                <p class="text-xs text-slate-400">{{ $dep->loja_nome }}</p>
+                            @endif
+                            @if($dep->linkNormalizado())
+                                <a href="{{ $dep->linkNormalizado() }}" target="_blank" rel="noopener"
+                                   class="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-ouro hover:brightness-125 transition">
+                                    <i class="fas fa-arrow-up-right-from-square"></i> {{ $dep->linkRotulo() }}
+                                </a>
+                            @endif
+                        </figcaption>
+                    </figure>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 
     <!-- SEÇÃO DE PLANOS (PREÇOS) -->
     <section id="planos" class="py-24 px-6">
