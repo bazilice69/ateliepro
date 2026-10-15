@@ -303,16 +303,40 @@ chmod +x /root/backup-ateliepro.sh
 
 ## PASSO 12 — Atualizar o sistema no futuro (novas versões)
 
-Sempre que você (nós) fizer melhorias e der merge no GitHub, atualize o servidor:
+Sempre que você (nós) fizer melhorias e der merge no GitHub, atualize o servidor.
+
+> ⚠️ **Primeiro faça o merge do PR no GitHub** (botão *Merge pull request*). O
+> servidor puxa do `main`, então sem o merge o `git pull` não traz nada novo.
+
+Entre no servidor (`ssh root@SEU_IP`) e cole **bloco por bloco**:
 
 ```bash
 cd /var/www/ateliepro
 git pull origin main
+```
+
+```bash
 composer install --no-dev --optimize-autoloader
 php artisan migrate --force
+```
+
+**Limpe e recrie TODOS os caches** (importante quando a atualização mexeu em
+rotas, views ou configurações — senão o Laravel continua servindo a versão
+antiga que está em cache):
+
+```bash
+php artisan optimize:clear
 php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 systemctl reload nginx
 ```
+
+> 💡 **Por que `optimize:clear`?** Ele apaga os caches de config, rotas, views e
+> eventos de uma vez. Se você só rodar `config:cache` depois de remover/alterar
+> rotas ou telas (como quando aposentamos a Valentina), o sistema pode continuar
+> exibindo o conteúdo antigo. O `optimize:clear` garante que tudo seja
+> recompilado do zero.
 
 ---
 
