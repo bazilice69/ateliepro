@@ -12,7 +12,7 @@
     $nomeFb = Auth::user()?->name ?? '';
 @endphp
 
-<div x-data="{ aberto: false, tipo: 'Problema', msg: '', autor: @js($nomeFb), lojaNome: @js($lojaFb), link: '' }"
+<div x-data='{ aberto: false, tipo: "Problema", msg: "", autor: @json($nomeFb), lojaNome: @json($lojaFb), link: "" }'
      class="fixed bottom-6 left-6 z-40">
     {{-- Botão flutuante --}}
     <button @click="aberto = true"
