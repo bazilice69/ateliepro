@@ -43,7 +43,7 @@
     <meta name="keywords" content="sistema para loja de noivas, software aluguel de vestidos, gestão de ateliê, programa para loja de vestido de noiva, sistema para ateliê de costura, controle de locação de vestidos">
     <meta name="author" content="{{ $marcaSeo }}">
     <meta name="robots" content="index, follow">
-    @php $googleVerify = \App\Models\Setting::get('google_site_verification'); @endphp
+    @php $googleVerify = \App\Models\Setting::get('google_site_verification', 'mktocZSAknL-AHr0zkgTCqhSsBUEq4dLlO0zNPiRtLE'); @endphp
     @if($googleVerify)
         <meta name="google-site-verification" content="{{ $googleVerify }}">
     @endif
