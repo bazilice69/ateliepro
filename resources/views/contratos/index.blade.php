@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <h2 class="font-black text-2xl text-slate-800 uppercase tracking-tighter">Contratos</h2>
-            <div class="flex gap-2">
+            <div class="flex gap-2 w-full sm:w-auto">
                 @if(auth()->user()?->isAdminLoja() || auth()->user()?->isSuperAdmin())
-                    <a href="{{ route('contratos.modelos.index') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">Modelos</a>
+                    <a href="{{ route('contratos.modelos.index') }}" class="flex-1 sm:flex-none text-center bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">Modelos</a>
                 @endif
-                <a href="{{ route('contratos.create') }}" class="bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">+ Gerar Contrato</a>
+                <a href="{{ route('contratos.create') }}" class="flex-1 sm:flex-none text-center bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">+ Gerar Contrato</a>
             </div>
         </div>
     </x-slot>

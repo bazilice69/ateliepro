@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <div>
                 <h2 class="font-black text-2xl text-slate-800 leading-tight tracking-tighter">
                     Olá, {{ \Illuminate\Support\Str::of(auth()->user()->name)->before(' ') }} 👋
@@ -12,8 +12,8 @@
                 @endphp
                 <p class="text-xs font-medium text-slate-400 mt-0.5">Seu centro de comando — {{ $diasPt[$hoje->dayOfWeek] }}, {{ $hoje->day }} de {{ $mesesPt[$hoje->month - 1] }}</p>
             </div>
-            <div class="flex gap-3">
-                <a href="{{ route('financeiro.index') }}" class="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
+            <div class="flex gap-3 w-full sm:w-auto">
+                <a href="{{ route('financeiro.index') }}" class="w-full sm:w-auto justify-center bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
                     <i class="fas fa-plus mr-2"></i> Novo Lançamento
                 </a>
             </div>

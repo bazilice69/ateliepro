@@ -1,14 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <h2 class="font-black text-2xl text-slate-800 uppercase tracking-tighter">
                 Relatórios <span class="text-[#fbbf24]">da Loja</span>
             </h2>
-            <div class="flex gap-2">
-                <a href="{{ route('relatorios.exportar', request()->only('inicio','fim')) }}" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">
+            <div class="flex gap-2 w-full sm:w-auto">
+                <a href="{{ route('relatorios.exportar', request()->only('inicio','fim')) }}" class="flex-1 sm:flex-none text-center bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">
                     <i class="fas fa-file-excel mr-1"></i> Excel (CSV)
                 </a>
-                <a href="{{ route('relatorios.imprimir', request()->only('inicio','fim')) }}" target="_blank" class="bg-slate-900 text-[#fbbf24] px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">
+                <a href="{{ route('relatorios.imprimir', request()->only('inicio','fim')) }}" target="_blank" class="flex-1 sm:flex-none text-center bg-slate-900 text-[#fbbf24] px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">
                     <i class="fas fa-print mr-1"></i> PDF / Imprimir
                 </a>
             </div>
