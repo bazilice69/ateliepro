@@ -20,7 +20,7 @@
                class="fixed lg:static inset-y-0 left-0 w-64 bg-[#0a0f1d] text-white flex flex-col z-50 transform transition-transform duration-200 lg:translate-x-0">
             <div class="p-6 border-b border-gray-800 flex items-center justify-between">
                 <div>
-                    <h1 class="text-xl font-black">ATELIÊ<span class="text-[#fbbf24]">PRO</span></h1>
+                    <h1 class="text-xl font-black uppercase tracking-tight">{{ \App\Models\Setting::nomeSistema() }}</h1>
                     <p class="text-[10px] uppercase tracking-widest text-[#fbbf24] font-bold mt-1">Painel Master</p>
                 </div>
                 <button @click="menuAberto = false" class="lg:hidden text-gray-400 hover:text-white text-xl">&times;</button>

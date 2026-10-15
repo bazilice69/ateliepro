@@ -1,7 +1,7 @@
 {
-    "name": "AteliêPro — Gestão para ateliês e lojas de noivas",
-    "short_name": "AteliêPro",
-    "description": "Gestão completa do seu ateliê: acervo, agenda, locações, contratos e financeiro.",
+    "name": "Bonacci Rental — Gestão para ateliês e lojas de noivas",
+    "short_name": "Bonacci Rental",
+    "description": "Gestão completa da sua loja: acervo, agenda, locações, contratos e financeiro.",
     "start_url": "/dashboard",
     "scope": "/",
     "display": "standalone",
