@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <h2 class="font-black text-2xl text-slate-800 leading-tight uppercase tracking-tighter">
                 Gestão de <span class="text-[#fbbf24]">Clientes</span>
             </h2>
-            <a href="{{ route('clientes.create') }}" class="bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition shadow-lg">
+            <a href="{{ route('clientes.create') }}" class="text-center bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition shadow-lg">
                 + Novo Cliente
             </a>
         </div>

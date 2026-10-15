@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <h2 class="font-black text-2xl text-slate-800 uppercase tracking-tighter">Provas</h2>
-            <a href="{{ route('provas.create') }}" class="bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">+ Nova Prova</a>
+            <a href="{{ route('provas.create') }}" class="text-center bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">+ Nova Prova</a>
         </div>
     </x-slot>
 

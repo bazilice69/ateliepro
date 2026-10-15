@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <div>
                 <h2 class="font-black text-2xl text-slate-800 uppercase tracking-tighter">Encomendas <span class="text-[#fbbf24]">Sob Medida</span></h2>
                 <p class="text-xs font-medium text-slate-400 mt-1">Peças criadas do zero — modelagem, produção e entrega.</p>
             </div>
-            <a href="{{ route('encomendas.create') }}" class="bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">+ Nova Encomenda</a>
+            <a href="{{ route('encomendas.create') }}" class="text-center shrink-0 bg-slate-900 text-[#fbbf24] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">+ Nova Encomenda</a>
         </div>
     </x-slot>
 

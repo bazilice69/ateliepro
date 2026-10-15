@@ -1,17 +1,17 @@
 <x-app-layout>
     <div class="py-8 relative">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-            <!-- CABEÇALHO DO FINANCEIRO (Agora dentro da tela, sem bloqueios!) -->
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="font-black text-3xl text-slate-800 leading-tight uppercase tracking-tighter">
+            <!-- CABEÇALHO DO FINANCEIRO — empilha no celular, lado a lado no desktop -->
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-2">
+                <h2 class="font-black text-2xl sm:text-3xl text-slate-800 leading-tight uppercase tracking-tighter">
                     Central <span class="text-emerald-500">Financeira</span>
                 </h2>
-                <div class="flex gap-4">
-                    <button onclick="abrirModal('Despesa')" class="bg-rose-500 hover:bg-rose-400 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <button onclick="abrirModal('Despesa')" class="flex-1 sm:flex-none justify-center bg-rose-500 hover:bg-rose-400 text-white px-4 sm:px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
                         <i class="fas fa-arrow-down mr-2"></i> Nova Despesa
                     </button>
-                    <button onclick="abrirModal('Receita')" class="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
+                    <button onclick="abrirModal('Receita')" class="flex-1 sm:flex-none justify-center bg-emerald-500 hover:bg-emerald-400 text-white px-4 sm:px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition shadow-lg flex items-center">
                         <i class="fas fa-arrow-up mr-2"></i> Nova Receita
                     </button>
                 </div>
