@@ -9,10 +9,15 @@ use Illuminate\Validation\Rule;
 use App\Models\Locacao;
 use App\Models\Cliente;
 use App\Models\Acervo;
+use App\Services\FinanceiroAutomatico;
 use Carbon\Carbon;
 
 class LocacaoController extends Controller
 {
+    public function __construct(private FinanceiroAutomatico $financeiro)
+    {
+    }
+
     // Lista de locações (escopada por loja pela trait)
     public function index()
     {
@@ -98,7 +103,10 @@ class LocacaoController extends Controller
             $peca->update(['status' => Acervo::STATUS_RESERVADA]);
         }
 
-        return redirect()->route('locacao.show', $locacao)->with('success', 'Locação registrada! Agora acompanhe provas, ajustes e retirada por aqui.');
+        // Financeiro automático: lança o sinal (pago) e o saldo (a receber).
+        $this->financeiro->sincronizarLocacao($locacao->fresh(['cliente', 'acervo']));
+
+        return redirect()->route('locacao.show', $locacao)->with('success', 'Locação registrada! Agora acompanhe provas, ajustes e retirada por aqui. O financeiro já foi lançado automaticamente.');
     }
 
     // Atualiza o status da locação (fluxo)
@@ -132,7 +140,10 @@ class LocacaoController extends Controller
         // Peça passa a "alugada".
         $locacao->acervo?->update(['status' => Acervo::STATUS_ALUGADA]);
 
-        return back()->with('success', 'Retirada registrada com sucesso!');
+        // Na retirada o cliente normalmente quita o saldo — baixa no financeiro.
+        $this->financeiro->quitarSaldoLocacao($locacao);
+
+        return back()->with('success', 'Retirada registrada com sucesso! O saldo foi baixado no financeiro.');
     }
 
     // Registra a DEVOLUÇÃO com vistoria (estado, multa, caução, fotos)
@@ -168,7 +179,10 @@ class LocacaoController extends Controller
 
         $locacao->acervo?->update(['status' => $novoStatusPeca]);
 
-        return back()->with('success', 'Devolução e vistoria registradas!');
+        // Financeiro automático: multa e/ou caução retida viram receita.
+        $this->financeiro->registrarDevolucao($locacao->fresh(['cliente', 'acervo']));
+
+        return back()->with('success', 'Devolução e vistoria registradas! Multa/caução (se houver) já foram lançadas no financeiro.');
     }
 
     /**

@@ -193,7 +193,14 @@
                                 <tr class="border-b border-slate-50 hover:bg-slate-50 transition">
                                     <td class="py-4 font-bold text-slate-600">{{ date('d/m/Y', strtotime($lancamento->data_vencimento)) }}</td>
                                     <td class="py-4">
-                                        <p class="font-black text-slate-800">{{ $lancamento->descricao }}</p>
+                                        <p class="font-black text-slate-800 flex items-center gap-2">
+                                            {{ $lancamento->descricao }}
+                                            @if($lancamento->origem)
+                                                <span class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-md font-black text-[9px] uppercase tracking-wider inline-flex items-center gap-1" title="Lançado automaticamente pelo sistema">
+                                                    <i class="fas fa-bolt"></i> Auto
+                                                </span>
+                                            @endif
+                                        </p>
                                         @if($lancamento->cliente)
                                             <p class="text-xs text-slate-400">Cliente: {{ $lancamento->cliente->nome }}</p>
                                         @endif
