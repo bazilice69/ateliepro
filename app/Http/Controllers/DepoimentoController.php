@@ -21,7 +21,7 @@ class DepoimentoController extends Controller
      */
     public function faleConosco()
     {
-        $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+        $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434'));
 
         return view('fale-conosco', compact('waSuporte'));
     }

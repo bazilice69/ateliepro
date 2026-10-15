@@ -9,7 +9,7 @@
         $tituloSeo = 'Funcionalidades — '.$marca;
         $descSeo = 'Conheça as funcionalidades do '.$marca.': acervo com fotos, agenda de provas, locações, encomendas sob medida, contratos, financeiro e relatórios. Tudo em um só lugar.';
         $ogImg = file_exists(public_path('og-image.jpg')) ? asset('og-image.jpg') : asset('og-image.svg');
-        $wa = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+        $wa = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434'));
     @endphp
 
     <title>{{ $tituloSeo }}</title>

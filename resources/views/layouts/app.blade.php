@@ -110,7 +110,7 @@
                         <i class="fas fa-user-gear mr-1"></i> Minha Conta
                     </a>
                     @php
-                        $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
+                        $waSuporte = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511965578434'));
                     @endphp
                     <a href="https://wa.me/{{ $waSuporte }}?text={{ urlencode('Olá! Preciso de ajuda com o ' . \App\Models\Setting::nomeSistema() . '.') }}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 font-bold">
                         <i class="fab fa-whatsapp mr-1"></i> Suporte
