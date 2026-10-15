@@ -5,6 +5,10 @@
       do super_admin e, uma vez aprovado, aparece na landing como prova social,
       com o link da loja do lojista junto para divulgá-lo).
     Visível só para lojas (o super admin não vê).
+
+    Toda a lógica fica numa função Alpine (feedbackWidget) registrada no <script>
+    abaixo — assim os atributos HTML ficam curtos e sem expressões complexas
+    (que podiam quebrar o parser do Alpine e sumir com o botão inteiro).
 --}}
 @php
     $waSuporteFb = preg_replace('/\D/', '', \App\Models\Setting::get('saas_whatsapp_suporte', '5511957866836'));
@@ -12,8 +16,7 @@
     $nomeFb = Auth::user()?->name ?? '';
 @endphp
 
-<div x-data='{ aberto: false, tipo: "Problema", msg: "", autor: @json($nomeFb), lojaNome: @json($lojaFb), link: "" }'
-     class="fixed bottom-6 left-6 z-40">
+<div x-data="feedbackWidget()" class="fixed bottom-6 left-6 z-40">
     {{-- Botão flutuante --}}
     <button @click="aberto = true"
             class="w-14 h-14 rounded-full bg-slate-900 text-[#fbbf24] shadow-xl hover:scale-105 transition flex items-center justify-center border-2 border-[#fbbf24]/40"
@@ -28,15 +31,13 @@
                 <h3 class="font-black text-slate-800 text-lg tracking-tighter"><i class="fas fa-comment-dots text-[#fbbf24] mr-2"></i>Fale com a gente</h3>
                 <button type="button" @click="aberto = false" class="text-slate-400 hover:text-slate-700 text-xl">&times;</button>
             </div>
-            <p class="text-xs text-slate-400 mb-5" x-text="tipo === 'Elogio'
-                ? 'Gostou do sistema? Deixe seu elogio — ele pode aparecer na nossa página inicial, com o link da sua loja junto. 💛'
-                : 'Encontrou um problema ou tem uma sugestão? Conta pra gente — vai direto pro nosso WhatsApp.'"></p>
+            <p class="text-xs text-slate-400 mb-5" x-text="legenda"></p>
 
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Tipo</label>
             <div class="grid grid-cols-4 gap-2 mb-4">
-                <template x-for="t in ['Problema','Sugestão','Dúvida','Elogio']" :key="t">
+                <template x-for="t in tipos" :key="t">
                     <button type="button" @click="tipo = t"
-                            :class="tipo === t ? (t === 'Elogio' ? 'bg-rose-500 text-white' : 'bg-slate-900 text-[#fbbf24]') : 'bg-slate-100 text-slate-500 hover:bg-slate-200'"
+                            :class="btnTipoClasse(t)"
                             class="py-2 rounded-xl font-black text-[11px] uppercase tracking-wide transition" x-text="t"></button>
                 </template>
             </div>
@@ -72,8 +73,8 @@
                 </div>
 
                 <button type="submit"
-                        :disabled="!msg.trim() || !autor.trim()"
-                        :class="(msg.trim() && autor.trim()) ? '' : 'opacity-50 pointer-events-none'"
+                        :disabled="!podeEnviarElogio"
+                        :class="podeEnviarElogio ? '' : 'opacity-50 pointer-events-none'"
                         class="mt-2 w-full inline-flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-400 text-white px-6 py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest transition shadow-lg">
                     <i class="fas fa-heart"></i> Enviar elogio
                 </button>
@@ -85,12 +86,7 @@
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Mensagem</label>
                 <textarea x-model="msg" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#fbbf24] focus:outline-none text-sm" placeholder="Descreva o que aconteceu ou sua ideia..."></textarea>
 
-                <a :href="'https://wa.me/{{ $waSuporteFb }}?text=' + encodeURIComponent(
-                        '*' + tipo + ' — {{ $lojaFb }}*\n' +
-                        'De: {{ $nomeFb }}\n' +
-                        'Página: ' + window.location.pathname + '\n\n' +
-                        msg
-                   )"
+                <a :href="linkWhatsapp()"
                    target="_blank"
                    @click="aberto = false"
                    :class="msg.trim() ? '' : 'pointer-events-none opacity-50'"
@@ -101,3 +97,46 @@
         </div>
     </div>
 </div>
+
+<script>
+    function feedbackWidget() {
+        return {
+            aberto: false,
+            tipo: 'Problema',
+            tipos: ['Problema', 'Sugestão', 'Dúvida', 'Elogio'],
+            msg: '',
+            autor: @json($nomeFb),
+            lojaNome: @json($lojaFb),
+            link: '',
+
+            // Dados fixos vindos do servidor (sem interpolar no meio do HTML).
+            waSuporte: @json($waSuporteFb),
+
+            get legenda() {
+                return this.tipo === 'Elogio'
+                    ? 'Gostou do sistema? Deixe seu elogio — ele pode aparecer na nossa página inicial, com o link da sua loja junto. 💛'
+                    : 'Encontrou um problema ou tem uma sugestão? Conta pra gente — vai direto pro nosso WhatsApp.';
+            },
+
+            get podeEnviarElogio() {
+                return this.msg.trim().length > 0 && this.autor.trim().length > 0;
+            },
+
+            btnTipoClasse(t) {
+                if (this.tipo === t) {
+                    return t === 'Elogio' ? 'bg-rose-500 text-white' : 'bg-slate-900 text-[#fbbf24]';
+                }
+                return 'bg-slate-100 text-slate-500 hover:bg-slate-200';
+            },
+
+            linkWhatsapp() {
+                const texto =
+                    '*' + this.tipo + ' — ' + this.lojaNome + '*\n' +
+                    'De: ' + this.autor + '\n' +
+                    'Página: ' + window.location.pathname + '\n\n' +
+                    this.msg;
+                return 'https://wa.me/' + this.waSuporte + '?text=' + encodeURIComponent(texto);
+            },
+        };
+    }
+</script>
