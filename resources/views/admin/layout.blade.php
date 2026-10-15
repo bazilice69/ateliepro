@@ -41,6 +41,13 @@
                 <a href="{{ route('admin.acessos') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.acessos') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
                     <i class="fas fa-right-to-bracket mr-3 w-5"></i> Atividade / Acessos
                 </a>
+                @php $depPendentes = \App\Models\Depoimento::where('aprovado', false)->count(); @endphp
+                <a href="{{ route('admin.depoimentos.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.depoimentos.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
+                    <i class="fas fa-heart mr-3 w-5"></i> Depoimentos
+                    @if($depPendentes > 0)
+                        <span class="ml-auto bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ $depPendentes }}</span>
+                    @endif
+                </a>
                 <a href="{{ route('admin.config.edit') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.config.*') ? 'bg-[#1e293b] border-l-4 border-[#fbbf24] text-white' : 'text-gray-400 hover:bg-[#1e293b] hover:text-white' }} transition">
                     <i class="fas fa-gear mr-3 w-5"></i> Configurações
                 </a>

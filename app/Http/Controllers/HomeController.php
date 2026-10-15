@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Depoimento;
 use App\Models\Plano;
 
 /**
@@ -13,7 +14,10 @@ class HomeController extends Controller
     public function index()
     {
         $planos = Plano::ativos()->get();
-        return view('welcome', compact('planos'));
+        // Prova social: elogios de lojistas já aprovados pelo super_admin.
+        $depoimentos = Depoimento::aprovados()->latest()->take(12)->get();
+
+        return view('welcome', compact('planos', 'depoimentos'));
     }
 
     /** Página pública que apresenta as funcionalidades do sistema. */

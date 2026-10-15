@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedidaController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DepoimentoController;
 use App\Http\Controllers\AdminPlanoController;
 use App\Http\Controllers\AdminConfigController;
 use App\Http\Controllers\FuncionarioController;
@@ -93,6 +94,12 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
 
     // Cadastros recentes de lojas
     Route::get('/cadastros', [AdminController::class, 'cadastros'])->name('cadastros');
+
+    // Moderação de depoimentos/elogios dos lojistas (aparecem na landing)
+    Route::get('/depoimentos', [DepoimentoController::class, 'index'])->name('depoimentos.index');
+    Route::put('/depoimentos/{depoimento}/aprovar', [DepoimentoController::class, 'aprovar'])->name('depoimentos.aprovar');
+    Route::put('/depoimentos/{depoimento}/reprovar', [DepoimentoController::class, 'reprovar'])->name('depoimentos.reprovar');
+    Route::delete('/depoimentos/{depoimento}', [DepoimentoController::class, 'destroy'])->name('depoimentos.destroy');
 });
 
 // ==========================================================================
@@ -105,6 +112,9 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Elogio/depoimento enviado pelo lojista (vai para moderação do super_admin)
+    Route::post('/depoimentos', [DepoimentoController::class, 'store'])->name('depoimentos.store');
 
     // Módulo de Clientes
     Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
