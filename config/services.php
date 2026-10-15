@@ -60,12 +60,4 @@ return [
         'api_key' => env('PAGARME_API_KEY'),
     ],
 
-    'ia' => [
-        // Provedor: openai | anthropic | gemini. Chave configurável pelo painel
-        // (tabela settings) ou aqui via .env — ver App\Support\IA.
-        'provedor' => env('IA_PROVEDOR', 'openai'),
-        'api_key' => env('IA_API_KEY'),
-        'modelo' => env('IA_MODELO'),
-    ],
-
 ];
