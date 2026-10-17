@@ -26,6 +26,9 @@ class Loja extends Model
         'trial_termina_em',
         'observacoes_admin',
         'logo',
+        'vitrine_publico',
+        'instagram',
+        'site',
         'razao_social',
         'inscricao_estadual',
         'endereco',
@@ -41,7 +44,64 @@ class Loja extends Model
             'desconto' => 'decimal:2',
             'data_vencimento' => 'date',
             'trial_termina_em' => 'date',
+            'vitrine_publico' => 'boolean',
         ];
+    }
+
+    /**
+     * Link de WhatsApp (wa.me) a partir do telefone, ou null se não houver.
+     */
+    public function whatsappLink(): ?string
+    {
+        $num = preg_replace('/\D/', '', (string) $this->telefone);
+        if (strlen($num) < 10) {
+            return null;
+        }
+        // Garante DDI do Brasil (55) quando vier só com DDD + número.
+        if (strlen($num) <= 11) {
+            $num = '55' . $num;
+        }
+        $msg = rawurlencode('Olá! Vi a ' . $this->nome_fantasia . ' na vitrine do Bonacci Rental e gostaria de saber mais. 😊');
+
+        return "https://wa.me/{$num}?text={$msg}";
+    }
+
+    /**
+     * Link do Instagram normalizado (aceita "@perfil", "perfil" ou URL), ou null.
+     */
+    public function instagramLink(): ?string
+    {
+        $ig = trim((string) $this->instagram);
+        if ($ig === '') {
+            return null;
+        }
+        if (preg_match('#^https?://#i', $ig)) {
+            return $ig;
+        }
+        return 'https://instagram.com/' . ltrim($ig, '@');
+    }
+
+    /**
+     * Link do site normalizado (prefixa https:// se faltar), ou null.
+     */
+    public function siteLink(): ?string
+    {
+        $s = trim((string) $this->site);
+        if ($s === '') {
+            return null;
+        }
+        if (!preg_match('#^https?://#i', $s)) {
+            $s = 'https://' . $s;
+        }
+        return filter_var($s, FILTER_VALIDATE_URL) ? $s : null;
+    }
+
+    /**
+     * Cidade/UF formatada para exibição (ex.: "São Paulo/SP"), ou vazio.
+     */
+    public function localizacaoLabel(): string
+    {
+        return collect([$this->cidade, $this->estado])->filter()->implode('/');
     }
 
     public const DIAS_TRIAL = 7;
@@ -77,6 +137,15 @@ class Loja extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Peças do acervo da loja. (Ignora o global scope de tenant — usado na
+     * vitrine pública, que roda sem usuário autenticado.)
+     */
+    public function acervos(): HasMany
+    {
+        return $this->hasMany(Acervo::class)->withoutGlobalScope('loja');
     }
 
     /**

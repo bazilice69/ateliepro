@@ -104,6 +104,9 @@
             <div class="flex items-center gap-5">
                 <a href="#historia" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Nossa história</a>
                 <a href="{{ route('funcionalidades') }}" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Funcionalidades</a>
+                @if(isset($vitrine) && $vitrine->count())
+                    <a href="#vitrine" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Lojas</a>
+                @endif
                 @if(isset($depoimentos) && $depoimentos->count())
                     <a href="#depoimentos" class="hidden sm:inline font-semibold text-sm text-slate-300 hover:text-ouro transition">Depoimentos</a>
                 @endif
@@ -384,6 +387,100 @@
             <p class="text-center text-slate-500 text-xs mt-8">Prévia ilustrativa das telas · a interface real é ainda mais completa.</p>
         </div>
     </section>
+
+    <!-- SEÇÃO: VITRINE DE LOJAS PARCEIRAS (divulgação, não venda) -->
+    @if(isset($vitrine) && $vitrine->count())
+    <section id="vitrine" class="py-24 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute top-1/4 left-1/3 w-[700px] h-[700px] rounded-full blur-[200px] opacity-10" style="background: radial-gradient(circle, #c9a24b, transparent 70%);"></div>
+        </div>
+        <div class="relative max-w-7xl mx-auto">
+            <div class="text-center mb-14">
+                <p class="text-ouro text-xs font-bold uppercase tracking-[0.3em] mb-3">Lojas parceiras</p>
+                <h2 class="serif text-4xl md:text-5xl font-bold text-white">Ateliês que brilham com a gente</h2>
+                <p class="text-slate-400 font-medium mt-4 max-w-2xl mx-auto">
+                    Conheça lojas reais que usam o {{ $marca }} no dia a dia. Viu uma peça que amou?
+                    Fale direto com a loja — o atendimento é todo com ela. 💛
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                @foreach($vitrine as $loja)
+                    <article class="group bg-gradient-to-b from-[#16161a] to-[#141418] border border-slate-800 rounded-[2rem] overflow-hidden hover:border-ouro/50 transition shadow-xl">
+                        <!-- Cabeçalho da loja -->
+                        <div class="flex items-center gap-4 p-6 border-b border-slate-800/70">
+                            <div class="w-16 h-16 rounded-2xl bg-white/5 border border-ouro/20 flex items-center justify-center overflow-hidden shrink-0">
+                                @if($loja->logo)
+                                    <img src="{{ asset('storage/'.$loja->logo) }}" alt="{{ $loja->nome_fantasia }}" class="w-full h-full object-contain p-1.5">
+                                @else
+                                    <span class="serif text-2xl font-bold text-ouro">{{ \Illuminate\Support\Str::of($loja->nome_fantasia)->substr(0,1)->upper() }}</span>
+                                @endif
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <h3 class="serif text-2xl font-bold text-white truncate">{{ $loja->nome_fantasia }}</h3>
+                                @if($loja->localizacaoLabel())
+                                    <p class="text-xs text-slate-400 font-medium"><i class="fas fa-location-dot text-ouro/70 mr-1"></i>{{ $loja->localizacaoLabel() }}</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Mosaico de peças do acervo -->
+                        <div class="grid grid-cols-3 gap-1 p-1.5">
+                            @foreach($loja->acervos->take(6) as $peca)
+                                <div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-[#0f0f12]">
+                                    @if($peca->capa_url)
+                                        <img src="{{ $peca->capa_url }}" alt="{{ $peca->nome }}" loading="lazy"
+                                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center"><i class="fas fa-tshirt text-2xl text-slate-700"></i></div>
+                                    @endif
+                                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
+                                        <p class="text-[10px] font-bold text-white/90 truncate">{{ $peca->nome }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Rodapé: botões de contato -->
+                        <div class="p-6 pt-4">
+                            <p class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-3 text-center">Gostou? Fale com a loja</p>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                @if($loja->whatsappLink())
+                                    <a href="{{ $loja->whatsappLink() }}" target="_blank" rel="noopener"
+                                       class="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">
+                                        <i class="fab fa-whatsapp text-base"></i> WhatsApp
+                                    </a>
+                                @endif
+                                @if($loja->instagramLink())
+                                    <a href="{{ $loja->instagramLink() }}" target="_blank" rel="noopener"
+                                       class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition hover:brightness-110">
+                                        <i class="fab fa-instagram text-base"></i> Instagram
+                                    </a>
+                                @endif
+                                @if($loja->siteLink())
+                                    <a href="{{ $loja->siteLink() }}" target="_blank" rel="noopener"
+                                       class="flex-1 inline-flex items-center justify-center gap-2 bg-white/5 border border-slate-700 hover:border-ouro text-slate-200 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">
+                                        <i class="fas fa-globe text-base"></i> Site
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+
+            <!-- CTA para o lojista aparecer aqui -->
+            <div class="text-center mt-14">
+                <p class="text-slate-400 font-medium">Tem uma loja de noivas e quer aparecer aqui também?</p>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="inline-block mt-4 border border-ouro hover:bg-ouro hover:text-black text-ouro px-8 py-3.5 rounded-full font-bold text-sm uppercase tracking-widest transition">
+                        Cadastre sua loja
+                    </a>
+                @endif
+            </div>
+        </div>
+    </section>
+    @endif
 
     <!-- SEÇÃO: O QUE OS LOJISTAS DIZEM (prova social) -->
     @if(isset($depoimentos) && $depoimentos->count())

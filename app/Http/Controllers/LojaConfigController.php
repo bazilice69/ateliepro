@@ -33,7 +33,13 @@ class LojaConfigController extends Controller
             'estado' => ['nullable', 'string', 'max:2'],
             'cep' => ['nullable', 'string', 'max:12'],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+            // Vitrine pública (divulgação na página inicial)
+            'instagram' => ['nullable', 'string', 'max:120'],
+            'site' => ['nullable', 'string', 'max:180'],
         ]);
+
+        // Toggle da vitrine: checkbox desmarcado não é enviado -> trata como false.
+        $dados['vitrine_publico'] = $request->boolean('vitrine_publico');
 
         // Upload do logo (substitui o anterior).
         if ($request->hasFile('logo')) {
