@@ -88,6 +88,35 @@
                     </div>
                 </div>
 
+                <!-- VITRINE PÚBLICA — divulgação na página inicial do Bonacci Rental -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-[#fbbf24]/15 text-[#c9a24b] flex items-center justify-center shrink-0"><i class="fas fa-store"></i></div>
+                        <div>
+                            <h3 class="font-black text-slate-800 uppercase text-sm tracking-wider">Vitrine na Página Inicial</h3>
+                            <p class="text-xs text-slate-400 mt-1">Apareça de graça na página principal do sistema, com seu logo, nome e algumas peças do seu acervo. É <strong>divulgação</strong> (não venda online): quem gostar fala direto com você pelo WhatsApp ou Instagram.</p>
+                        </div>
+                    </div>
+
+                    <label class="flex items-center gap-3 bg-slate-50 rounded-xl p-4 cursor-pointer">
+                        <input type="checkbox" name="vitrine_publico" value="1" @checked(old('vitrine_publico', $loja->vitrine_publico))
+                               class="w-5 h-5 rounded accent-[#c9a24b]">
+                        <span class="text-sm font-bold text-slate-700">Sim, quero exibir minha loja na vitrine pública</span>
+                    </label>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-400">Instagram</label>
+                            <input type="text" name="instagram" value="{{ old('instagram', $loja->instagram) }}" placeholder="@sualoja" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-400">Site (opcional)</label>
+                            <input type="text" name="site" value="{{ old('site', $loja->site) }}" placeholder="www.sualoja.com.br" class="w-full mt-1 p-3 bg-slate-50 border-none rounded-xl font-semibold text-slate-700">
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Dica: capriche no <strong>logo</strong> e nas <strong>fotos das peças</strong> (acervo) — é o que vai aparecer pra quem visita. Só entram peças com foto e disponíveis.</p>
+                </div>
+
                 <button class="w-full sm:w-auto bg-slate-900 text-[#fbbf24] px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition">Salvar Configurações</button>
             </form>
 
