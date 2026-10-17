@@ -19,16 +19,15 @@ class HomeController extends Controller
         // Prova social: elogios de lojistas já aprovados pelo super_admin.
         $depoimentos = Depoimento::aprovados()->latest()->take(12)->get();
 
-        // Vitrine pública: lojas ATIVAS que optaram por aparecer, com até 6 peças
-        // disponíveis e COM foto (acervo sem imagem não entra). Carrega as fotos
-        // já ordenadas (capa primeiro) para montar as miniaturas.
+        // Vitrine pública: lojas ATIVAS que optaram por aparecer. Para o CARD da
+        // landing carregamos só uma peça de destaque (com foto) + o total de
+        // peças com foto (para o selo "X peças"). A página da loja mostra tudo.
         $vitrine = Loja::where('vitrine_publico', true)
             ->where('status', Loja::STATUS_ATIVO)
             ->with(['acervos' => function ($q) {
-                $q->where('status', Acervo::STATUS_DISPONIVEL)
-                  ->whereHas('fotos', fn ($f) => $f->withoutGlobalScope('loja'))
+                $q->whereHas('fotos', fn ($f) => $f->withoutGlobalScope('loja'))
                   ->with(['fotos' => fn ($f) => $f->withoutGlobalScope('loja')])
-                  ->latest()
+                  ->orderByRaw("CASE WHEN status = ? THEN 0 ELSE 1 END", [Acervo::STATUS_DISPONIVEL])
                   ->take(6);
             }])
             ->get()

@@ -24,6 +24,7 @@ use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\ModeloContratoController;
 use App\Http\Controllers\LojaConfigController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\VitrineController;
 use App\Http\Controllers\OrcamentoController;
 use App\Http\Controllers\ProvaController;
 use App\Http\Controllers\ServicoController;
@@ -31,6 +32,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/funcionalidades', [HomeController::class, 'funcionalidades'])->name('funcionalidades');
+
+// Vitrine pública: página de uma loja parceira (divulgação do acervo).
+Route::get('/vitrine/loja/{loja}', [VitrineController::class, 'loja'])->name('vitrine.loja');
 
 // Sitemap para o Google indexar o site.
 Route::get('/sitemap.xml', function () {

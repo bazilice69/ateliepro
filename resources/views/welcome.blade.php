@@ -404,68 +404,45 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                 @foreach($vitrine as $loja)
-                    <article class="group bg-gradient-to-b from-[#16161a] to-[#141418] border border-slate-800 rounded-[2rem] overflow-hidden hover:border-ouro/50 transition shadow-xl">
-                        <!-- Cabeçalho da loja -->
-                        <div class="flex items-center gap-4 p-6 border-b border-slate-800/70">
-                            <div class="w-16 h-16 rounded-2xl bg-white/5 border border-ouro/20 flex items-center justify-center overflow-hidden shrink-0">
+                    @php $destaque = $loja->acervos->first(); @endphp
+                    <a href="{{ route('vitrine.loja', $loja) }}"
+                       class="group block bg-[#141418] border border-slate-800 rounded-3xl overflow-hidden hover:border-ouro/50 hover:-translate-y-1 transition duration-300 shadow-lg">
+                        <!-- Foto de destaque -->
+                        <div class="relative aspect-[3/4] overflow-hidden bg-[#0f0f12]">
+                            @if($destaque && $destaque->capa_url)
+                                <img src="{{ $destaque->capa_url }}" alt="{{ $loja->nome_fantasia }}" loading="lazy"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center"><i class="fas fa-tshirt text-3xl text-slate-700"></i></div>
+                            @endif
+                            <!-- Selo com nº de peças -->
+                            <span class="absolute top-3 right-3 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                                {{ $loja->acervos->count() }}{{ $loja->acervos->count() === 6 ? '+' : '' }} peças
+                            </span>
+                            <!-- "Ver loja" no hover -->
+                            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-4 flex items-end justify-center opacity-0 group-hover:opacity-100 transition">
+                                <span class="text-ouro text-xs font-black uppercase tracking-widest"><i class="fas fa-arrow-right mr-1"></i> Ver loja</span>
+                            </div>
+                        </div>
+                        <!-- Rodapé: logo + nome + cidade -->
+                        <div class="flex items-center gap-3 p-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 border border-ouro/20 flex items-center justify-center overflow-hidden shrink-0">
                                 @if($loja->logo)
-                                    <img src="{{ asset('storage/'.$loja->logo) }}" alt="{{ $loja->nome_fantasia }}" class="w-full h-full object-contain p-1.5">
+                                    <img src="{{ asset('storage/'.$loja->logo) }}" alt="" class="w-full h-full object-contain p-1">
                                 @else
-                                    <span class="serif text-2xl font-bold text-ouro">{{ \Illuminate\Support\Str::of($loja->nome_fantasia)->substr(0,1)->upper() }}</span>
+                                    <span class="serif text-lg font-bold text-ouro">{{ \Illuminate\Support\Str::of($loja->nome_fantasia)->substr(0,1)->upper() }}</span>
                                 @endif
                             </div>
-                            <div class="min-w-0 flex-1">
-                                <h3 class="serif text-2xl font-bold text-white truncate">{{ $loja->nome_fantasia }}</h3>
+                            <div class="min-w-0">
+                                <h3 class="font-bold text-white text-sm truncate">{{ $loja->nome_fantasia }}</h3>
                                 @if($loja->localizacaoLabel())
-                                    <p class="text-xs text-slate-400 font-medium"><i class="fas fa-location-dot text-ouro/70 mr-1"></i>{{ $loja->localizacaoLabel() }}</p>
+                                    <p class="text-[11px] text-slate-400 truncate"><i class="fas fa-location-dot text-ouro/70 mr-0.5"></i>{{ $loja->localizacaoLabel() }}</p>
                                 @endif
                             </div>
                         </div>
-
-                        <!-- Mosaico de peças do acervo -->
-                        <div class="grid grid-cols-3 gap-1 p-1.5">
-                            @foreach($loja->acervos->take(6) as $peca)
-                                <div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-[#0f0f12]">
-                                    @if($peca->capa_url)
-                                        <img src="{{ $peca->capa_url }}" alt="{{ $peca->nome }}" loading="lazy"
-                                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center"><i class="fas fa-tshirt text-2xl text-slate-700"></i></div>
-                                    @endif
-                                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 py-1.5">
-                                        <p class="text-[10px] font-bold text-white/90 truncate">{{ $peca->nome }}</p>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <!-- Rodapé: botões de contato -->
-                        <div class="p-6 pt-4">
-                            <p class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-3 text-center">Gostou? Fale com a loja</p>
-                            <div class="flex flex-col sm:flex-row gap-2">
-                                @if($loja->whatsappLink())
-                                    <a href="{{ $loja->whatsappLink() }}" target="_blank" rel="noopener"
-                                       class="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">
-                                        <i class="fab fa-whatsapp text-base"></i> WhatsApp
-                                    </a>
-                                @endif
-                                @if($loja->instagramLink())
-                                    <a href="{{ $loja->instagramLink() }}" target="_blank" rel="noopener"
-                                       class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition hover:brightness-110">
-                                        <i class="fab fa-instagram text-base"></i> Instagram
-                                    </a>
-                                @endif
-                                @if($loja->siteLink())
-                                    <a href="{{ $loja->siteLink() }}" target="_blank" rel="noopener"
-                                       class="flex-1 inline-flex items-center justify-center gap-2 bg-white/5 border border-slate-700 hover:border-ouro text-slate-200 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">
-                                        <i class="fas fa-globe text-base"></i> Site
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </article>
+                    </a>
                 @endforeach
             </div>
 
