@@ -79,6 +79,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     Route::post('/lojas/{loja}/estender', [AdminController::class, 'estenderVencimento'])->name('lojas.estender');
     Route::post('/lojas/{loja}/redefinir-senha', [AdminController::class, 'redefinirSenha'])->name('lojas.senha');
     Route::get('/lojas/{loja}/entrar', [AdminController::class, 'entrarComo'])->name('lojas.entrar');
+    Route::delete('/lojas/{loja}', [AdminController::class, 'destroy'])->name('lojas.destroy');
 
     // Gestão de Planos do SaaS
     Route::get('/planos', [AdminPlanoController::class, 'index'])->name('planos.index');

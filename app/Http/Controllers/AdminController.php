@@ -191,6 +191,55 @@ class AdminController extends Controller
     }
 
     /**
+     * EXCLUI uma loja em DEFINITIVO (ação irreversível do super_admin).
+     *
+     * Remove a loja e TODOS os dados dela. A maior parte das tabelas tem FK
+     * com ON DELETE CASCADE (users, acervos, clientes, locações, provas,
+     * serviços, encomendas, orçamentos, contratos, financeiro, etc.), mas
+     * alguns casos exigem limpeza manual:
+     *  - `medidas.loja_id` é nullOnDelete -> apagamos antes (senão ficam órfãs).
+     *  - `lancamento_financeiros` referencia `categoria_financeiras` com RESTRICT
+     *    -> apagamos os lançamentos antes das categorias para evitar erro de FK.
+     *  - arquivos enviados (logo, fotos do acervo, croquis) não somem com o
+     *    cascade do banco -> removemos os diretórios no storage.
+     *
+     * Exige digitar o nome da loja como confirmação (guarda contra engano).
+     */
+    public function destroy(Request $request, Loja $loja)
+    {
+        $request->validate([
+            'confirmacao' => ['required', 'string'],
+        ]);
+
+        // Trava de segurança: o texto digitado tem que bater com o nome da loja.
+        if (trim($request->confirmacao) !== trim($loja->nome_fantasia)) {
+            return back()->withErrors([
+                'confirmacao' => 'O nome digitado não confere com o nome da loja. Exclusão cancelada.',
+            ]);
+        }
+
+        $nome = $loja->nome_fantasia;
+        $lojaId = $loja->id;
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($loja, $lojaId) {
+            // 1) Limpezas manuais (casos que o cascade não cobre com segurança).
+            \App\Models\Medida::withoutGlobalScope('loja')->where('loja_id', $lojaId)->delete();
+            \App\Models\LancamentoFinanceiro::withoutGlobalScope('loja')->where('loja_id', $lojaId)->delete();
+            \App\Models\CategoriaFinanceira::withoutGlobalScope('loja')->where('loja_id', $lojaId)->delete();
+
+            // 2) Apaga a loja — o cascade remove o restante dos dados.
+            $loja->delete();
+        });
+
+        // 3) Remove os arquivos enviados pela loja (fora da transação do banco).
+        \Illuminate\Support\Facades\Storage::disk('public')->deleteDirectory("lojas/{$lojaId}");
+        \Illuminate\Support\Facades\Storage::disk('public')->deleteDirectory("acervo/{$lojaId}");
+
+        return redirect()->route('admin.dashboard')
+            ->with('success', "A loja \"{$nome}\" e todos os seus dados foram excluídos em definitivo.");
+    }
+
+    /**
      * Gera uma senha provisória curta e legível (sem caracteres ambíguos).
      */
     private function gerarSenhaProvisoria(): string
