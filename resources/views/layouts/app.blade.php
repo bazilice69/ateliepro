@@ -73,6 +73,7 @@
                         ['financeiro.index', 'financeiro.index', 'fa-dollar-sign', 'Financeiro'],
                         ['recorrentes.index', 'recorrentes.*', 'fa-repeat', 'Despesas Fixas'],
                         ['relatorios.index', 'relatorios.*', 'fa-chart-pie', 'Relatórios'],
+                        ['ajuda', 'ajuda', 'fa-circle-question', 'Ajuda / Tutorial'],
                         ['fale-conosco', 'fale-conosco', 'fa-comment-dots', 'Fale Conosco'],
                     ];
                 @endphp

@@ -118,6 +118,9 @@ Route::middleware(['auth', 'lojaativa'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Central de Ajuda (tutorial do sistema) — página estática no menu
+    Route::view('/ajuda', 'ajuda')->name('ajuda');
+
     // Fale Conosco (menu lateral): canal de problema/sugestão/dúvida/elogio
     Route::get('/fale-conosco', [DepoimentoController::class, 'faleConosco'])->name('fale-conosco');
     // Elogio/depoimento enviado pelo lojista (vai para moderação do super_admin)
