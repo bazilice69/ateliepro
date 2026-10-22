@@ -38,105 +38,49 @@
         </div>
     </div>
 
-    <!-- ===== LISTA DE LOJAS ===== -->
-
-    {{-- TABELA (desktop) --}}
-    <div class="hidden lg:block bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <table class="w-full text-left">
-            <thead>
-                <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    <th class="py-4 pl-6">Loja</th>
-                    <th class="py-4">Responsável</th>
-                    <th class="py-4">Plano</th>
-                    <th class="py-4 text-right">Valor</th>
-                    <th class="py-4 text-center" title="Usuários · Clientes · Peças">Uso</th>
-                    <th class="py-4">Vencimento</th>
-                    <th class="py-4 text-center">Status</th>
-                    <th class="py-4 pr-6 text-right">Ações</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-50">
-                @forelse($lojas as $loja)
-                    @php [$rotulo, $cor, $dot] = badgeStatus($loja->status); @endphp
-                    <tr class="hover:bg-slate-50/60 transition">
-                        <td class="py-4 pl-6">
-                            <div class="font-bold text-slate-800 text-sm">{{ $loja->nome_fantasia }}</div>
-                            <div class="text-[10px] text-slate-400">{{ $loja->cnpj_cpf ?: '—' }}</div>
-                        </td>
-                        <td class="py-4 text-sm text-slate-600">{{ $loja->email_responsavel }}</td>
-                        <td class="py-4 text-sm font-semibold text-slate-700">{{ $loja->plano ?: '—' }}</td>
-                        <td class="py-4 text-right text-sm font-bold text-slate-800">R$ {{ number_format($loja->valorEfetivo(), 2, ',', '.') }}</td>
-                        <td class="py-4 text-center text-xs text-slate-500 font-semibold whitespace-nowrap">
-                            <span title="Usuários"><i class="fas fa-user-tie text-slate-300"></i> {{ $loja->users_count }}</span>
-                            <span class="mx-1 text-slate-200">·</span>
-                            <span title="Clientes"><i class="fas fa-users text-slate-300"></i> {{ $clientesPorLoja[$loja->id] ?? 0 }}</span>
-                            <span class="mx-1 text-slate-200">·</span>
-                            <span title="Peças"><i class="fas fa-tshirt text-slate-300"></i> {{ $pecasPorLoja[$loja->id] ?? 0 }}</span>
-                        </td>
-                        <td class="py-4 text-sm text-slate-600">{{ $loja->data_vencimento?->format('d/m/Y') ?? '—' }}</td>
-                        <td class="py-4 text-center">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold {{ $cor }}">
-                                <span class="w-1.5 h-1.5 rounded-full {{ $dot }}"></span> {{ $rotulo }}
-                            </span>
-                        </td>
-                        <td class="py-4 pr-6 text-right whitespace-nowrap">
-                            <a href="{{ route('admin.lojas.show', $loja) }}" class="text-xs font-bold text-slate-600 hover:text-slate-900 uppercase">Gerenciar</a>
-                            <button type="button" @click="excluir = {{ $loja->id }}" class="ml-3 text-xs font-bold text-rose-400 hover:text-rose-600 uppercase" title="Excluir loja">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="8" class="py-16 text-center text-slate-400 font-medium">Nenhuma loja cadastrada ainda.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    {{-- CARDS (mobile/tablet) --}}
-    <div class="lg:hidden space-y-3">
+    <!-- ===== CARDS DAS LOJAS (clique para gerenciar) ===== -->
+    <p class="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3">Lojas · toque para gerenciar</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         @forelse($lojas as $loja)
             @php [$rotulo, $cor, $dot] = badgeStatus($loja->status); @endphp
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-                <div class="flex items-start justify-between gap-3">
-                    <div class="min-w-0">
-                        <p class="font-black text-slate-800 truncate">{{ $loja->nome_fantasia }}</p>
-                        <p class="text-xs text-slate-400 truncate">{{ $loja->email_responsavel }}</p>
+            <div class="relative group">
+                {{-- Botão de excluir (canto do card) --}}
+                <button type="button" @click.stop.prevent="excluir = {{ $loja->id }}"
+                        class="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 text-slate-300 hover:text-rose-600 hover:bg-rose-50 shadow-sm flex items-center justify-center transition"
+                        title="Excluir loja">
+                    <i class="fas fa-trash text-xs"></i>
+                </button>
+
+                {{-- Card inteiro clicável -> gerenciar --}}
+                <a href="{{ route('admin.lojas.show', $loja) }}"
+                   class="block bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-[#fbbf24]/60 hover:-translate-y-0.5 transition duration-300 p-5 text-center h-full">
+                    {{-- Logo (quadradinho arredondado) ou inicial do nome --}}
+                    <div class="w-20 h-20 mx-auto rounded-3xl border-2 border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden mb-3">
+                        @if($loja->logo)
+                            <img src="{{ asset('storage/'.$loja->logo) }}" alt="{{ $loja->nome_fantasia }}" class="w-full h-full object-contain p-1.5">
+                        @else
+                            <span class="text-3xl font-black text-slate-300">{{ \Illuminate\Support\Str::of($loja->nome_fantasia)->substr(0,1)->upper() }}</span>
+                        @endif
                     </div>
-                    <span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold {{ $cor }}">
+
+                    <p class="font-black text-slate-800 text-sm leading-tight truncate">{{ $loja->nome_fantasia }}</p>
+                    <p class="text-[10px] text-slate-400 truncate mt-0.5">{{ $loja->plano ?: 'Sem plano' }}</p>
+
+                    {{-- Status --}}
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold {{ $cor }} mt-3">
                         <span class="w-1.5 h-1.5 rounded-full {{ $dot }}"></span> {{ $rotulo }}
                     </span>
-                </div>
 
-                <div class="grid grid-cols-3 gap-2 mt-3 text-center">
-                    <div class="bg-slate-50 rounded-xl py-2">
-                        <p class="text-sm font-black text-slate-700">{{ $loja->users_count }}</p>
-                        <p class="text-[9px] font-bold uppercase text-slate-400">Usuários</p>
+                    {{-- Mini stats: usuários · clientes · peças --}}
+                    <div class="flex items-center justify-center gap-3 mt-3 text-[11px] text-slate-400 font-semibold">
+                        <span title="Usuários"><i class="fas fa-user-tie"></i> {{ $loja->users_count }}</span>
+                        <span title="Clientes"><i class="fas fa-users"></i> {{ $clientesPorLoja[$loja->id] ?? 0 }}</span>
+                        <span title="Peças"><i class="fas fa-tshirt"></i> {{ $pecasPorLoja[$loja->id] ?? 0 }}</span>
                     </div>
-                    <div class="bg-slate-50 rounded-xl py-2">
-                        <p class="text-sm font-black text-slate-700">{{ $clientesPorLoja[$loja->id] ?? 0 }}</p>
-                        <p class="text-[9px] font-bold uppercase text-slate-400">Clientes</p>
-                    </div>
-                    <div class="bg-slate-50 rounded-xl py-2">
-                        <p class="text-sm font-black text-slate-700">{{ $pecasPorLoja[$loja->id] ?? 0 }}</p>
-                        <p class="text-[9px] font-bold uppercase text-slate-400">Peças</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between mt-3 text-xs">
-                    <span class="text-slate-500 font-semibold">{{ $loja->plano ?: '—' }} · R$ {{ number_format($loja->valorEfetivo(), 2, ',', '.') }}</span>
-                    <span class="text-slate-400">venc. {{ $loja->data_vencimento?->format('d/m/Y') ?? '—' }}</span>
-                </div>
-
-                <div class="flex gap-2 mt-4">
-                    <a href="{{ route('admin.lojas.show', $loja) }}" class="flex-1 text-center bg-slate-900 text-[#fbbf24] px-4 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest">Gerenciar</a>
-                    <button type="button" @click="excluir = {{ $loja->id }}" class="px-4 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest bg-rose-50 text-rose-600 hover:bg-rose-100 transition">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
+                </a>
             </div>
         @empty
-            <div class="bg-white rounded-2xl p-12 text-center text-slate-400 font-medium border border-slate-100">Nenhuma loja cadastrada ainda.</div>
+            <div class="col-span-full bg-white rounded-2xl p-12 text-center text-slate-400 font-medium border border-slate-100">Nenhuma loja cadastrada ainda.</div>
         @endforelse
     </div>
 

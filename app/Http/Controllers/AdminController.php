@@ -194,14 +194,14 @@ class AdminController extends Controller
      * EXCLUI uma loja em DEFINITIVO (ação irreversível do super_admin).
      *
      * Remove a loja e TODOS os dados dela. A maior parte das tabelas tem FK
-     * com ON DELETE CASCADE (users, acervos, clientes, locações, provas,
-     * serviços, encomendas, orçamentos, contratos, financeiro, etc.), mas
-     * alguns casos exigem limpeza manual:
-     *  - `medidas.loja_id` é nullOnDelete -> apagamos antes (senão ficam órfãs).
-     *  - `lancamento_financeiros` referencia `categoria_financeiras` com RESTRICT
-     *    -> apagamos os lançamentos antes das categorias para evitar erro de FK.
-     *  - arquivos enviados (logo, fotos do acervo, croquis) não somem com o
-     *    cascade do banco -> removemos os diretórios no storage.
+     * com ON DELETE CASCADE, MAS `locacaos` referencia `clientes` e `acervos`
+     * com ON DELETE RESTRICT. Ou seja: o banco NÃO deixa apagar um cliente/peça
+     * que ainda tenha locação apontando pra ele. Numa loja com dados (ex.: muitas
+     * locações) isso faz o DELETE travar/estourar (erro de FK / timeout 504).
+     *
+     * Por isso apagamos os FILHOS na ordem certa ANTES da loja e desligamos a
+     * checagem de FK durante a limpeza (MySQL), sem depender da ordem de cascade.
+     * Usamos DELETE direto por tabela (rápido). Tudo dentro de uma transação.
      *
      * Exige digitar o nome da loja como confirmação (guarda contra engano).
      */
@@ -218,20 +218,55 @@ class AdminController extends Controller
             ]);
         }
 
+        // Lojas grandes podem levar alguns segundos — dá folga ao tempo limite.
+        @set_time_limit(120);
+
         $nome = $loja->nome_fantasia;
         $lojaId = $loja->id;
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($loja, $lojaId) {
-            // 1) Limpezas manuais (casos que o cascade não cobre com segurança).
-            \App\Models\Medida::withoutGlobalScope('loja')->where('loja_id', $lojaId)->delete();
-            \App\Models\LancamentoFinanceiro::withoutGlobalScope('loja')->where('loja_id', $lojaId)->delete();
-            \App\Models\CategoriaFinanceira::withoutGlobalScope('loja')->where('loja_id', $lojaId)->delete();
+        // Tabelas com coluna loja_id, na ordem de FILHO -> PAI (evita a trava
+        // RESTRICT de locacaos -> clientes/acervos).
+        $tabelasEmOrdem = [
+            'lancamento_financeiros',
+            'contratos',
+            'orcamentos',
+            'servicos',
+            'provas',
+            'agendamentos',
+            'encomendas',
+            'medidas',
+            'locacaos',          // precisa sair ANTES de clientes e acervos
+            'acervo_fotos',
+            'categoria_financeiras',
+            'eventos',
+            'clientes',
+            'acervos',
+            'assinaturas',
+            'access_logs',
+            'users',
+        ];
 
-            // 2) Apaga a loja — o cascade remove o restante dos dados.
-            $loja->delete();
+        $db = \Illuminate\Support\Facades\DB::connection();
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($db, $tabelasEmOrdem, $lojaId) {
+            // Desliga a checagem de FK durante a limpeza (MySQL). Em SQLite o
+            // comando é ignorado sem erro. Assim não dependemos da ordem de
+            // cascade nem esbarramos no RESTRICT.
+            try { $db->statement('SET FOREIGN_KEY_CHECKS=0'); } catch (\Throwable $e) {}
+
+            foreach ($tabelasEmOrdem as $tabela) {
+                if (\Illuminate\Support\Facades\Schema::hasColumn($tabela, 'loja_id')) {
+                    $db->table($tabela)->where('loja_id', $lojaId)->delete();
+                }
+            }
+
+            // Por fim, a própria loja.
+            $db->table('lojas')->where('id', $lojaId)->delete();
+
+            try { $db->statement('SET FOREIGN_KEY_CHECKS=1'); } catch (\Throwable $e) {}
         });
 
-        // 3) Remove os arquivos enviados pela loja (fora da transação do banco).
+        // Remove os arquivos enviados pela loja (fora da transação do banco).
         \Illuminate\Support\Facades\Storage::disk('public')->deleteDirectory("lojas/{$lojaId}");
         \Illuminate\Support\Facades\Storage::disk('public')->deleteDirectory("acervo/{$lojaId}");
 
